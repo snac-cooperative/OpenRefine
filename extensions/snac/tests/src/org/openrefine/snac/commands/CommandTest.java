@@ -114,6 +114,35 @@ public class CommandTest {
       Assert.assertTrue(result.contains("Constellation"));
     }
 
+    @Test
+    public void testRead1() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"search\",\"term\": \"Mozart\",\"count\": 10,\"start\": 0,\"entity_type\": \"person\"}","UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("23271282"));
+    }
+
+    @Test
+    public void testRead2() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"search\",\"term\": \"Mendelssohn\",\"count\": 10,\"start\": 0,\"entity_type\": \"person\"}","UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("47916702"));
+    }
+
+    @Test
+    public void testRead3() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"search\",\"term\": \"Dvorak\",\"count\": 10,\"start\": 0,\"entity_type\": \"person\"}","UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("40081682"));
+    }
   /*  @BeforeMethod(alwaysRun = true)
     public void setUpProject() {
         project = createCSVProject(TestingData.inceptionWithNewCsv);

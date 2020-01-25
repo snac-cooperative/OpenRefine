@@ -108,10 +108,10 @@
 .schema-alignment-dialog-columns-area-resource--ref.snac-tab, .schema-alignment-dialog-columns-area-constellation--ref.snac-tab{
   border-left: 0;
   border-right: 0;
-  padding: 5px;
-  overflow-y: auto;
+  /* padding: 5px; */
+  /* overflow-y: auto; */
   display: flex;
-  width: 150px;
+  width: 200px;
   flex-direction: column;
   max-height: none;
   margin-left: 10%;
@@ -595,4 +595,40 @@ div.schema-alignment-dialog-preview {
   margin-top: 3px;
   white-space: pre;
   font-size: 9pt;
+}
+
+/* Tooltips for resource fields */
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 300px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 110%;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent black transparent transparent;
+}
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }

@@ -563,4 +563,31 @@ public class CommandTest extends RefineTest{
         String result = EntityUtils.toString(response.getEntity());
         Assert.assertFalse(result.contains("success"));
     }
+
+
+    
+    // /*
+    // * Test for browsing constellation
+    // */
+    @Test
+    public void testBrowseConstellation1() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"browse\", \"term\": \"Washington\",\"position\": \"middle\"}", "UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("Wash"));
+    }
+
+    @Test
+    public void testBrowseConstellation1() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"browse\", \"term\": \"Madison\",\"position\": \"middle\"}", "UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("Madinier"));
+    }
+
+
 }

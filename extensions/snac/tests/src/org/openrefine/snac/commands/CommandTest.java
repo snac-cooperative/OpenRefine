@@ -580,7 +580,7 @@ public class CommandTest extends RefineTest{
     }
 
     @Test
-    public void testBrowseConstellation1() throws Exception{
+    public void testBrowseConstellation2() throws Exception{
         DefaultHttpClient client = new DefaultHttpClient();
         HttpPost post = new HttpPost("http://api.snaccooperative.org");
         post.setEntity(new StringEntity("{\"command\": \"browse\", \"term\": \"Madison\",\"position\": \"middle\"}", "UTF-8"));

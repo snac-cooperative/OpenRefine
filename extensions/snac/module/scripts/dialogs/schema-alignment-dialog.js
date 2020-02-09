@@ -258,7 +258,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
     //     reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
     //  this._columnArea.append(cell);
 
-     var selectList = $("<select></select>").addClass('selectColumnConst');
+     var selectList = $("<select></select>").addClass('selectColumn');
      this._dropdownArea.append(selectList);
 
      var defaultoption = document.createElement("option");
@@ -430,7 +430,18 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
 
 
   // Empty required field check (for issues tab)
-  var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+
+  if (document.getElementById('resourcebutton').checked) {
+   var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+  }
+
+  else {
+   var required_fields = ["Entity Type", "Name Entry"];
+
+  }
+
+//   var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+
   // For printing to issues tab
   var empty_required = false;
   for (var x = 0; x < required_fields.length; x++){
@@ -1550,6 +1561,7 @@ SNACSchemaAlignmentDialog.preview = function() {
         element.innerHTML = building; //Replace the empty HTML area with the list
         console.log("hello");
      });
+     
 };
 
 Refine.registerUpdateFunction(function(options) {

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import org.apache.http.*;
 import org.apache.http.util.EntityUtils;
@@ -35,6 +36,12 @@ import org.snaccooperative.data.Resource;
 import org.snaccooperative.data.Term;
 import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.Language;
+
+import com.google.refine.model.Column;
+import com.google.refine.model.Recon;
+import com.google.refine.model.changes.ColumnAdditionChange;
+import com.google.refine.model.changes.CellAtRow;
+
 
 
 /*
@@ -530,6 +537,7 @@ public class SNACResourceCreator {
           }
           resources = new_list_resources;
           System.out.println("Uploading Attempt Complete");
+          test_insertID();
         }catch(IOException e){
           System.out.println(e);
         }
@@ -553,4 +561,88 @@ public class SNACResourceCreator {
     }
     return res;
 }
+
+  public void test_insertID(){
+      // Run this function after insertID (above) within SNACUploadCommand
+      // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+      // If exists: Go through and set the cell values based on the resource_ids
+      // If not: Create a new column "id" and insert cell values based on resource_ids
+
+      boolean idColExists = false;
+      // Iterator hmIterator = match_attributes.entrySet().iterator(); 
+      int idColIndex = -1;
+      List<Column> colList = theProject.columnModel.columns;
+      List<CellAtRow> res_row_ids = new ArrayList<CellAtRow>();
+
+      System.out.println("inserting col");
+      for(Column c: colList){
+        if(c.getTitle() == "Holding Repository SNAC ID"){
+          idColExists = true;
+          idColIndex = c.getCellIndex();
+          break;
+        }
+      }
+
+      // if(idColExists){
+      //   // replace existing col 
+      //   break;
+      // }
+      // else {
+      // }
+      // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
+      for (int x = 0; x < theProject.rows.size(); x++){
+        Cell test_cell = new Cell(x, new Recon(0, null, null));
+        res_row_ids.add(new CellAtRow(x, test_cell));
+      }
+      ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+      CAC.apply(theProject);
+
+
+
+      
+
+
+      // while (hmIterator.hasNext()) { 
+      //       Map.Entry mapElement = (Map.Entry)hmIterator.next(); 
+      //       if(mapElement.getValue() == "Holding Repository SNAC ID"){ // check if this column already exists or not
+      //       // TODO: confirm this is the right name
+      //         idColExists = true;
+      //         String csv_header = mapElement.getKey(); // idk how to get the index of a cell from its value :((
+      //         break;
+      //       }
+      // }
+
+
+      // for(Column c: colList){
+      //   if(c.getTitle() == "Holding Repository SNAC ID"){
+      //     idColExists = true;
+      //     idColIndex = c.getCellIndex();
+      //     break;
+      //   }
+      // }
+
+
+
+
+      // for(Integer id : retIDs){
+      //   Serializable val = id;
+        // Recon constructor
+        // public Recon(long judgmentHistoryEntry, String identifierSpace, String schemaSpace) {
+        // long jh = 12345678;
+        // String is = "test";
+        // String ss = "test";
+        // Recon recon = new Recon(jh, is, ss);
+        // create a new cell with ID value
+        
+        // column.getCellIndex
+        // Cell idCell = new Cell(val, recon);
+        // if(idColExists){
+        //   // replace existing cell 
+        //   break;
+        // }
+        // else {
+        //   // somehow insert this new cell at the end of the row?
+        // }
+
+    }
 }

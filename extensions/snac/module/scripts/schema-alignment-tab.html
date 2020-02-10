@@ -1,143 +1,67 @@
 <div id="schema-alignment-tab">
-        <div bind="schemaHeader">
-            <div class="schema-alignment-save"><button class="button button-primary" bind="saveButton"></button><button class="button button-primary" bind="discardButton"></button></div>
-            <p class="panel-explanation" bind="dialogExplanation"></p>
-            <div style="clear: right"></div>
+    <div bind="schemaHeader">
+        <div class="schema-alignment-save"><button class="button button-primary" bind="saveButton"></button><button class="button button-primary" bind="discardButton"></button></div>
+        <p class="panel-explanation" bind="dialogExplanation"></p>
+        <div style="clear: right"></div>
+        
+        <!-- Adding radio buttons to switch back and forth between resource and constellation  -->
+        <div id="radio-buttons" style="padding-left: 20px;">
+            <p>Uploading: </p>
+            <input type="radio" name="button" value="resource" id="resourcebutton" checked="checked" onclick="function1()"> Resource<br>
+            <input type="radio" name="button" value="constellation" id="constellationbutton" onclick="function2()"> Constellation<br>
 
-            <!-- Adding radio buttons to switch back and forth between resource and constellation  -->
-            <div id="radio-buttons" style="padding-left: 20px;">
-                <p>Uploading: </p>
-                <input type="radio" name="button" value="resource" id="resourcebutton" checked="checked" onclick="function1()"> Resource<br>
-                <input type="radio" name="button" value="constellation" id="constellationbutton" onclick="function2()"> Constellation<br>
+            <!-- This will be replaced with actual resource and constellation contents -->
+            <h2 id="textholder">  </h2>
 
-                <!-- This will be replaced with actual resource and constellation contents -->
-                <h2 id="textholder">  </h2>
+            <!-- Javascript to replace the text in-place -->
+            <script>
+                function function1() {
+                    // Show Resources
+                    $('.schema-alignment-dialog-columns-area-resource').show();
+                    $('.schema-alignment-dialog-columns-area-resource--ref').show();
 
+                    // Hide Constellations
+                    $('.schema-alignment-dialog-columns-area-constellation').hide();
+                    $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
+                }
+                function function2() {
+                    // Show Resources
+                    $('.schema-alignment-dialog-columns-area-resource').hide();
+                    $('.schema-alignment-dialog-columns-area-resource--ref').hide();
 
-                <!-- Javascript to replace the text in-place -->
-                <script>
-                    function function1() {
-                        // document.getElementById("textholder").textContent="!!! RESOURCE !!!";
-                        // alert("This is the RESOURCE page");
-                        var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
-                        var resourcefields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
-                        var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
-                        dup_dict = {};
-                        $('.schema-alignment-dialog-columns-area-constellation').hide();
-                        $('.schema-alignment-dialog-dropdown-area-constellation').hide();
-                        $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
-                        $('.schema-alignment-dialog-columns-area-resource').show();
-                        $('.schema-alignment-dialog-dropdown-area-resource').show();
-                        $('.schema-alignment-dialog-columns-area-resource--ref').show();
-                        var IDword = 0;
-
-                    }
-                    function function2() {
-                        // document.getElementById("textholder").textContent="!!! CONSTELLATION !!!";
-                        // alert("This is the CONSTELLATION page");
-                        var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
-                        var constellationfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
-                        var required_fields = ["Entity Type", "Name Entry"];
-                        dup_dict = {};
-                        $('.schema-alignment-dialog-columns-area-resource').hide();
-                        $('.schema-alignment-dialog-dropdown-area-resource').hide();
-                        $('.schema-alignment-dialog-columns-area-resource--ref').hide();
-                        $('.schema-alignment-dialog-columns-area-constellation').show();
-                        $('.schema-alignment-dialog-dropdown-area-constellation').show();
-                        $('.schema-alignment-dialog-columns-area-constellation--ref').show();
-                        var IDword = 1;
-                    }
-                </script>
-
-            </div>
-
-            <div class="snac-columns-container">
-
-                <div class="schema-alignment-dialog-columns-area-resource" style="margin-left: 18px;" bind="columnsArea">
-                </div>
-
-                <div class="schema-alignment-dialog-dropdown-area-resource" bind="dropdownsArea" id="dropdownArea">
-                </div>
-                
-                <!-- Added tooltip class for tooltip that provide definitions when fields are hovered -->
-
-                <div class="schema-alignment-dialog-columns-area-resource--ref" bind="refcolumnsArea">
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable ref-table-header">SNAC Types</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">ID</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Type
-                        <span class="tooltiptext">The resource type (ArchivalResource, BibliographicResource, etc.)</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Title
-                        <span class="tooltiptext">The official title (e.g. Papers, 1809-1882)</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Display Entry
-                        <span class="tooltiptext">The descriptive display name (e.g. Jacob Miller Papers, 1809-1882)</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Link
-                        <span class="tooltiptext">The preferred permanent link to find aid</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Abstract
-                        <span class="tooltiptext">Summary abstract of the resource</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Extent</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Date
-                        <span class="tooltiptext">Date or date range (YYYY or YYYY-YYYY)</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Language
-                        <span class="tooltiptext">The ISO-standard language code (eng, fre)</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Holding Repository SNAC ID
-                        <span class="tooltiptext">The SNAC ID of the resource's Holding Repository</span>
-                    </div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Note</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable tooltip">Script
-                        <span class="tooltiptext">The ISO-standard script code (Latn, Grek)</span>
-                    </div>
-                </div>
-
-
-
-                <div class="schema-alignment-dialog-columns-area-constellation--ref" style="margin-left: 18px;" bind="columnsArea">
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">ID</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Entity Type</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Name Entry</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Surename</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Forename</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Exist Dates</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">BiogHist</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Place</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Occupation</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Related Constellation IDs</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Related Resource IDs</div>
-                </div>
-
-                <div class="schema-alignment-dialog-dropdown-area-constellation" bind="dropdownsArea" id="dropdownArea">
-                </div>
-
-                <div class="schema-alignment-dialog-columns-area-constellation--ref" bind="refcolumnsArea">
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">ID</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Entity Type</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Name Entry</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Surename</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Forename</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Exist Dates</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">BiogHist</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Place</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Occupation</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Related Constellation IDs</div>
-                    <div class="wbs-draggable-column wbs-unreconciled-column ui-draggable">Related Resource IDs</div>
-                </div>
-
-            </div>
-
+                    // Hide Constellations
+                    $('.schema-alignment-dialog-columns-area-constellation').show();
+                    $('.schema-alignment-dialog-columns-area-constellation--ref').show();
+                }
+            </script>
         </div>
 
+        <div class="snac-columns-container">
+            <div id="myDynamicTableResource"></div>
+            <div id="myDynamicTableConstellation"></div>
 
-        <div class="schema-alignment-dialog-canvas" bind="canvas">
-            <div class="schema-alignment-dialog-statements-area" bind="statementsArea">
-                    <div id="schema-alignment-statements-container">
-                    </div>
-                    <div class="wbs-toolbar"><a class="wbs-add-item" bind="addItemButton"></a></div>
+            <!-- RESOURCES PAGE -->
+            <div class="schema-alignment-dialog-columns-area-resource" style="margin-left: 18px;">
+            </div>
+
+            <div class="schema-alignment-dialog-columns-area-resource--ref">
+            </div>
+
+            <!-- CONSTELLATION PAGE -->
+            <div class="schema-alignment-dialog-columns-area-constellation" style="margin-left: 18px;">
+            </div>
+    
+            <div class="schema-alignment-dialog-columns-area-constellation--ref">
             </div>
         </div>
     </div>
+
+
+    <div class="schema-alignment-dialog-canvas" bind="canvas">
+        <div class="schema-alignment-dialog-statements-area" bind="statementsArea">
+                <div id="schema-alignment-statements-container">
+                </div>
+                <div class="wbs-toolbar"><a class="wbs-add-item" bind="addItemButton"></a></div>
+        </div>
+    </div>
+</div>

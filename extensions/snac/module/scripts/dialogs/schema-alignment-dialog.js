@@ -204,6 +204,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
      this._columnArea.append(cell);
 
      var selectList = $("<select></select>").addClass('selectColumn');
+     var selectList = $("<select></select>").addClass('selectColumnResource');
      this._dropdownArea.append(selectList);
 
      var defaultoption = document.createElement("option");
@@ -259,6 +260,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
     //  this._columnArea.append(cell);
 
      var selectList = $("<select></select>").addClass('selectColumn');
+     var selectList = $("<select></select>").addClass('selectColumnConstellation');
      this._dropdownArea.append(selectList);
 
      var defaultoption = document.createElement("option");
@@ -421,6 +423,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
   }
 
   var columns = theProject.columnModel.columns;
+
   var dropDownValues = document.getElementsByClassName('selectColumn');
   var array_ddv = [];
   for (var j = 0; j < dropDownValues.length; j++){
@@ -443,8 +446,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    var required_fields = ["Entity Type", "Name Entry"];
 
   }
-
-//   var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
 
   // For printing to issues tab
   var empty_required = false;

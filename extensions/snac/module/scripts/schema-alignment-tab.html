@@ -22,12 +22,14 @@
                         var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
                         var resourcefields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
                         var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+                        dup_dict = {};
                         $('.schema-alignment-dialog-columns-area-constellation').hide();
                         $('.schema-alignment-dialog-dropdown-area-constellation').hide();
                         $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
                         $('.schema-alignment-dialog-columns-area-resource').show();
                         $('.schema-alignment-dialog-dropdown-area-resource').show();
                         $('.schema-alignment-dialog-columns-area-resource--ref').show();
+                        var IDword = 0;
 
                     }
                     function function2() {
@@ -36,12 +38,14 @@
                         var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
                         var constellationfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
                         var required_fields = ["Entity Type", "Name Entry"];
+                        dup_dict = {};
                         $('.schema-alignment-dialog-columns-area-resource').hide();
                         $('.schema-alignment-dialog-dropdown-area-resource').hide();
                         $('.schema-alignment-dialog-columns-area-resource--ref').hide();
                         $('.schema-alignment-dialog-columns-area-constellation').show();
                         $('.schema-alignment-dialog-dropdown-area-constellation').show();
                         $('.schema-alignment-dialog-columns-area-constellation--ref').show();
+                        var IDword = 1;
                     }
                 </script>
 

@@ -589,6 +589,33 @@ public class CommandTest extends RefineTest{
         HttpResponse response = client.execute(post);
         String result = EntityUtils.toString(response.getEntity());
         Assert.assertTrue(result.contains("Madinier"));
-    }    
+    }  
+
+    // /*
+    // * Test for browsing constellation
+    // */  
+    @Test
+    public void testRecentlyPublished() throws Exception{
+        DefaultHttpClient client = new DefaultHttpClient();
+        HttpPost post = new HttpPost("http://api.snaccooperative.org");
+        post.setEntity(new StringEntity("{\"command\": \"recently_published\"}", "UTF-8"));
+        HttpResponse response = client.execute(post);
+        String result = EntityUtils.toString(response.getEntity());
+        Assert.assertTrue(result.contains("success"));
+    }
+
+     /*
+    * Test API calls for constellation_history
+    */
+
+    @Test
+    public void testConstellationHistory2() throws Exception{
+      DefaultHttpClient client = new DefaultHttpClient();
+      HttpPost post = new HttpPost("http://api.snaccooperative.org");
+      post.setEntity(new StringEntity("{\"command\": \"constellation_history\",\"constellationid\": 76813079}","UTF-8"));
+      HttpResponse response = client.execute(post);
+      String result = EntityUtils.toString(response.getEntity());
+      Assert.assertTrue(result.contains("error"));
+    }  
 
 }

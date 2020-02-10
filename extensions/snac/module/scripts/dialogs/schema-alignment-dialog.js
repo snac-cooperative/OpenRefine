@@ -432,10 +432,14 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
   // Empty required field check (for issues tab)
 
   if (document.getElementById('resourcebutton').checked) {
+   var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
+   var resourcefields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
    var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
   }
 
   else {
+   var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
+   var constellationfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
    var required_fields = ["Entity Type", "Name Entry"];
 
   }
@@ -464,12 +468,19 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
         dup_dict[array_ddv[y]] = 1;
       }
       else{
-        dup_bool = true;
-        error = {
-         title: `Duplicate values of '${array_ddv[y]}'`,
-         body: `Duplicate values found for '${array_ddv[y]}'.`,
-       };
-       error_fields.push(error);
+         console.log(mainfields[1]);
+         if (mainfields.includes(array_ddv[y])) {
+            dup_bool = true;
+            error = {
+               title: `Duplicate values of '${array_ddv[y]}'`,
+               body: `Duplicate values found for '${array_ddv[y]}'.`,
+            };
+            error_fields.push(error);
+         }
+         else {
+            continue;
+         }
+        
       }
   }
 

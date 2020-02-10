@@ -340,6 +340,8 @@ public class CommandTest extends RefineTest{
       Assert.assertTrue(result.contains("Constellation"));
     }
 
+    
+
     /*
     * Test API calls for shared_resources
     */
@@ -587,7 +589,6 @@ public class CommandTest extends RefineTest{
         HttpResponse response = client.execute(post);
         String result = EntityUtils.toString(response.getEntity());
         Assert.assertTrue(result.contains("Madinier"));
-    }
-
+    }    
 
 }

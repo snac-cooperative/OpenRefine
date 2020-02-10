@@ -203,7 +203,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
         reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
      this._columnArea.append(cell);
 
-     var selectList = $("<select></select>").addClass('selectColumn');
+   //   var selectList = $("<select></select>").addClass('selectColumn');
      var selectList = $("<select></select>").addClass('selectColumnResource');
      this._dropdownArea.append(selectList);
 
@@ -259,7 +259,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
     //     reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
     //  this._columnArea.append(cell);
 
-     var selectList = $("<select></select>").addClass('selectColumn');
+   //   var selectList = $("<select></select>").addClass('selectColumn');
      var selectList = $("<select></select>").addClass('selectColumnConstellation');
      this._dropdownArea.append(selectList);
 
@@ -424,7 +424,15 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
 
   var columns = theProject.columnModel.columns;
 
-  var dropDownValues = document.getElementsByClassName('selectColumn');
+   // This helps the Issue tab to differentiate between what issues it will look at for Resource vs Constellation
+  if (document.getElementById('resourcebutton').checked) {
+      var dropDownValues = document.getElementsByClassName('selectColumnResource');
+  }
+  else {
+      var dropDownValues = document.getElementsByClassName('selectColumnConstellation');
+  }
+
+//   var dropDownValues = document.getElementsByClassName('selectColumn');
   var array_ddv = [];
   for (var j = 0; j < dropDownValues.length; j++){
     array_ddv.push(dropDownValues[j].value);
@@ -434,15 +442,14 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
 
   // Empty required field check (for issues tab)
 
+  // The required fields for Resource vs Constellation are different, so required_fields will be used to check whether all the fields in this array have been used
   if (document.getElementById('resourcebutton').checked) {
    var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
-   var resourcefields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
    var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
   }
 
   else {
-   var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
-   var constellationfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];  
+   var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
    var required_fields = ["Entity Type", "Name Entry"];
 
   }

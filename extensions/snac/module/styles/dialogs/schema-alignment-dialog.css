@@ -95,12 +95,21 @@
   width: 200px;
 }
 
-.selectColumn{
+/* .selectColumn{
   height: 20px;
   margin-top: 5px;
 }
 
 .selectColumn:first-of-type{
+  margin-top: 9px;
+} */
+
+.selectColumnResource, .selectColumnConstellation{
+  height: 20px;
+  margin-top: 5px;
+}
+
+.selectColumnResource:first-of-type, .selectColumnConstellation:first-of-type{
   margin-top: 9px;
 }
 

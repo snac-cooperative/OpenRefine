@@ -591,6 +591,7 @@ public class SNACResourceCreator {
       // }
       // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
       for (int x = 0; x < theProject.rows.size(); x++){
+        // Cell test_cell = new Cell(x, new Recon(resource_ids.get(x), null, null));
         Cell test_cell = new Cell(x, new Recon(0, null, null));
         res_row_ids.add(new CellAtRow(x, test_cell));
       }
@@ -612,14 +613,6 @@ public class SNACResourceCreator {
       //       }
       // }
 
-
-      // for(Column c: colList){
-      //   if(c.getTitle() == "Holding Repository SNAC ID"){
-      //     idColExists = true;
-      //     idColIndex = c.getCellIndex();
-      //     break;
-      //   }
-      // }
 
 
 

@@ -175,6 +175,7 @@ public class SNACResourceCreator {
                       break;
                   }
                   catch (NumberFormatException e){
+                      resource_ids.add(-1);
                       break;
                   }
               case "type":
@@ -472,24 +473,27 @@ public class SNACResourceCreator {
         }
     }
     public Resource insertID(String result, Resource res){
-    JSONParser jp = new JSONParser();
-    try{
-        JSONObject jsonobj = (JSONObject)jp.parse(result);
-        int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
-        if(new_id!=0){
-          resource_ids.add(new_id);
-          res.setID(new_id);
-          return res;
-        }
-        else{
-          resource_ids.add(null);
-        }
-    }
-    catch (ParseException e){
-        System.out.println(e);
-    }
-    return res;
-}
+      JSONParser jp = new JSONParser();
+      try{
+          JSONObject jsonobj = (JSONObject)jp.parse(result);
+          int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
+          // create check for success false or true
+          // check if existing ID matches new (which one to take: ask Glass)
+          if(new_id!=0){
+            resource_ids.add(new_id);
+            res.setID(new_id);
+            return res;
+          }
+          else{
+            resource_ids.add(-1);
+          }
+      }
+      catch (ParseException e){
+        // need a null pointer exception
+          System.out.println(e);
+      }
+      return res;
+  }
 
 public void test_insertID(){
   // Run this function after insertID (above) within SNACUploadCommand
@@ -505,26 +509,28 @@ public void test_insertID(){
 
   System.out.println("inserting col");
   for(Column c: colList){
-    if(c.getTitle() == "Holding Repository SNAC ID"){
+    if(c.getTitle() == "Placeholder"){
       // need to check other names too reee
+      // SNAC ID column
+      // checkbox thing : yes? - drag & drop
       idColExists = true;
       idColIndex = c.getCellIndex();
       break;
     }
   }
+  System.out.println(resource_ids);
 
   // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
   for (int x = 0; x < theProject.rows.size(); x++){
-    // Cell test_cell = new Cell(x, new Recon(resource_ids.get(x), null, null));
+    Cell test_cell = new Cell(x, new Recon(resource_ids.get(x), null, null));
 
-    Cell test_cell = new Cell(x, new Recon(0, null, null));
+    // Cell test_cell = new Cell(x, new Recon(0, null, null));
     res_row_ids.add(new CellAtRow(x, test_cell));
   }
   if(idColExists){
   // replace existing col 
     ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", idColIndex, res_row_ids);
     CAC.apply(theProject);
-    break;
   }
   else {
     ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);

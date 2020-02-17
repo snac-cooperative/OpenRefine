@@ -50,7 +50,7 @@ function init() {
     RefineServlet.registerCommand(module, "apikey", new SNACLoginCommand());
     RefineServlet.registerCommand(module, "upload", new SNACUploadCommand());
     RefineServlet.registerCommand(module, "preview-snac-schema", new SNACPreviewSchemaCommand());
-
+    RefineServlet.registerCommand(module, "issue-snac-schema", new SNACSchemaIssuesCommand());
     /*
      * Resources
      */

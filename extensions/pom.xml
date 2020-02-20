@@ -52,11 +52,11 @@
                     <goal>report</goal>
                 </goals>
                 <configuration>
+		    <excludes>
+		 	<exclude>**/*SNACLoginCommand</exclude>
+		    </excludes>			
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
-			<excludes>
-				<exclude>org/snaccooperative/commands/**/*</exclude>
-			</excludes>
                 </configuration>
             </execution>
          </executions>

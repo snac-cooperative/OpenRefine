@@ -112,6 +112,9 @@
                 </goals>
                 <phase>process-test-resources</phase>
                 <configuration>
+		    <excludes>
+			<exclude>**/*</exclude>    
+		    </excludes>
                     <destFile>${project.build.directory}/report/jacoco.exec</destFile>
                     <propertyName>surefireArgs</propertyName>
                 </configuration>

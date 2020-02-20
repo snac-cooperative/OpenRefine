@@ -53,7 +53,7 @@
                 </goals>
                 <configuration>
 		    <excludes>
-		 	<exclude>**/*SNACLoginCommand</exclude>
+		 	<exclude>**/*Command</exclude>
 		    </excludes>			
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>

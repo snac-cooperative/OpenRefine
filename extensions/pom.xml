@@ -55,7 +55,7 @@
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
 										<excludes>
-												<exclude>snac/src/org/snaccooperative/**/*<exclude>
+												<exclude>snac/src/org/snaccooperative/**/*</exclude>
 										</excludes>
                 </configuration>
             </execution>

@@ -36,7 +36,7 @@
         <version>0.8.2</version>
         <executions>
             <execution>
-                <id>prepare-agent</id>
+                <id>default-prepare-agent</id>
                 <goals>
                     <goal>prepare-agent</goal>
                 </goals>
@@ -54,6 +54,9 @@
                 <configuration>
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                    <excludes>
+                      <exclude>*Tests.java</exclude>
+                    </excludes>
                 </configuration>
             </execution>
          </executions>

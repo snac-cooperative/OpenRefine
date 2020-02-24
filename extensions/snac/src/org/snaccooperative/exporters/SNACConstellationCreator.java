@@ -207,6 +207,7 @@ public class SNACConstellationCreator {
 //                  con.setBlogHists();
                   break;
               default:
+                  //a case for null would imply a list, how to handle? should be separate from default
                   break;
             }
         }

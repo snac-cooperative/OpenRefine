@@ -86,6 +86,7 @@ public class SNACResourceTest extends RefineTest{
         manager.match_attributes = hash_map;
 
         project = createCSVProject(TestingData2.resourceCsv);
+        project2 = createCSVProject(TestingData2.resourceRecordCsv);
 
         command = new SNACResourceCommand();
         upload = new SNACUploadCommand();
@@ -112,14 +113,21 @@ public class SNACResourceTest extends RefineTest{
       Assert.assertNotNull(manager.detectLanguage("jpn"));
       Assert.assertNull(manager.detectLanguage("hmm"));
     }
-    // @Test
-    // public void testLanguage2() throws Exception{
-    //   Assert.assertNull(manager.detectLanguage("reeeee"));
-    // }
-    // @Test
-    // public void testLanguage3() throws Exception{
-    //   Assert.assertNotNull(manager.detectLanguage("kor"));
-    // }
+
+    @Test
+    public void testRecordsToResource() throws Exception{
+      LinkedList<Row> record_temp = new LinkedList<Row>();
+      for(int x = 0; x < project2.rows.size(); x++){
+        record_temp.push_back(project2.rows.get(x));
+      }
+      Resource fromDataRes = manager.createResourceRecord(record_temp);
+      String fromData = Resource.toJSON(fromDataRes);
+      Assert.assertTrue(fromData.contains("eng"));
+      Assert.assertTrue(fromData.contains("kor"));
+      Assert.assertTrue(fromData.contains("jpn"));
+      Assert.assertFalse(fromData.contains("reeeee"));
+      Assert.assertFalse(fromData.contains("hmm"));
+    }
 
     @Test
     public void testResourceEquivalent1() throws Exception{

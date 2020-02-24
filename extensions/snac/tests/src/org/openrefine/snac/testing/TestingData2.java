@@ -58,6 +58,11 @@ public class TestingData2 {
             + "Title1,http://row1test.com,abstract_example1\n"
             + "Title2,http://row2test.com,abstract_example2";
 
+    public static final String resourceRecordCsv = "title,link,abstract,language\n"
+            + "Title1,http://record1test.com,abstract_example1,eng\n"
+            + ",,,kor\n"
+            + ",,,jpn";
+
     public static final String inceptionCsv = "subject,inception,reference\n"
             + "Q1377,1919,http://www.ljubljana-slovenia.com/university-ljubljana\n" + "Q865528,1965,";
     public static final String inceptionWithNewCsv = "subject,inception,reference\n"

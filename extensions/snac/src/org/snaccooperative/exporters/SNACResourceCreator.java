@@ -482,11 +482,11 @@ public class SNACResourceCreator {
 
         for(int x = 0; x < iterations; x++){
           Resource previewResource = resources.get(x);
-          System.out.println(Resource.toJSON(previewResource));
+          // System.out.println(Resource.toJSON(previewResource));
           for(Map.Entry mapEntry: match_attributes.entrySet())
           {
               if(!((String)mapEntry.getValue()).equals("")){
-                System.out.println(((String)mapEntry.getValue()).toLowerCase());
+                // System.out.println(((String)mapEntry.getValue()).toLowerCase());
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
                   case "id":
                     samplePreview+= "ID: " + previewResource.getID() + "\n";
@@ -553,7 +553,7 @@ public class SNACResourceCreator {
           }
         }
       }
-      System.out.println(samplePreview);
+      // System.out.println(samplePreview);
       return samplePreview;
 
     }

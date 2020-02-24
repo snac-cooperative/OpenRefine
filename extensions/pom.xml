@@ -44,6 +44,9 @@
                 <configuration>
                     <destFile>${project.parent.build.directory}/report/${project.name}.exec</destFile>
                     <propertyName>surefireArgs</propertyName>
+										<excludes>
+											<exclude> **/*</exclude>
+										</excludes>
                 </configuration>
             </execution>
             <execution>
@@ -54,13 +57,18 @@
                 <configuration>
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
-                    <excludes>
-                      <exclude>*Tests.java</exclude>
-                    </excludes>
+										<excludes>
+											<exclude> **/*</exclude>
+										</excludes>
                 </configuration>
             </execution>
          </executions>
-       </plugin>
+				<configuration>
+					<excludes>
+						<exclude> **/org/snaccooperative/commands/*</exclude> <!-- I think it's this one -->
+					</excludes>
+				</configuration>
+			 </plugin>
      </plugins>
    </build>
 </project>

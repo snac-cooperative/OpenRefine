@@ -66,6 +66,7 @@ import org.snaccooperative.data.Resource;
 public class SNACResourceTest extends RefineTest{
 
     protected Project project = null;
+    protected Project project2 = null;
     protected HttpServletRequest request = null;
     protected HttpServletResponse response = null;
     protected StringWriter writer = null;
@@ -77,11 +78,12 @@ public class SNACResourceTest extends RefineTest{
     @BeforeMethod
     public void SetUp() {
         // Setup for Post Request
-        manager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract");}};
+        manager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract"); add("language");}};
         HashMap<String, String> hash_map = new HashMap<String, String>();
         hash_map.put("title", "title");
         hash_map.put("link", "link");
         hash_map.put("abstract", "abstract");
+        hash_map.put("language", "language");
 
         manager.match_attributes = hash_map;
 
@@ -116,9 +118,9 @@ public class SNACResourceTest extends RefineTest{
 
     @Test
     public void testRecordsToResource() throws Exception{
-      LinkedList<Row> record_temp = new LinkedList<Row>();
+      List<Row> record_temp = new LinkedList<Row>();
       for(int x = 0; x < project2.rows.size(); x++){
-        record_temp.push_back(project2.rows.get(x));
+        record_temp.add(project2.rows.get(x));
       }
       Resource fromDataRes = manager.createResourceRecord(record_temp);
       String fromData = Resource.toJSON(fromDataRes);

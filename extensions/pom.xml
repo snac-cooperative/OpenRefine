@@ -65,7 +65,7 @@
          </executions>
 				<configuration>
 					<excludes>
-						<exclude> **/*</exclude> <!-- I think it's this one -->
+						<exclude> **/org/snaccooperative/commands/*</exclude> <!-- I think it's this one -->
 					</excludes>
 				</configuration>
 			 </plugin>

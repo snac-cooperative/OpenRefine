@@ -725,31 +725,63 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
 
 
    console.log(theProject.columnModel.columns);
-  // Save resource
-  console.log(dropDownValues);
-
-   if (!dup_bool && !empty_required){
-      var dict = {};
-      var columns = theProject.columnModel.columns;
-      // console.log(columns);
+   if (document.getElementById('resourcebutton').checked) {
+      // Save resource
       console.log(dropDownValues);
-      console.log(columns);
-      for (var i = 0; i != columns.length; i++){
-         console.log(i);
-         console.log(columns[i].name);
-         dict[columns[i].name] = dropDownValues[i].value;
-      }
-      $.post(
-         "command/snac/resource",
-         {
-            "dict": JSON.stringify(dict),
-            "project": JSON.stringify(theProject.id)
-         },
-         function(data, status) {
-            console.log("Resource status: " + data.resource);
+      if (!dup_bool && !empty_required){
+         var dict = {};
+         var columns = theProject.columnModel.columns;
+         // console.log(columns);
+         console.log(dropDownValues);
+         console.log(columns);
+         for (var i = 0; i != columns.length; i++){
+            console.log(i);
+            console.log(columns[i].name);
+            dict[columns[i].name] = dropDownValues[i].value;
          }
-      );
+         $.post(
+            "command/snac/resource",
+            {
+               "dict": JSON.stringify(dict),
+               "project": JSON.stringify(theProject.id)
+            },
+            function(data, status) {
+               console.log("Resource status: " + data.resource);
+            }
+         );
+      }
    }
+   else if (document.getElementById('constellationbutton').checked) {
+      // Save constellation IN PROGRESS
+      console.log(dropDownValues);
+      if (!dup_bool && !empty_required){
+         var dict = {};
+         var columns = theProject.columnModel.columns;
+         // console.log(columns);
+         console.log(dropDownValues);
+         console.log(columns);
+         for (var i = 0; i != columns.length; i++){
+            console.log(i);
+            console.log(columns[i].name);
+            dict[columns[i].name] = dropDownValues[i].value;
+         }
+         $.post(
+            "command/snac/constellation",
+            {
+               "dict": JSON.stringify(dict),
+               "project": JSON.stringify(theProject.id)
+            },
+            function(data, status) {
+               console.log("Resource status: " + data.resource);
+            }
+         );
+      }   }
+
+
+
+
+
+
    SNACSchemaAlignmentDialog._hasChanged();
 };
 

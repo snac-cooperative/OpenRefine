@@ -251,6 +251,12 @@ public class CommandTest extends RefineTest{
       Assert.assertFalse(response_str.contains("title"));
     }
 
+    @Test
+    public void testConstellationPreviewEmpty() throws Exception{
+      String response_str = constellationManager.obtainPreview();
+      Assert.assertTrue(response_str.contains("no Constellations"));
+    }
+
     /*
     * Test API calls for recently published
     */

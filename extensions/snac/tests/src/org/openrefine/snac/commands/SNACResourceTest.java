@@ -69,6 +69,8 @@ import org.snaccooperative.data.Resource;
 public class SNACResourceTest extends RefineTest{
 
     protected Project project = null;
+    protected Project project2 = null;
+    protected Project project3 = null;
     protected HttpServletRequest request = null;
     protected HttpServletResponse response = null;
     protected StringWriter writer = null;
@@ -80,15 +82,22 @@ public class SNACResourceTest extends RefineTest{
     @BeforeMethod
     public void SetUp() {
         // Setup for Post Request
-        manager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract");}};
+        manager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract"); add("language");add("id");add("type");add("extent");add("date");}};
         HashMap<String, String> hash_map = new HashMap<String, String>();
         hash_map.put("title", "title");
         hash_map.put("link", "link");
         hash_map.put("abstract", "abstract");
+        hash_map.put("language", "language");
+        hash_map.put("id", "id");
+        hash_map.put("type", "type");
+        hash_map.put("extent", "extent");
+        hash_map.put("date", "date");
 
         manager.match_attributes = hash_map;
 
         project = createCSVProject(TestingData2.resourceCsv);
+        project2 = createCSVProject(TestingData2.resourceRecordCsv);
+        project3 = createCSVProject(TestingData2.resourceCsv2);
 
         command = new SNACResourceCommand();
         upload = new SNACUploadCommand();
@@ -107,22 +116,39 @@ public class SNACResourceTest extends RefineTest{
         }
     }
 
-    // @Test
-    // public void testLanguage1() throws Exception{
-    //   Assert.assertNotNull(manager.detectLanguage("eng"));
-    //   Assert.assertNotNull(manager.detectLanguage("kor"));
-    //   Assert.assertNull(manager.detectLanguage("reeeee"));
-    //   Assert.assertNotNull(manager.detectLanguage("jpn"));
-    //   Assert.assertNull(manager.detectLanguage("hmm"));
-    // }
-    // @Test
-    // public void testLanguage2() throws Exception{
-    //   Assert.assertNull(manager.detectLanguage("reeeee"));
-    // }
-    // @Test
-    // public void testLanguage3() throws Exception{
-    //   Assert.assertNotNull(manager.detectLanguage("kor"));
-    // }
+    @Test
+    public void testResourceType() throws Exception{
+      Resource fromDataRes = manager.createResourceRow(project3.rows.get(0));
+      Resource fromDataRes1 = manager.createResourceRow(project3.rows.get(1));
+      String fromData = Resource.toJSON(fromDataRes);
+      String fromData1 = Resource.toJSON(fromDataRes1);
+      Assert.assertTrue(fromData.contains("696"));
+      Assert.assertTrue(fromData1.contains("697"));
+    }
+
+    @Test
+    public void testLanguage1() throws Exception{
+      Assert.assertNotNull(manager.detectLanguage("eng"));
+      Assert.assertNotNull(manager.detectLanguage("kor"));
+      Assert.assertNull(manager.detectLanguage("reeeee"));
+      Assert.assertNotNull(manager.detectLanguage("jpn"));
+      Assert.assertNull(manager.detectLanguage("hmm"));
+    }
+
+    @Test
+    public void testRecordsToResource() throws Exception{
+      List<Row> record_temp = new LinkedList<Row>();
+      for(int x = 0; x < project2.rows.size(); x++){
+        record_temp.add(project2.rows.get(x));
+      }
+      Resource fromDataRes = manager.createResourceRecord(record_temp);
+      String fromData = Resource.toJSON(fromDataRes);
+      Assert.assertTrue(fromData.contains("eng"));
+      Assert.assertTrue(fromData.contains("kor"));
+      Assert.assertTrue(fromData.contains("jpn"));
+      Assert.assertFalse(fromData.contains("reeeee"));
+      Assert.assertFalse(fromData.contains("hmm"));
+    }
 
     @Test
     public void testResourceEquivalent1() throws Exception{

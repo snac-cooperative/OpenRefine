@@ -70,6 +70,7 @@ public class SNACResourceTest extends RefineTest{
 
     protected Project project = null;
     protected Project project2 = null;
+    protected Project project3 = null;
     protected HttpServletRequest request = null;
     protected HttpServletResponse response = null;
     protected StringWriter writer = null;
@@ -100,6 +101,7 @@ public class SNACResourceTest extends RefineTest{
 
         project = createCSVProject(TestingData2.resourceCsv);
         project2 = createCSVProject(TestingData2.resourceRecordCsv);
+        project3 = createCSVProject(TestingData2.resourceCsv2);
 
         command = new SNACResourceCommand();
         upload = new SNACUploadCommand();
@@ -116,6 +118,16 @@ public class SNACResourceTest extends RefineTest{
         } catch (IOException e1) {
             Assert.fail();
         }
+    }
+
+    @Test
+    public void testResourceType() throws Exception{
+      Resource fromDataRes = manager.createResourceRow(project3.rows.get(0));
+      Resource fromDataRes1 = manager.createResourceRow(project3.rows.get(1));
+      String fromData = Resource.toJSON(fromDataRes);
+      String fromData1 = Resource.toJSON(fromDataRes1);
+      Assert.assertTrue(fromData.contains("696"));
+      Assert.assertTrue(fromData1.contains("697"));
     }
 
     @Test

@@ -772,15 +772,11 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
                "project": JSON.stringify(theProject.id)
             },
             function(data, status) {
-               console.log("Resource status: " + data.resource);
+               console.log("Constellation status: " + data.constellation);
             }
          );
-      }   }
-
-
-
-
-
+      }   
+   }
 
    SNACSchemaAlignmentDialog._hasChanged();
 };

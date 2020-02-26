@@ -728,6 +728,8 @@ public void test_insertID(){
   }
 
   //iterating by records instead of rows
+  System.out.println("RECORDS: ");
+  System.out.println(theProject.recordModel.getRecordCount());
   int rec_size = theProject.recordModel.getRecordCount();
   for (int z = 0; z < rec_size; z++){
     Record rec_temp = theProject.recordModel.getRecord(z);
@@ -742,11 +744,14 @@ public void test_insertID(){
   // replace existing col 
     ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
     CRC.apply(theProject);
-    ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
+    // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
+    ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
+
     CAC.apply(theProject);
   }
   else {
-    ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+    // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+    ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
     CAC.apply(theProject);
   }
   

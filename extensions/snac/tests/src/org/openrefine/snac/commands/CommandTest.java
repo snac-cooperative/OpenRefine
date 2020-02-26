@@ -63,6 +63,7 @@ import org.powermock.modules.testng.PowerMockTestCase;
 
 import org.snaccooperative.commands.SNACUploadCommand;
 import org.snaccooperative.commands.SNACResourceCommand;
+import org.snaccooperative.connection.SNACConnector;
 import org.snaccooperative.exporters.SNACResourceCreator;
 import org.snaccooperative.exporters.SNACConstellationCreator;
 import org.snaccooperative.data.EntityId;
@@ -80,6 +81,7 @@ public class CommandTest extends RefineTest{
     protected SNACResourceCreator resourceManager = SNACResourceCreator.getInstance();
     protected SNACConstellationCreator constellationManager = SNACConstellationCreator.getInstance();
     protected EntityId entityId = null;
+    //protected SNACConnector connector = SNACConnector.getInstance();
 
     @BeforeMethod
     public void SetUp() {
@@ -102,6 +104,7 @@ public class CommandTest extends RefineTest{
         project = createCSVProject(TestingData2.resourceCsv);
         project2 = createCSVProject(TestingData2.constellationCsv);
 
+        //connector.saveKey("");
         command = new SNACResourceCommand();
         upload = new SNACUploadCommand();
         request = mock(HttpServletRequest.class);
@@ -118,7 +121,6 @@ public class CommandTest extends RefineTest{
             Assert.fail();
         }
     }
-
 
     @Test
     public void testEntityIdURI() throws Exception{
@@ -240,6 +242,19 @@ public class CommandTest extends RefineTest{
     }
 
     @Test
+    public void testResourceEmpty() throws Exception{
+      String response_str = resourceManager.obtainPreview();
+      Assert.assertTrue(response_str.contains("no Resources"));
+    }
+
+    @Test
+    public void testResourceUpdate() throws Exception{
+      constellationManager.updateColumnMatches("");
+      String response_str = resourceManager.getColumnMatchesJSONString();
+      Assert.assertFalse(response_str.contains("subject"));
+    }
+
+    @Test
     public void testConstellationOne() throws Exception{
       String response_str = constellationManager.getColumnMatchesJSONString();
       Assert.assertTrue(response_str.contains("subject"));
@@ -252,7 +267,7 @@ public class CommandTest extends RefineTest{
     }
 
     @Test
-    public void testConstellationPreviewEmpty() throws Exception{
+    public void testConstellationEmpty() throws Exception{
       String response_str = constellationManager.obtainPreview();
       Assert.assertTrue(response_str.contains("no Constellations"));
     }

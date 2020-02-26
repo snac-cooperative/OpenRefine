@@ -36,8 +36,8 @@ import com.google.refine.model.RecordModel;
 import com.google.refine.model.Record;
 
 
-import com.google.refine.model.changes.CellAtRow;
-import com.google.refine.model.changes.ColumnAdditionChange;
+// import com.google.refine.model.changes.CellAtRow;
+// import com.google.refine.model.changes.ColumnAdditionChange;
 
 import org.snaccooperative.data.Resource;
 import org.snaccooperative.data.Term;
@@ -47,6 +47,7 @@ import org.snaccooperative.data.Language;
 import com.google.refine.model.Column;
 import com.google.refine.model.Recon;
 import com.google.refine.model.changes.ColumnAdditionChange;
+import com.google.refine.model.changes.ColumnRemovalChange;
 import com.google.refine.model.changes.CellAtRow;
 
 
@@ -698,9 +699,15 @@ public void test_insertID(){
   List<Column> colList = theProject.columnModel.columns;
   List<CellAtRow> res_row_ids = new ArrayList<CellAtRow>();
 
+  List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
+
+
   System.out.println("inserting col");
   for(Column c: colList){
-    if(c.getTitle() == "Placeholder"){
+    // System.out.println("PRINTING COL NAMES: ");
+    // System.out.println(c.getOriginalHeaderLabel());
+    if(c.getOriginalHeaderLabel().equals("id")){
+      // next steps: need to make this work with the checkbox for ID!!
       // need to check other names too reee
       // SNAC ID column
       // checkbox thing : yes? - drag & drop
@@ -709,18 +716,33 @@ public void test_insertID(){
       break;
     }
   }
+  System.out.println("RESOURCE IDS: ");
   System.out.println(resource_ids);
 
   // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
   for (int x = 0; x < theProject.rows.size(); x++){
-    Cell test_cell = new Cell(x, new Recon(resource_ids.get(x), null, null));
+    Cell test_cell = new Cell(resource_ids.get(x), new Recon(0, null, null));
 
     // Cell test_cell = new Cell(x, new Recon(0, null, null));
     res_row_ids.add(new CellAtRow(x, test_cell));
   }
+
+  //iterating by records instead of rows
+  int rec_size = theProject.recordModel.getRecordCount();
+  for (int z = 0; z < rec_size; z++){
+    Record rec_temp = theProject.recordModel.getRecord(z);
+    int fromRowInd = rec_temp.fromRowIndex;
+    // int toRowInd = rec_temp.toRowIndex;
+    Cell test_cell_r = new Cell(resource_ids.get(z), new Recon(0, null, null)); //how does resource_ids look when using records????
+
+    record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
+  }
+
   if(idColExists){
   // replace existing col 
-    ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", idColIndex, res_row_ids);
+    ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
+    CRC.apply(theProject);
+    ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
     CAC.apply(theProject);
   }
   else {

@@ -59,10 +59,10 @@
          </executions>
 				<configuration>
 					<excludes>
-						<exclude> **/org/snaccooperative/commands/SNACLoginCommand</exclude> <!-- I think it's this one -->
-						<exclude> **/org/snaccooperative/commands/SNACResourceCommand</exclude>
-						<exclude> **/org/snaccooperative/commands/SNACPreviewSchemaCommand</exclude>
-						<exclude> **/org/snaccooperative/exporters/SNACConstellationCreator</exclude>
+						<exclude> **/org/snaccooperative/commands/*SNACLoginCommand.*</exclude> <!-- I think it's this one -->
+						<exclude> **/org/snaccooperative/commands/*SNACResourceCommand.*</exclude>
+						<exclude> **/org/snaccooperative/commands/*SNACPreviewSchemaCommand.*</exclude>
+						<exclude> **/org/snaccooperative/exporters/*SNACConstellationCreator.*</exclude>
 					</excludes>
 				</configuration>
 			 </plugin>

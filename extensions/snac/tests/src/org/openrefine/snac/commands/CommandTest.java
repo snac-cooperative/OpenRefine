@@ -80,19 +80,19 @@ public class CommandTest extends RefineTest{
     @BeforeMethod
     public void SetUp() {
         // Setup for Post Request
-        resourceManager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract");}};
-        HashMap<String, String> hash_map = new HashMap<String, String>();
-        hash_map.put("title", "title");
-        hash_map.put("link", "link");
-        hash_map.put("abstract", "abstract");
-
+        // resourceManager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract");}};
+        // HashMap<String, String> hash_map = new HashMap<String, String>();
+        // hash_map.put("title", "title");
+        // hash_map.put("link", "link");
+        // hash_map.put("abstract", "abstract");
+        //
         constellationManager.csv_headers = new LinkedList<String>(){{add("subject"); add("place"); add("occupation");}};
         HashMap<String, String> hash_map2 = new HashMap<String, String>();
         hash_map2.put("subject", "subject");
         hash_map2.put("place", "place");
         hash_map2.put("occupation", "occupation");
-
-        resourceManager.match_attributes = hash_map;
+        //
+        // resourceManager.match_attributes = hash_map;
         constellationManager.match_attributes = hash_map2;
 
         project = createCSVProject(TestingData2.resourceCsv);
@@ -151,88 +151,6 @@ public class CommandTest extends RefineTest{
       EntityId testEntity = new EntityId();
       testEntity.setText("123");
       Assert.assertEquals(testEntity.toString(), "EntityID: 123");
-    }
-
-    @Test
-    public void testResourceEquivalent1() throws Exception{
-      Resource fromDataRes = resourceManager.createResourceRow(project.rows.get(0));
-      String fromData = Resource.toJSON(fromDataRes);
-      Assert.assertTrue(fromData.contains("Title1"));
-    }
-
-    @Test
-    public void testResourceEquivalent2() throws Exception{
-      Resource fromDataRes = resourceManager.createResourceRow(project.rows.get(0));
-      String fromData = Resource.toJSON(fromDataRes);
-      Assert.assertTrue(fromData.contains("abstract_example1"));
-    }
-
-    @Test
-    public void testResourceGlobalOne() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
-      String response_str = resourceManager.getColumnMatchesJSONString();
-      Assert.assertTrue(response_str.contains("title"));
-    }
-
-    @Test
-    public void testResourceGlobalFalseFive() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
-      String response_str = resourceManager.getColumnMatchesJSONString();
-      Assert.assertFalse(response_str.contains("col5"));
-    }
-
-
-    @Test
-    public void testResourceGlobalTwo() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
-      String response_str = resourceManager.getColumnMatchesJSONString();
-      Assert.assertTrue(response_str.contains("abstract"));
-    }
-
-    @Test
-    public void testResourceGlobalThree() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
-      String response_str = resourceManager.getColumnMatchesJSONString();
-      Assert.assertTrue(response_str.contains("link"));
-    }
-
-    @Test
-    public void testResourceGlobalFalseFour() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
-      String response_str = resourceManager.getColumnMatchesJSONString();
-      Assert.assertFalse(response_str.contains("col4"));
-    }
-
-    @Test
-    public void testResourceUpload() throws Exception{
-      upload.doPost(request, response);
-      ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      String response_str = response.get("done").textValue();
-      Assert.assertNotNull(response_str);
-    }
-
-    @Test
-    public void testResourceUploadGet(){
-        try{
-            upload.doGet(request, response);
-            ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-            String response_str = response.get("doneGet").textValue();
-        }
-        catch(Exception e){
-            String a="";
-            Assert.assertTrue(a.equals(""));
-        }
-
     }
 
     @Test

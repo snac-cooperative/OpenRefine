@@ -186,6 +186,12 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
 //Create a table for the resource page function
 function addResourceTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableResource");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableResource");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    // myTableDiv.setAttribute('style', 'margin-left: 18px;');
 
    var table = document.createElement('TABLE');
@@ -255,6 +261,12 @@ function addResourceTable(columns, SNACcolumns) {
 //Create a table for the constellation page function
 function addConstellationTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableConstellation");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableConstellation");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    var table = document.createElement('TABLE');
    var tableBody = document.createElement('TBODY');
    table.appendChild(tableBody);

@@ -54,14 +54,16 @@ import com.google.refine.model.ReconCandidate;
 
 public class TestingData2 {
 
-    public static final String resourceCsv = "title,link,abstract\n"
-            + "Title1,http://row1test.com,abstract_example1\n"
-            + "Title2,http://row2test.com,abstract_example2";
+    public static final String resourceCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
+            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345";
 
-    public static final String resourceRecordCsv = "title,link,abstract,language\n"
-            + "Title1,http://record1test.com,abstract_example1,eng\n"
-            + ",,,kor\n"
-            + ",,,jpn";
+    public static final String resourceRecordCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
+            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
+            + ",,,,,,,,kor,,";
+
+    public static final String resourceRecordCsv2 = "id,type,title,display entry,link,abstract,extent,date,script,language,holding repository snac id\n"
+            + "1,400479,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,English,eng,12345\n"
+            + ",,,,,,,,Korean,,";
 
     public static final String inceptionCsv = "subject,inception,reference\n"
             + "Q1377,1919,http://www.ljubljana-slovenia.com/university-ljubljana\n" + "Q865528,1965,";

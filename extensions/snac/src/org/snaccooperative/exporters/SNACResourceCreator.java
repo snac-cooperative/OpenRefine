@@ -91,6 +91,11 @@ Constellation Object
 */
 
 public class SNACResourceCreator {
+  /*Concerns to look for in terms of global cell values
+      - Add columns (add onto the list? What if we removed it after adding?)
+      - Remove columns (stays in the cache of columns?)
+  */
+    public static HashMap<String, Integer> globalCellsLoc = new HashMap<String, Integer>();
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
     private static Project theProject = new Project();
     private static final SNACResourceCreator instance = new SNACResourceCreator();
@@ -129,6 +134,23 @@ public class SNACResourceCreator {
         // }
     }
 
+    public static Resource getResource(int index){
+      if(index < resources.size()){
+        return resources.get(index);
+      }
+      else{
+        return null;
+      }
+    }
+
+    public static void clearResources(){
+      resources.clear();
+    }
+
+    public static void validateColumnMatches(){
+
+    }
+
     public void setUp(Project p, String JSON_SOURCE){
         setProject(p);
         updateColumnMatches(JSON_SOURCE);
@@ -149,7 +171,6 @@ public class SNACResourceCreator {
         // RecordModel rm = theProject.recordModel;
         RecordModel rm = theProject.recordModel;
         int rec_size = rm.getRecordCount();
-        System.out.println(rec_size);
         for (int z = 0; z < rec_size; z++){
           Record rec_temp = rm.getRecord(z);
           int fromRowInd = rec_temp.fromRowIndex;
@@ -178,6 +199,10 @@ public class SNACResourceCreator {
         Resource res = new Resource();
         for (int x = 0; x < csv_headers.size(); x++){
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
+            System.out.println("Snac header: " + snac_header);
+            System.out.println("CSV header: " + csv_headers.get(x));
+            System.out.println("Cell value: " + rows.get(0).getCellValue(x));
+            System.out.println();
             if (snac_header == null || snac_header == ""){
                 continue;
             }
@@ -283,7 +308,11 @@ public class SNACResourceCreator {
                   // If Languages already exists then add onto them
                   }else{
                     for(int r = 0; r < res.getLanguages().size(); r++){
+                      if(rows.get(r).getCellValue(x) == null){
+                        continue;
+                      }
                       temp_val = rows.get(r).getCellValue(x).toString();
+                      // temp_val = rows.get(r).getCellValue(x).toString();
                       if(!temp_val.equals("")){
                         String checked_lang = detectLanguage(temp_val);
                         if(checked_lang != null){
@@ -312,6 +341,13 @@ public class SNACResourceCreator {
                   // If Languages already exists then add onto them
                   }else{
                     for(int r = 0; r < res.getLanguages().size(); r++){
+                      // System.out.println("R: " + r);
+                      // System.out.println("X: " + x);
+                      // System.out.println("VALUE: " + rows.get(r));
+                      // System.out.println("CELLVALUE: " + rows.get(r).getCellValue(x));
+                      if(rows.get(r).getCellValue(x) == null){
+                        continue;
+                      }
                       temp_val = rows.get(r).getCellValue(x).toString();
                       Term t = new Term();
                       t.setType(temp_val);
@@ -537,6 +573,31 @@ public class SNACResourceCreator {
                       }
                     }
                     samplePreview+= previewResourceLanguages;
+                    break;
+                  case "script":
+                    List<Language> scriptList = previewResource.getLanguages();
+                    String previewResourceScripts = "Script(s): ";
+                    if(scriptList.size() == 0){
+                      previewResourceScripts = "Script(s): " + "\n" ;
+                    }
+                    else{
+                      // System.out.println(languageList);
+                      // System.out.println(Resource.toJSON(previewResource));
+                      for(int i=0; i<scriptList.size();i++){
+                        String lang_var = scriptList.get(i).getScript().getType();
+                        if(lang_var.equals("")){
+                          continue;
+                        }
+                        if(i != scriptList.size()-1){
+                          previewResourceScripts+= lang_var + ", ";
+                        }
+                        else{
+                          // English(eng), French(fre)
+                          previewResourceScripts+= lang_var + "\n";
+                        }
+                      }
+                    }
+                    samplePreview+= previewResourceScripts;
                     break;
                   case "holding repository snac id":
                     int repo_id = previewResource.getRepository().getID();

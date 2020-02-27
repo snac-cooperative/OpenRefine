@@ -145,6 +145,16 @@ public class SNACResourceTest extends RefineTest{
     }
 
     @Test
+    public void testExportJson() throws Exception{
+      manager.clearResources();
+      manager.setProject(createCSVProject(TestingData2.simpleCsv));
+      manager.rowsToResources();
+      String result = manager.exportResourcesJSON();
+      String correct = "{\"resources\":[{\"dataType\":\"Resource\",\"id\":1}]}";
+      Assert.assertEquals(result, correct);
+    }
+
+    @Test
     public void testLanguage1() throws Exception{
       Assert.assertNotNull(manager.detectLanguage("eng"));
       Assert.assertNotNull(manager.detectLanguage("kor"));
@@ -286,6 +296,7 @@ public class SNACResourceTest extends RefineTest{
 
     @Test
     public void testInsertIDResource(){
+      manager.resource_ids.clear();
       Resource dummy = new Resource();
       String result1 = "{\"resource\":{\"id\":0}}";
       String result2 = "{\"resource\":{\"id\":1}}";

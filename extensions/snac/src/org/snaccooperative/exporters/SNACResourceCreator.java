@@ -228,7 +228,7 @@ public class SNACResourceCreator {
                       break;
                   }
               case "type":
-                  try{
+                  // try{
                       Term t = new Term();
                       t.setType("document_type");
                       String term;
@@ -246,20 +246,21 @@ public class SNACResourceCreator {
                         t.setID(type_id);
                         term = "DigitalArchivalResource";
                       } else {
-                        throw new NumberFormatException();
+                        System.out.println(temp_val + " is not a valid resource type.");
+                        break;
                       }
                       t.setTerm(term);
                       res.setDocumentType(t);
                       break;
-                  }
-                  catch (NumberFormatException e){
-                      System.out.println(temp_val + " is not a valid resource type.");
-                      break;
-                  }
-                  catch (Exception e){
-                    System.out.println(e);
-                    break;
-                  }
+                  // }
+                  // catch (NumberFormatException e){
+                  //     System.out.println(temp_val + " is not a valid resource type.");
+                  //     break;
+                  // }
+                  // catch (Exception e){
+                  //   System.out.println(e);
+                  //   break;
+                  // }
               case "title":
                   res.setTitle(temp_val);
                   // System.out.println("Title: " + temp_val);
@@ -294,9 +295,9 @@ public class SNACResourceCreator {
                         // System.out.println("checked: " + checked_lang);
                         if(checked_lang != null){
                           Language lang = new Language();
-                          Term t = new Term();
-                          t.setType(temp_val);
-                          lang.setLanguage(t);
+                          Term t2 = new Term();
+                          t2.setType(temp_val);
+                          lang.setLanguage(t2);
                           res.addLanguage(lang);
                         }
                       }
@@ -316,9 +317,9 @@ public class SNACResourceCreator {
                       if(!temp_val.equals("")){
                         String checked_lang = detectLanguage(temp_val);
                         if(checked_lang != null){
-                          Term t = new Term();
-                          t.setType(temp_val);
-                          res.getLanguages().get(r).setLanguage(t);
+                          Term t2 = new Term();
+                          t2.setType(temp_val);
+                          res.getLanguages().get(r).setLanguage(t2);
                         }
                       }
                     }
@@ -329,9 +330,9 @@ public class SNACResourceCreator {
                   if(res.getLanguages().size() == 0){
                     for(int z = 1; z < rows.size() + 1; z++){
                       Language lang = new Language();
-                      Term t = new Term();
-                      t.setType(temp_val);
-                      lang.setScript(t);
+                      Term t3 = new Term();
+                      t3.setType(temp_val);
+                      lang.setScript(t3);
                       res.addLanguage(lang);
                       // If there are more rows, then insert more scripts
                       if(z != rows.size()){
@@ -349,9 +350,9 @@ public class SNACResourceCreator {
                         continue;
                       }
                       temp_val = rows.get(r).getCellValue(x).toString();
-                      Term t = new Term();
-                      t.setType(temp_val);
-                      res.getLanguages().get(r).setScript(t);
+                      Term t3 = new Term();
+                      t3.setType(temp_val);
+                      res.getLanguages().get(r).setScript(t3);
                     }
                   }
                   break;
@@ -412,7 +413,7 @@ public class SNACResourceCreator {
                       break;
                   }
               case "type":
-                  try{
+                  // try{
                       Term t = new Term();
                       t.setType("document_type");
                       String term;
@@ -430,20 +431,21 @@ public class SNACResourceCreator {
                         t.setID(type_id);
                         term = "DigitalArchivalResource";
                       } else {
-                        throw new NumberFormatException();
+                        System.out.println(temp_val + " is not a valid resource type.");
+                        break;
                       }
                       t.setTerm(term);
                       res.setDocumentType(t);
                       break;
-                  }
-                  catch (NumberFormatException e){
-                      System.out.println(temp_val + " is not a valid resource type.");
-                      break;
-                  }
-                  catch (Exception e){
-                    System.out.println(e);
-                    break;
-                  }
+                  // }
+                  // catch (NumberFormatException e){
+                  //     System.out.println(temp_val + " is not a valid resource type.");
+                  //     break;
+                  // }
+                  // catch (Exception e){
+                  //   System.out.println(e);
+                  //   break;
+                  // }
               case "title":
                   res.setTitle(temp_val);
                   // System.out.println("Title: " + temp_val);
@@ -472,9 +474,9 @@ public class SNACResourceCreator {
                   String checked_lang = detectLanguage(temp_val);
                   if(checked_lang != null){
                     Language lang = new Language();
-                    Term t = new Term();
-                    t.setType(temp_val);
-                    lang.setLanguage(t);
+                    Term t2 = new Term();
+                    t2.setType(temp_val);
+                    lang.setLanguage(t2);
                     res.addLanguage(lang);
                     // System.out.println("HM: " + res.getLanguages().get(0).getLanguage().getType());
                   }

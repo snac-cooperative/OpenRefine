@@ -54,6 +54,8 @@ import com.google.refine.model.ReconCandidate;
 
 public class TestingData2 {
 
+    public static final String simpleCsv = "id\n1";
+
     public static final String resourceCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
             + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
             + "2,697,Title2,display_entry2,http://record2test.com,abstract_example2,extent2,2020,eng,English,12346\n"

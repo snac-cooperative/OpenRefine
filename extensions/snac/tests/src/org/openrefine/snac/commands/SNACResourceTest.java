@@ -151,6 +151,7 @@ public class SNACResourceTest extends RefineTest{
       manager.rowsToResources();
       // try{
         manager.uploadResources("fake_api_key", "prod");
+        manager.resource_ids.clear();
         String a="";
         Assert.assertTrue(a.equals(""));
       // }

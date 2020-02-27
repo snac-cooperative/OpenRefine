@@ -201,15 +201,14 @@ public class SNACResourceTest extends RefineTest{
     @Test
     public void testResourceEquivalent1() throws Exception{
       Resource fromDataRes = manager.createResourceRow(project.rows.get(0));
+      Resource fromDataRes2 = manager.createResourceRow(project.rows.get(1));
+      Resource fromDataRes3 = manager.createResourceRow(project.rows.get(2));
       String fromData = Resource.toJSON(fromDataRes);
+      String fromData2 = Resource.toJSON(fromDataRes2);
+      String fromData3 = Resource.toJSON(fromDataRes3);
       Assert.assertTrue(fromData.contains("Title1"));
-    }
-
-    @Test
-    public void testResourceEquivalent2() throws Exception{
-      Resource fromDataRes = manager.createResourceRow(project.rows.get(0));
-      String fromData = Resource.toJSON(fromDataRes);
-      Assert.assertTrue(fromData.contains("abstract_example1"));
+      Assert.assertTrue(fromData2.contains("Title2"));
+      Assert.assertTrue(fromData3.contains("Title3"));
     }
 
     @Test

@@ -150,10 +150,10 @@ public class SNACResourceTest extends RefineTest{
       manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
       manager.rowsToResources();
       // try{
-        manager.uploadResources("fake_api_key", "prod");
-        manager.resource_ids.clear();
-        String a="";
-        Assert.assertTrue(a.equals(""));
+      manager.uploadResources("fake_api_key", "prod");
+      manager.clearResources();
+      String a="";
+      Assert.assertTrue(a.equals(""));
       // }
       // catch(IOException e){
       //     String a="";

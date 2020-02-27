@@ -162,6 +162,21 @@ public class SNACResourceTest extends RefineTest{
     }
 
     @Test
+    public void testSetUp(){
+      String json_source = "{\"id\":\"id\",\"type\":\"type\",\"title\":\"title\""
+      + ",\"display entry\":\"display entry\",\"link\":\"link\""
+      + ",\"abstract\":\"abstract\",\"extent\":\"extent\",\"date\":\"date\""
+      + ",\"language\":\"language\",\"script\":\"script\",\"holding repository snac id\":\"holding repository snac id\"}";
+      manager.clearResources();
+      try{
+        manager.setUp(createCSVProject(TestingData2.simpleCsv), json_source);
+        Assert.assertTrue(true);
+      } catch (Exception e){
+        Assert.assertFalse(true);
+      }
+    }
+
+    @Test
     public void testExportJson() throws Exception{
       manager.clearResources();
       manager.setProject(createCSVProject(TestingData2.simpleCsv));

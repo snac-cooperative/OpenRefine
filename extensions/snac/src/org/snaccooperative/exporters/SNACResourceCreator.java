@@ -151,7 +151,7 @@ public class SNACResourceCreator {
 
     }
 
-    public void setUp(Project p, String JSON_SOURCE){
+    public void setUp(Project p, String JSON_SOURCE) throws Exception{
         setProject(p);
         updateColumnMatches(JSON_SOURCE);
         rowsToResources();

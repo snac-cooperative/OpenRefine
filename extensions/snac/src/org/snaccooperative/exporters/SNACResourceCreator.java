@@ -104,7 +104,7 @@ public class SNACResourceCreator {
 
     // Internal Resource IDs that isn't part of the Resource data model
 
-    private static List<Integer> resource_ids = new LinkedList<Integer>();
+    public static List<Integer> resource_ids = new LinkedList<Integer>();
     private static List<CellAtRow> res_row_ids = new LinkedList<CellAtRow>();
 
     private static HashMap<String, String[]> language_code = new HashMap<String, String[]>();
@@ -736,8 +736,10 @@ public class SNACResourceCreator {
     public Resource insertID(String result, Resource res){
     JSONParser jp = new JSONParser();
     try{
+      System.out.println("GOT HEREJOIJWEIOGJIWO");
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
+        System.out.println("NEW ID: " + new_id);
         if(new_id!=0){
           resource_ids.add(new_id);
           res.setID(new_id);

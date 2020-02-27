@@ -141,7 +141,6 @@ public class SNACResourceTest extends RefineTest{
           + "Title: Title1\n"
           + "Display Entry: display_entry1\n"
           + "Script(s): English, Korean\n";
-      System.out.println(result);
       Assert.assertEquals(result, correct);
     }
 
@@ -283,6 +282,20 @@ public class SNACResourceTest extends RefineTest{
             String a="";
             Assert.assertTrue(a.equals(""));
         }
+    }
+
+    @Test
+    public void testInsertIDResource(){
+      Resource dummy = new Resource();
+      String result1 = "{\"resource\":{\"id\":0}}";
+      String result2 = "{\"resource\":{\"id\":1}}";
+      String result3 = "wrong parse json";
+      manager.insertID(result1, dummy);
+      manager.insertID(result2, dummy);
+      manager.insertID(result3, dummy);
+      Assert.assertNull(manager.resource_ids.get(0));
+      Assert.assertNotNull(manager.resource_ids.get(1));
+      Assert.assertEquals(manager.resource_ids.size(), 2);
     }
 
     /*WARNING: This test overrides match_attributes*/

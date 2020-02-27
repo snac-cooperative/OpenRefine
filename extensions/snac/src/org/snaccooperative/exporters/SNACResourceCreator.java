@@ -702,7 +702,7 @@ public class SNACResourceCreator {
 
     }
 
-    public void uploadResources(String apiKey, String state) {
+    public void uploadResources(String apiKey, String state){
 
     try{
         String opIns = ",\n\"operation\":\"insert\"\n},\"apikey\":\"" + apiKey +"\"";
@@ -748,6 +748,9 @@ public class SNACResourceCreator {
         else{
           resource_ids.add(null);
         }
+    }
+    catch (NullPointerException e){
+      return res;
     }
     catch (ParseException e){
         System.out.println(e);

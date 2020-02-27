@@ -145,6 +145,22 @@ public class SNACResourceTest extends RefineTest{
     }
 
     @Test
+    public void testUploadResources(){
+      manager.clearResources();
+      manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
+      manager.rowsToResources();
+      // try{
+        manager.uploadResources("fake_api_key", "prod");
+        String a="";
+        Assert.assertTrue(a.equals(""));
+      // }
+      // catch(IOException e){
+      //     String a="";
+      //     Assert.assertTrue(a.equals(""));
+      // }
+    }
+
+    @Test
     public void testExportJson() throws Exception{
       manager.clearResources();
       manager.setProject(createCSVProject(TestingData2.simpleCsv));

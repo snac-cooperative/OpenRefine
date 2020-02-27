@@ -55,10 +55,13 @@ import com.google.refine.model.ReconCandidate;
 public class TestingData2 {
 
     public static final String resourceCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
-            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345";
+            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
+            + "2,697,Title2,display_entry2,http://record2test.com,abstract_example2,extent2,2020,eng,English,12346\n"
+            + "3,400479,Title3,display_entry3,http://record3test.com,abstract_example3,extent3,2020,eng,English,12347";
 
     public static final String resourceRecordCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
-            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
+            + "2,696,Title2,display_entry2,http://record2test.com,abstract_example2,extent2,2020,eng,English,12346\n"
+            + "1,697,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
             + ",,,,,,,,kor,,";
 
     public static final String resourceRecordCsv2 = "id,type,title,display entry,link,abstract,extent,date,script,language,holding repository snac id\n"

@@ -1,4 +1,4 @@
-package org.snaccooperative.exporters; 
+package org.snaccooperative.exporters;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -199,10 +199,10 @@ public class SNACResourceCreator {
         Resource res = new Resource();
         for (int x = 0; x < csv_headers.size(); x++){
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
-            System.out.println("Snac header: " + snac_header);
-            System.out.println("CSV header: " + csv_headers.get(x));
-            System.out.println("Cell value: " + rows.get(0).getCellValue(x));
-            System.out.println();
+            // System.out.println("Snac header: " + snac_header);
+            // System.out.println("CSV header: " + csv_headers.get(x));
+            // System.out.println("Cell value: " + rows.get(0).getCellValue(x));
+            // System.out.println();
             if (snac_header == null || snac_header == ""){
                 continue;
             }
@@ -558,19 +558,28 @@ public class SNACResourceCreator {
                     else{
                       // System.out.println(languageList);
                       // System.out.println(Resource.toJSON(previewResource));
+                      List<String> valid_lang = new LinkedList<String>();
                       for(int i=0; i<languageList.size();i++){
+                        if (languageList.get(i).getLanguage() == null){
+                          continue;
+                        }
                         String lang_var = languageList.get(i).getLanguage().getType();
                         if(lang_var.equals("")){
                           continue;
                         }
-                        if(i != languageList.size()-1){
-                          previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var +"), ";
-                        }
-                        else{
-                          // English(eng), French(fre)
-                          previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var + ")\n";
-                        }
+                        valid_lang.add(language_code.get(lang_var)[1] + "(" + lang_var + ")");
+                        // if(i != languageList.size()-1){
+                        //   previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var +"), ";
+                        // }
+                        // else{
+                        //   // English(eng), French(fre)
+                        //   previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var + ")\n";
+                        // }
                       }
+                      for(int j = 0; j < valid_lang.size() - 1; j++){
+                        previewResourceLanguages += valid_lang.get(j) + ", ";
+                      }
+                      previewResourceLanguages += valid_lang.get(valid_lang.size() - 1) + "\n";
                     }
                     samplePreview+= previewResourceLanguages;
                     break;
@@ -583,19 +592,28 @@ public class SNACResourceCreator {
                     else{
                       // System.out.println(languageList);
                       // System.out.println(Resource.toJSON(previewResource));
+                      List<String> valid_script = new LinkedList<String>();
                       for(int i=0; i<scriptList.size();i++){
+                        if (scriptList.get(i).getScript() == null){
+                          continue;
+                        }
                         String lang_var = scriptList.get(i).getScript().getType();
                         if(lang_var.equals("")){
                           continue;
                         }
-                        if(i != scriptList.size()-1){
-                          previewResourceScripts+= lang_var + ", ";
-                        }
-                        else{
-                          // English(eng), French(fre)
-                          previewResourceScripts+= lang_var + "\n";
-                        }
+                        valid_script.add(lang_var);
+                        // if(i != scriptList.size()-1){
+                        //   previewResourceScripts+= lang_var + ", ";
+                        // }
+                        // else{
+                        //   // English(eng), French(fre)
+                        //   previewResourceScripts+= lang_var + "\n";
+                        // }
                       }
+                      for(int j = 0; j < valid_script.size() - 1; j++){
+                        previewResourceScripts += valid_script.get(j) + ", ";
+                      }
+                      previewResourceScripts += valid_script.get(valid_script.size() - 1) + "\n";
                     }
                     samplePreview+= previewResourceScripts;
                     break;
@@ -749,9 +767,5 @@ public void test_insertID(){
   }
   ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
   CAC.apply(theProject);
-}
-
-public static void main(String[] args) {
-    System.out.println("Hello");
 }
 }

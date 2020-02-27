@@ -70,7 +70,6 @@ public class SNACResourceTest extends RefineTest{
 
     protected Project project = null;
     protected Project project2 = null;
-    protected Project project3 = null;
     protected HttpServletRequest request = null;
     protected HttpServletResponse response = null;
     protected StringWriter writer = null;
@@ -82,22 +81,25 @@ public class SNACResourceTest extends RefineTest{
     @BeforeMethod
     public void SetUp() {
         // Setup for Post Request
-        manager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract"); add("language");add("id");add("type");add("extent");add("date");}};
+        manager.csv_headers = new LinkedList<String>(){{add("id"); add("type"); add("title"); add("display entry");
+      add("link"); add("abstract"); add("extent"); add("date"); add("language"); add("script"); add("holding repository snac id");}};
         HashMap<String, String> hash_map = new HashMap<String, String>();
-        hash_map.put("title", "title");
-        hash_map.put("link", "link");
-        hash_map.put("abstract", "abstract");
-        hash_map.put("language", "language");
         hash_map.put("id", "id");
         hash_map.put("type", "type");
-        hash_map.put("extent", "extent");
-        hash_map.put("date", "date");
+        hash_map.put("title", "title");
+        hash_map.put("display entry","display entry");
+        hash_map.put("link", "link");
+        hash_map.put("abstract", "abstract");
+        hash_map.put("extent","extent");
+        hash_map.put("date","date");
+        hash_map.put("language", "language");
+        hash_map.put("script","script");
+        hash_map.put("holding repository snac id","holding repository snac id");
 
         manager.match_attributes = hash_map;
 
         project = createCSVProject(TestingData2.resourceCsv);
         project2 = createCSVProject(TestingData2.resourceRecordCsv);
-        project3 = createCSVProject(TestingData2.resourceCsv2);
 
         command = new SNACResourceCommand();
         upload = new SNACUploadCommand();
@@ -117,13 +119,71 @@ public class SNACResourceTest extends RefineTest{
     }
 
     @Test
-    public void testResourceType() throws Exception{
-      Resource fromDataRes = manager.createResourceRow(project3.rows.get(0));
-      Resource fromDataRes1 = manager.createResourceRow(project3.rows.get(1));
-      String fromData = Resource.toJSON(fromDataRes);
-      String fromData1 = Resource.toJSON(fromDataRes1);
-      Assert.assertTrue(fromData.contains("696"));
-      Assert.assertTrue(fromData1.contains("697"));
+    public void testGetResource() throws Exception{
+      Assert.assertNull(manager.getResource(100));
+    }
+
+    @Test
+    public void testPreview() throws Exception{
+      manager.clearResources();
+      manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
+      manager.rowsToResources();
+      String result = manager.obtainPreview();
+      String correct = "Inserting 1 new Resources into SNAC.\n"
+          + "Extent: extent1\n"
+          + "Date: 2020\n"
+          + "Link: http://record1test.com\n"
+          + "Language(s): English(eng)\n"
+          + "Repository ID: 12345\n"
+          + "ID: 1\n"
+          + "Abstract: abstract_example1\n"
+          + "Document Type: DigitalArchivalResource (400479)\n"
+          + "Title: Title1\n"
+          + "Display Entry: display_entry1\n"
+          + "Script(s): English, Korean\n";
+      Assert.assertEquals(result, correct);
+    }
+
+    @Test
+    public void testUploadResources(){
+      manager.clearResources();
+      manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
+      manager.rowsToResources();
+      // try{
+      manager.uploadResources("fake_api_key", "prod");
+      manager.clearResources();
+      String a="";
+      Assert.assertTrue(a.equals(""));
+      // }
+      // catch(IOException e){
+      //     String a="";
+      //     Assert.assertTrue(a.equals(""));
+      // }
+    }
+
+    @Test
+    public void testSetUp(){
+      String json_source = "{\"id\":\"id\",\"type\":\"type\",\"title\":\"title\""
+      + ",\"display entry\":\"display entry\",\"link\":\"link\""
+      + ",\"abstract\":\"abstract\",\"extent\":\"extent\",\"date\":\"date\""
+      + ",\"language\":\"language\",\"script\":\"script\",\"holding repository snac id\":\"holding repository snac id\"}";
+      manager.clearResources();
+      try{
+        manager.setUp(createCSVProject(TestingData2.simpleCsv), json_source);
+        Assert.assertTrue(true);
+      } catch (Exception e){
+        Assert.assertFalse(true);
+      }
+    }
+
+    @Test
+    public void testExportJson() throws Exception{
+      manager.clearResources();
+      manager.setProject(createCSVProject(TestingData2.simpleCsv));
+      manager.rowsToResources();
+      String result = manager.exportResourcesJSON();
+      String correct = "{\"resources\":[{\"dataType\":\"Resource\",\"id\":1}]}";
+      Assert.assertEquals(result, correct);
     }
 
     @Test
@@ -145,7 +205,36 @@ public class SNACResourceTest extends RefineTest{
       String fromData = Resource.toJSON(fromDataRes);
       Assert.assertTrue(fromData.contains("eng"));
       Assert.assertTrue(fromData.contains("kor"));
-      Assert.assertTrue(fromData.contains("jpn"));
+      Assert.assertTrue(fromData.contains("English"));
+      Assert.assertFalse(fromData.contains("reeeee"));
+      Assert.assertFalse(fromData.contains("hmm"));
+    }
+
+    @Test
+    public void testRecordstoResource2() throws Exception{
+      manager.clearResources();
+      manager.setProject(project2);
+      manager.rowsToResources();
+      String secondRes = Resource.toJSON(manager.getResource(1));
+      Assert.assertTrue(secondRes.contains("eng"));
+      Assert.assertTrue(secondRes.contains("kor"));
+      Assert.assertTrue(secondRes.contains("English"));
+      Assert.assertFalse(secondRes.contains("reeeee"));
+      Assert.assertFalse(secondRes.contains("hmm"));
+    }
+
+    @Test
+    public void testRecordstoResource3() throws Exception{
+      manager.clearResources();
+      manager.csv_headers = new LinkedList<String>(){{add("id"); add("type"); add("title"); add("display entry");
+    add("link"); add("abstract"); add("extent"); add("date"); add("script"); add("language"); add("holding repository snac id");}};
+      manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
+      manager.rowsToResources();
+      Resource fromDataRes = manager.getResource(0);
+      String fromData = Resource.toJSON(fromDataRes);
+      Assert.assertTrue(fromData.contains("English"));
+      Assert.assertTrue(fromData.contains("eng"));
+      Assert.assertTrue(fromData.contains("Korean"));
       Assert.assertFalse(fromData.contains("reeeee"));
       Assert.assertFalse(fromData.contains("hmm"));
     }
@@ -153,15 +242,14 @@ public class SNACResourceTest extends RefineTest{
     @Test
     public void testResourceEquivalent1() throws Exception{
       Resource fromDataRes = manager.createResourceRow(project.rows.get(0));
+      Resource fromDataRes2 = manager.createResourceRow(project.rows.get(1));
+      Resource fromDataRes3 = manager.createResourceRow(project.rows.get(2));
       String fromData = Resource.toJSON(fromDataRes);
+      String fromData2 = Resource.toJSON(fromDataRes2);
+      String fromData3 = Resource.toJSON(fromDataRes3);
       Assert.assertTrue(fromData.contains("Title1"));
-    }
-
-    @Test
-    public void testResourceEquivalent2() throws Exception{
-      Resource fromDataRes = manager.createResourceRow(project.rows.get(0));
-      String fromData = Resource.toJSON(fromDataRes);
-      Assert.assertTrue(fromData.contains("abstract_example1"));
+      Assert.assertTrue(fromData2.contains("Title2"));
+      Assert.assertTrue(fromData3.contains("Title3"));
     }
 
     @Test
@@ -218,6 +306,7 @@ public class SNACResourceTest extends RefineTest{
 //     }
     @Test
     public void testResourceUpload() throws Exception{
+      manager.clearResources();
       upload.doPost(request, response);
       ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
       String response_str = response.get("done").textValue();
@@ -235,6 +324,28 @@ public class SNACResourceTest extends RefineTest{
             String a="";
             Assert.assertTrue(a.equals(""));
         }
+    }
 
+    @Test
+    public void testInsertIDResource(){
+      manager.resource_ids.clear();
+      Resource dummy = new Resource();
+      String result1 = "{\"resource\":{\"id\":0}}";
+      String result2 = "{\"resource\":{\"id\":1}}";
+      String result3 = "wrong parse json";
+      manager.insertID(result1, dummy);
+      manager.insertID(result2, dummy);
+      manager.insertID(result3, dummy);
+      Assert.assertNull(manager.resource_ids.get(0));
+      Assert.assertNotNull(manager.resource_ids.get(1));
+      Assert.assertEquals(manager.resource_ids.size(), 2);
+    }
+
+    /*WARNING: This test overrides match_attributes*/
+    @Test
+    public void testUpdateColumns() throws Exception{
+      String new_json = "{\"newcol1\":\"newvalue1\",\"newcol2\":\"newvalue2\"}";
+      manager.updateColumnMatches(new_json);
+      Assert.assertEquals(manager.match_attributes.get("newcol1"), "newvalue1");
     }
 }

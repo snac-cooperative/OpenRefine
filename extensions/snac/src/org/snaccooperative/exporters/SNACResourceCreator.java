@@ -738,10 +738,8 @@ public class SNACResourceCreator {
     public Resource insertID(String result, Resource res){
     JSONParser jp = new JSONParser();
     try{
-      System.out.println("GOT HEREJOIJWEIOGJIWO");
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
-        System.out.println("NEW ID: " + new_id);
         if(new_id!=0){
           resource_ids.add(new_id);
           res.setID(new_id);
@@ -757,19 +755,19 @@ public class SNACResourceCreator {
     return res;
 }
 
-public void test_insertID(){
-  // Run this function after insertID (above) within SNACUploadCommand
-  // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
-  // If exists: Go through and set the cell values based on the resource_ids
-  // If not: Create a new column "id" and insert cell values based on resource_ids
-
-
-  // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
-  for (int x = 0; x < theProject.rows.size(); x++){
-    Cell test_cell = new Cell(x, new Recon(0, null, null));
-    res_row_ids.add(new CellAtRow(x, test_cell));
-  }
-  ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
-  CAC.apply(theProject);
-}
+// public void test_insertID(){
+//   // Run this function after insertID (above) within SNACUploadCommand
+//   // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+//   // If exists: Go through and set the cell values based on the resource_ids
+//   // If not: Create a new column "id" and insert cell values based on resource_ids
+//
+//
+//   // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
+//   for (int x = 0; x < theProject.rows.size(); x++){
+//     Cell test_cell = new Cell(x, new Recon(0, null, null));
+//     res_row_ids.add(new CellAtRow(x, test_cell));
+//   }
+//   ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+//   CAC.apply(theProject);
+// }
 }

@@ -53,10 +53,13 @@
 
                 <!-- Javascript to enable/disable ID dropdown -->
                 <script>
+
+                    // If 'Yes' button is clicked, dont disable the ID dropdown
                     function function3() {                   
                         $(".idfield").prop("disabled", false);
                     }
 
+                    // If 'No' button is clicked, disable the ID dropdown and hide the ID draggable column to hide that option   
                     function function4() {
                         $(".idfield").prop("disabled", true);
                     }

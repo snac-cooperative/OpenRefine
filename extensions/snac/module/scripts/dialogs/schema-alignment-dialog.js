@@ -787,6 +787,11 @@ SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, or
    } else {
       cell.addClass('wbs-unreconciled-column');
    }
+
+   if (name == 'ID') {
+      cell.addClass('idcolumn')
+   }
+
    // cell.addClass(org);
 
    // cell.addClass(columnType);

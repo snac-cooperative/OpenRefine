@@ -117,9 +117,6 @@
                 <configuration>
                     <destFile>${project.build.directory}/report/jacoco.exec</destFile>
                     <propertyName>surefireArgs</propertyName>
-										<excludes>
-											<exclude> **/*</exclude>
-										</excludes>
                 </configuration>
             </execution>
             <execution>
@@ -130,9 +127,6 @@
                 <configuration>
                     <dataFile>${project.build.directory}/jacoco.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
-										<excludes>
-											<exclude> **/*</exclude>
-										</excludes>
                 </configuration>
             </execution>
             <execution>

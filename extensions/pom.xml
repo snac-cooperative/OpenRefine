@@ -44,9 +44,6 @@
                 <configuration>
                     <destFile>${project.parent.build.directory}/report/${project.name}.exec</destFile>
                     <propertyName>surefireArgs</propertyName>
-										<excludes>
-											<exclude> **/*</exclude>
-										</excludes>
                 </configuration>
             </execution>
             <execution>
@@ -57,15 +54,16 @@
                 <configuration>
                     <dataFile>${project.parent.build.directory}/report/${project.name}.exec</dataFile>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
-										<excludes>
-											<exclude> **/*</exclude>
-										</excludes>
                 </configuration>
             </execution>
          </executions>
 				<configuration>
 					<excludes>
-						<exclude> **/org/snaccooperative/commands/*</exclude> <!-- I think it's this one -->
+						<exclude> **/org/snaccooperative/commands/*SNACLoginCommand.*</exclude> <!-- I think it's this one -->
+						<exclude> **/org/snaccooperative/commands/*SNACResourceCommand.*</exclude>
+						<exclude> **/org/snaccooperative/commands/*SNACPreviewSchemaCommand.*</exclude>
+						<exclude> **/org/snaccooperative/exporters/*SNACConstellationCreator.*</exclude>
+						<exclude> **/org/snaccooperative/connection/*SNACConnector.*</exclude>
 					</excludes>
 				</configuration>
 			 </plugin>

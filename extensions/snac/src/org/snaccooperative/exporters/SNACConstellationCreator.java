@@ -39,6 +39,7 @@ import com.google.refine.model.changes.CellAtRow;
 import com.google.refine.model.changes.ColumnAdditionChange;
 
 import org.snaccooperative.data.Constellation;
+import org.snaccooperative.data.SNACDate;
 import org.snaccooperative.data.Term;
 import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.Language;
@@ -115,10 +116,6 @@ public class SNACConstellationCreator {
           constellations.add(temp);
         }
 
-        // for (int x = 0; x < rows.size(); x++){
-        //   Constellation temp = createConstellationRow(rows.get(x));
-        //   constellations.add(temp);
-        // }
 
     }
     /**
@@ -155,26 +152,32 @@ public class SNACConstellationCreator {
                   catch (NumberFormatException e){
                       break;
                   }
-              case "type":
+              case "entity type":
                   try{
                       Term t = new Term();
                       t.setType("Constellation");
                       String term;
                       int type_id;
-                      if (temp_val.equals("696") || temp_val.equals("person")){
-                        type_id = 696;
-                        t.setID(type_id);
-                        term = "person";
-                      } else if (temp_val.equals("697") || temp_val.equals("corporateBody")){
-                        type_id = 697;
-                        t.setID(type_id);
-                        term = "corporateBody";
-                      }else {
+                      if (temp_val.equals("person")){
+                          //type_id = 696;
+                          //t.setID(type_id);
+                          term = "person";
+                      }
+                      else if (temp_val.equals("family")){
+                          //type_id = 697;
+                          //t.setID(type_id);
+                          term = "corporateBody";
+                      }
+                      else if (temp_val.equals("corporateBody")){
+                          //type_id = 697;
+                          //t.setID(type_id);
+                          term = "corporateBody";
+                      }
+                      else {
                         throw new NumberFormatException();
                       }
                       t.setTerm(term);
-
-                      //con.setDocumentType(t);
+                      con.setEntityType(t);
                       break;
                   }
                   catch (NumberFormatException e){
@@ -186,28 +189,71 @@ public class SNACConstellationCreator {
                     break;
                   }
               case "name entry":
-//                  con.setNameEntries();
+//                con.setNameEntries();
                   break;
               case "date":
-//                  con.set
+                    SNACDate d = new SNACDate();
+                    d.setFromDate("String original, String standardDate, Term type");
+                    d.setToDate("String original, String standardDate, Term type");
+                    break;
+              case "date type": //active, birth, death, suspiciousdate
+
+
+              //it would appear that if there is a range, we have to deal with isRange() and setDate()
+              //https://github.com/snac-cooperative/data-model-java/blob/master/src/main/java/org/snaccooperative/data/SNACDate.java
+              //LMFAO I gotta deal with BC
+
+                  try{
+                      SNACDate d = new SNACDate();
+                      if (temp_val.equals("active")){
+                          d.setDataType("active");
+                      }
+                      else if (temp_val.equals("birth")){
+                          d.setDataType("birth");
+                      }
+                      else if (temp_val.equals("death")){
+                          d.setDataType("death");
+
+                      }
+                      else if (temp_val.equals("suspiciousdate")){
+                          d.setDataType("suspiciousdate");
+
+                      }
+                      else {
+                          throw new NumberFormatException();
+                      }
+                      t.setTerm(term);
+                      con.setEntityType(t);
+                      break;
+                  }
+                  catch (NumberFormatException e){
+                      System.out.println(temp_val + " is not a valid constellation type.");
+                      break;
+                  }
+                  catch (Exception e){
+                    System.out.println(e);
+                    break;
+                  }
                   break;
               case "subject":
-//                  con.setSubjects();
+//                con.setSubjects();
                   break;
               case "place":
-//                  con.setPlace();
+//                con.setPlace();
                   break;
               case "occupation":
-//                  con.setOccupations();
+//                con.setOccupations();
                   break;
               case "function":
-//                  con.setFunctions()
+//                con.setFunctions()
                   break;
               case "blog history":
-//                  con.setBlogHists();
+//                con.setBlogHists();
+                  break;
+              case "sameas relation":
+//                con.?????();
                   break;
               default:
-                  //a case for null would imply a list, how to handle? should be separate from default
                   break;
             }
         }

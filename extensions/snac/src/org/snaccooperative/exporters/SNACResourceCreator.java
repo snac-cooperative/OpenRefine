@@ -313,7 +313,6 @@ public class SNACResourceCreator {
                         continue;
                       }
                       temp_val = rows.get(r).getCellValue(x).toString();
-                      // temp_val = rows.get(r).getCellValue(x).toString();
                       if(!temp_val.equals("")){
                         String checked_lang = detectLanguage(temp_val);
                         if(checked_lang != null){

@@ -38,11 +38,18 @@ import com.google.refine.model.Record;
 import com.google.refine.model.changes.CellAtRow;
 import com.google.refine.model.changes.ColumnAdditionChange;
 
+import org.snaccooperative.data.BiogHist;
 import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.SNACDate;
+import org.snaccooperative.data.SNACFunction;
 import org.snaccooperative.data.Term;
 import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.Language;
+import org.snaccooperative.data.NameEntry;
+import org.snaccooperative.data.Subject;
+import org.snaccooperative.data.Place;
+import org.snaccooperative.data.Occupation;
+import org.snaccooperative.data.SameAs;
 
 public class SNACConstellationCreator {
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
@@ -146,55 +153,78 @@ public class SNACConstellationCreator {
                   try{
                       con.setID(Integer.parseInt(temp_val));
                       constellation_ids.add(Integer.parseInt(temp_val));
-                      // System.out.println("ID: " + temp_val);
+                      System.out.println("ID: " + temp_val);
                       break;
                   }
                   catch (NumberFormatException e){
                       break;
                   }
               case "entity type":
-                  try{
+                  //try{
                       Term t = new Term();
-                      t.setType("Constellation");
+                      t.setType("entity_type");
                       String term;
                       int type_id;
                       if (temp_val.equals("person")){
-                          //type_id = 696;
-                          //t.setID(type_id);
+                          type_id = 700;
+                          t.setID(type_id);
                           term = "person";
                       }
                       else if (temp_val.equals("family")){
-                          //type_id = 697;
-                          //t.setID(type_id);
-                          term = "corporateBody";
+                          type_id = 699;
+                          t.setID(type_id);
+                          term = "family";
                       }
                       else if (temp_val.equals("corporateBody")){
-                          //type_id = 697;
-                          //t.setID(type_id);
+                          type_id = 698;
+                          t.setID(type_id);
                           term = "corporateBody";
                       }
                       else {
-                        throw new NumberFormatException();
+                        System.out.println(temp_val + " is not a valid Constellation type.");
+                        //throw new NumberFormatException();
+                        break;
                       }
                       t.setTerm(term);
                       con.setEntityType(t);
                       break;
-                  }
-                  catch (NumberFormatException e){
-                      System.out.println(temp_val + " is not a valid constellation type.");
-                      break;
-                  }
-                  catch (Exception e){
-                    System.out.println(e);
-                    break;
-                  }
+                  //}
+                  // catch (NumberFormatException e){
+                  //     System.out.println(temp_val + " is not a valid constellation type.");
+                  //     break;
+                  // }
+                  // catch (Exception e){
+                  //   System.out.println(e);
+                  //   break;
+                  // }
               case "name entry":
-//                con.setNameEntries();
+                   /* Iterate through all the name entries, create a NameEntry object
+                   * which will be added to a list of NameEntry. 
+                   * Add the list of NameEntry to the constellation. 
+                   * 
+                   * NOTE: check setOriginal?
+                   */
+                  List<NameEntry> name_list = new LinkedList<NameEntry>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  // for(int c = 0; c < con.getNameEntries().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    NameEntry nameEntryValue = new NameEntry();
+                    nameEntryValue.setOriginal(temp_val);
+                    name_list.add(nameEntryValue);
+                  }
+                }
+                  con.setNameEntries(name_list);
+                  System.out.print("Name entry" + temp_val);
                   break;
               case "date":
-                    SNACDate d = new SNACDate();
-                    d.setFromDate("String original, String standardDate, Term type");
-                    d.setToDate("String original, String standardDate, Term type");
+                    System.out.println("Date is a work in progress.");
+                    //SNACDate d = new SNACDate();
+                    //d.setFromDate("String original, String standardDate, Term type");
+                    //d.setToDate("String original, String standardDate, Term type");
                     break;
               case "date type": //active, birth, death, suspiciousdate
 
@@ -202,59 +232,182 @@ public class SNACConstellationCreator {
               //it would appear that if there is a range, we have to deal with isRange() and setDate()
               //https://github.com/snac-cooperative/data-model-java/blob/master/src/main/java/org/snaccooperative/data/SNACDate.java
               //LMFAO I gotta deal with BC
+                      System.out.println("Date type is a work in progress.");
+                  // try{
+                  //     SNACDate d = new SNACDate();
+                  //     if (temp_val.equals("active")){
+                  //         d.setDataType("active");
+                  //     }
+                  //     else if (temp_val.equals("birth")){
+                  //         d.setDataType("birth");
+                  //     }
+                  //     else if (temp_val.equals("death")){
+                  //         d.setDataType("death");
 
-                  try{
-                      SNACDate d = new SNACDate();
-                      if (temp_val.equals("active")){
-                          d.setDataType("active");
-                      }
-                      else if (temp_val.equals("birth")){
-                          d.setDataType("birth");
-                      }
-                      else if (temp_val.equals("death")){
-                          d.setDataType("death");
+                  //     }
+                  //     else if (temp_val.equals("suspiciousdate")){
+                  //         d.setDataType("suspiciousdate");
 
-                      }
-                      else if (temp_val.equals("suspiciousdate")){
-                          d.setDataType("suspiciousdate");
-
-                      }
-                      else {
-                          throw new NumberFormatException();
-                      }
-                      t.setTerm(term);
-                      con.setEntityType(t);
-                      break;
-                  }
-                  catch (NumberFormatException e){
-                      System.out.println(temp_val + " is not a valid constellation type.");
-                      break;
-                  }
-                  catch (Exception e){
-                    System.out.println(e);
-                    break;
-                  }
+                  //     }
+                  //     else {
+                  //         throw new NumberFormatException();
+                  //     }
+                  //     t.setTerm(term);
+                  //     con.setEntityType(t);
+                  //     break;
+                  // }
+                  // catch (NumberFormatException e){
+                  //     System.out.println(temp_val + " is not a valid constellation type.");
+                  //     break;
+                  // }
+                  // catch (Exception e){
+                  //   System.out.println(e);
+                  //   break;
+                  // }
                   break;
               case "subject":
-//                con.setSubjects();
+                  /* Iterate through all the subject entries, create a Subject object
+                   * which will be added to a list of Subject. 
+                   * Add the list of Subject to the constellation. 
+                   */
+                  List<Subject> subject_list = new LinkedList<Subject>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  // for(int c = 0; c < con.getSubjects().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    Subject subjectValue = new Subject();
+                    Term t1 = new Term();
+                    t1.setType(temp_val);
+                    subjectValue.setTerm(t1);
+                    subject_list.add(subjectValue);
+                  }
+                }
+                  System.out.print("subject: " + temp_val);
+                  con.setSubjects(subject_list);
                   break;
               case "place":
+                  /* Iterate through all the subject entries, create a Subject object
+                   * which will be added to a list of Subject. 
+                   * Add the list of Subject to the constellation. 
+                   */
+                  List<Place> place_list = new LinkedList<Place>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  // for(int c = 0; c < con.getPlaces().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    Place placeValue = new Place();
+                    Term t1 = new Term();
+                    t1.setType(temp_val);
+                    placeValue.setType(t1);
+                    place_list.add(placeValue);
+                  }
+                }
+                  System.out.print("place: " + temp_val);
+                  con.setPlaces(place_list);
 //                con.setPlace();
                   break;
               case "occupation":
-//                con.setOccupations();
+                  /* Iterate through all the subject entries, create a Subject object
+                   * which will be added to a list of Subject. 
+                   * Add the list of Subject to the constellation. 
+                   */
+                  List<Occupation> occupation_list = new LinkedList<Occupation>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  //for(int c = 0; c < con.getOccupations().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    Occupation occupationValue = new Occupation();
+                    Term t1 = new Term();
+                    t1.setType(temp_val);
+                    occupationValue.setTerm(t1);
+                    occupation_list.add(occupationValue);
+                  }
+                }
+                  System.out.print("Occupation: " + temp_val);
+                  con.setOccupations(occupation_list);
                   break;
               case "function":
-//                con.setFunctions()
-                  break;
-              case "blog history":
-//                con.setBlogHists();
-                  break;
+                  /* Iterate through all the SNACFunction entries, create a Function object
+                   * which will be added to a list of Function. 
+                   * Add the list of Subject to the constellation. 
+                   */
+                  List<SNACFunction> SNACFunc_list = new LinkedList<SNACFunction>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  //for(int c = 0; c < con.getOccupations().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    SNACFunction snacFuncValue = new SNACFunction();
+                    Term t1 = new Term();
+                    t1.setType(temp_val);
+                    snacFuncValue.setTerm(t1);
+                    SNACFunc_list.add(snacFuncValue);
+                  }
+                }
+                System.out.print("SNACFunction: " + temp_val);
+                con.setFunctions(SNACFunc_list);
+                break;
+              case "bioghist":
+                    /* Iterate through all the biogHist entries, create a Function object
+                   * which will be added to a list of bioHist. 
+                   * Add the list of bioHist to the constellation. 
+                   */
+                  List<BiogHist> biogHist_list = new LinkedList<BiogHist>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  //for(int c = 0; c < con.getOccupations().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    BiogHist biogHistValue = new BiogHist();
+                    biogHistValue.setText(temp_val);
+                    biogHist_list.add(biogHistValue);
+                  }
+                }
+                System.out.print("BiogHist: " + temp_val);
+                con.setBiogHists(biogHist_list);
+                break;
               case "sameas relation":
-//                con.?????();
-                  break;
+                    /* Iterate through all the sameAs entries, create a sameAs object
+                   * which will be added to a list of sameAs. 
+                   * Add the list of sameAs to the constellation. 
+                   */
+                  List<SameAs> sameAs_list = new LinkedList<SameAs>();
+                  for(int c = 0; c < rows.size() + 1; c++){
+                  //for(int c = 0; c < con.getOccupations().size(); c++){
+                    if(rows.get(c).getCellValue(x) == null){
+                      continue;
+                    }
+                  temp_val = rows.get(c).getCellValue(x).toString();
+                  if(!temp_val.equals("")){
+                    /*Set the value of the subject via a term. */
+                    SameAs sameAsValue = new SameAs();
+                    sameAsValue.setText(temp_val);
+                    sameAs_list.add(sameAsValue);
+                  }
+                }
+                System.out.print("SameAs: " + temp_val);
+                //con.sameas(sameAs_list);
+                break;
               default:
-                  break;
+                  continue;
             }
         }
         return con;

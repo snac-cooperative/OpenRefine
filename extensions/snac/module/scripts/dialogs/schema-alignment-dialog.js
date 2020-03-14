@@ -1777,7 +1777,7 @@ SNACSchemaAlignmentDialog.preview = function() {
       function(data) {
         self.previewSpinner.hide();
         self.updateNbEdits(data.SNAC_preview);
-        console.log("edits should be made here");
+        // console.log("edits should be made here");
         console.log(data.SNAC_preview);
         var list = []; //Empty Array
         var line = data.SNAC_preview.split('\n'); //Split the preview string into lines

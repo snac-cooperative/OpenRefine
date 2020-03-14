@@ -205,6 +205,7 @@ public class SNACConstellationCreator {
                    * NOTE: check setOriginal?
                    */
                   List<NameEntry> name_list = new LinkedList<NameEntry>();
+                  System.out.println("Name Entry start");
                   for(int c = 0; c < rows.size() + 1; c++){
                   // for(int c = 0; c < con.getNameEntries().size(); c++){
                     if(rows.get(c).getCellValue(x) == null){
@@ -527,30 +528,37 @@ public class SNACConstellationCreator {
                 System.out.println(((String)mapEntry.getValue()).toLowerCase());
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
                   case "id":
-                    //samplePreview+= "ID: " + previewConstellation.getID() + "\n";
+                    samplePreview+= "ID: " + previewConstellation.getID() + "\n";
                     break;
-                  case "type":
-                    // Term previewTerm = previewConstellation.getDocumentType();
-                    // samplePreview+="Document Type: " + previewTerm.getTerm() + " (" + previewTerm.getID() +")\n";
+                  case "entity type":
+                    Term previewTerm = previewConstellation.getEntityType();
+                    samplePreview+="Entity Type: " + previewTerm.getTerm() + " (" + previewTerm.getID() + ")\n";
                     break;
                   case "name entry":
-                    //samplePreview+="Title: " + previewConstellation.getTitle() + "\n";
+                    samplePreview+="Name Entry: " + previewConstellation.getNameEntries() + "\n";
                     break;
                   case "date":
-                    //samplePreview+="Display Entry: " + previewConstellation.getDisplayEntry() + "\n";
+                    samplePreview+="Date: " + previewConstellation.getDateList() + "\n";
                     break;
                   case "subject":
-                    //samplePreview+="Link: " + previewConstellation.getLink() + "\n";
+                    samplePreview+="Subject: " + previewConstellation.getSubjects() + "\n";
                     break;
                   case "place":
-                    //samplePreview+="Abstract: " + previewConstellation.getAbstract() + "\n";
+                    samplePreview+="Place: " + previewConstellation.getPlaces() + "\n";
                     break;
                   case "occupation":
-                    //samplePreview+="Extent: " + previewConstellation.getExtent() +  "\n";
+                    samplePreview+="Extent: " + previewConstellation.getOccupations() +  "\n";
                     break;
                   case "function":
-                    //samplePreview+="Date: " + previewConstellation.getDate() + "\n";
+                    samplePreview+="Function: " + previewConstellation.getFunctions() + "\n";
                     break;
+                  case "bioghist":
+                    samplePreview+="Bioghist: " + previewConstellation.getBiogHistList() + "\n";
+                    break;
+                  case "sameas relation":
+                    /* not 100% sure? */
+                    samplePreview+="Sameas relation " + previewConstellation.getResourceRelations()  + "\n";
+                    break;         
                   default:
                     break;
                 }

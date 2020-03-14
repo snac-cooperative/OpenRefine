@@ -118,6 +118,51 @@ public class SNACConstellationCreator {
 
 
     }
+
+    /**
+    * Take a given date type and return a properly set up term to match it
+    * @param String
+    * @return Term
+    */
+    public Term setDateTerms(String date_type){
+        Term t=new Term();
+        if(temp_type.get(0).equals("active")){
+            t.setTerm="Active";
+            t.setID=688;
+            t.setType="date_type";
+        }
+        else if(temp_type.get(0).equals("death")){
+            t.setTerm="Death";
+            t.setID=690;
+            t.setType="date_type";
+        }
+        else if(temp_type.get(0).equals("birth")){
+            t.setTerm="Birth";
+            t.setID=689;
+            t.setType="date_type";
+        }
+        else if(temp_type.get(0).equals("suspiciousdate")){
+            t.setTerm="SuspiciousDate";
+            t.setID=691;
+            t.setType="date_type";
+        }
+        else if(temp_type.get(0).equals("establishment")){
+            t.setTerm="Establishment";
+            t.setID=400484;
+            t.setType="date_type";
+        }
+        else if(temp_type.get(0).equals("disestablishment")){
+            t.setTerm="Disestablishment";
+            t.setID=400485;
+            t.setType="date_type";
+        }
+        else{
+            //error, the date types wasn't any of these 6 above
+        }
+        return t;
+    }
+
+
     /**
     * Take a given Row and convert it to a Constellation Object
     *
@@ -126,6 +171,9 @@ public class SNACConstellationCreator {
     */
     public Constellation createConstellationRecord(List<Row> rows){ //here
         Constellation con = new Constellation();
+        List<String> temp_dates = new LinkedList<String>();
+        List<String> temp_types = new LinkedList<String>();
+        List<SNACDate> temp_SNACDates = new LinkedList<SNACDate>();
         for (int x = 0; x < csv_headers.size(); x++){
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
             if (snac_header == null || snac_header == ""){
@@ -166,7 +214,7 @@ public class SNACConstellationCreator {
                       else if (temp_val.equals("family")){
                           //type_id = 697;
                           //t.setID(type_id);
-                          term = "corporateBody";
+                          term = "family";
                       }
                       else if (temp_val.equals("corporateBody")){
                           //type_id = 697;
@@ -192,49 +240,11 @@ public class SNACConstellationCreator {
 //                con.setNameEntries();
                   break;
               case "date":
-                    SNACDate d = new SNACDate();
-                    d.setFromDate("String original, String standardDate, Term type");
-                    d.setToDate("String original, String standardDate, Term type");
+                    temp_dates.add(temp_val);
                     break;
               case "date type": //active, birth, death, suspiciousdate
-
-
-              //it would appear that if there is a range, we have to deal with isRange() and setDate()
-              //https://github.com/snac-cooperative/data-model-java/blob/master/src/main/java/org/snaccooperative/data/SNACDate.java
-              //LMFAO I gotta deal with BC
-
-                  try{
-                      SNACDate d = new SNACDate();
-                      if (temp_val.equals("active")){
-                          d.setDataType("active");
-                      }
-                      else if (temp_val.equals("birth")){
-                          d.setDataType("birth");
-                      }
-                      else if (temp_val.equals("death")){
-                          d.setDataType("death");
-
-                      }
-                      else if (temp_val.equals("suspiciousdate")){
-                          d.setDataType("suspiciousdate");
-
-                      }
-                      else {
-                          throw new NumberFormatException();
-                      }
-                      t.setTerm(term);
-                      con.setEntityType(t);
-                      break;
-                  }
-                  catch (NumberFormatException e){
-                      System.out.println(temp_val + " is not a valid constellation type.");
-                      break;
-                  }
-                  catch (Exception e){
-                    System.out.println(e);
+                    temp_types.add(temp_val);
                     break;
-                  }
-                  break;
               case "subject":
 //                con.setSubjects();
                   break;
@@ -256,6 +266,47 @@ public class SNACConstellationCreator {
               default:
                   break;
             }
+        }
+
+        //Logic for date handling
+        if(temp_types.size()==temp_dates.size() && !temp_types.contains("") && !temp_dates.contains("") && temp_types.size()!=0){
+            //for(int x=0;x<temp_dates.size();x++){
+                SNACDate d = new SNACDate();
+                SNACDate d2 = new SNACDate();
+                if(temp_type.size()==1){
+                    Term temp_term=setDateTerms(temp_type.get(0));
+                    d.setDate(temp_dates.get(0),temp_dates.get(0),temp_term);
+                    temp_SNACDates.add(d);
+                }
+                else if(temp_type.size()==2){ //this is under the assuption the rows are always in order of From and To date, aka Active->Death, Birth->Death, etc.
+                    Term t1=new Term();
+                    Term t2=new Term();
+                    t1=setDateTerms(temp_type.get(0));
+                    t2=setDateTerms(temp_type.get(1));
+                    d.setRange(true);
+                    d.setFromDate(temp_dates.get(0),temp_dates.get(0),t1);
+                    d.setToDate(temp_dates.get(1),temp_dates.get(1),t2);
+                    temp_SNACDates.add(d);
+                }
+                else if(temp_type.size()==3){
+                    Term t1=new Term();
+                    Term t2=new Term();
+                    Term t3=new Term();
+                    t1=setDateTerms(temp_type.get(0));
+                    t2=setDateTerms(temp_type.get(1));
+                    t3=setDateTerms(temp_type.get(2));
+                    d.setRange(true);
+                    d.setFromDate(temp_dates.get(0),temp_dates.get(0),t1);
+                    d.setToDate(temp_dates.get(1),temp_dates.get(1),t2);
+                    d2.setDate(temp_dates.get(2),temp_dates.get(2),t3);
+                    temp_SNACDates.add(d);
+                    temp_SNACDates.add(d2);
+                }
+                else{
+                    //error, you gave us 4+ dates???
+                }
+            //}
+            con.setDateList(temp_SNACDates);
         }
         return con;
     }

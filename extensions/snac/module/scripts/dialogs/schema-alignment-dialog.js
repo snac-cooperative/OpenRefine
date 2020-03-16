@@ -230,8 +230,14 @@ function addResourceTable(columns, SNACcolumns) {
          td.appendChild(dragNode);
          tr.appendChild(td);
       }
-
+      
       var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').attr('style', 'width: 180px');
+      
+
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
+
 
       //Create and append the options
       var defaultoption = document.createElement("option");
@@ -312,6 +318,10 @@ function addConstellationTable(columns, SNACcolumns) {
       }
 
       var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').attr('style', 'width: 180px');
+
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
 
       //Create and append the options
       var defaultoption = document.createElement("option");
@@ -789,6 +799,11 @@ SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, or
    } else {
       cell.addClass('wbs-unreconciled-column');
    }
+
+   if (name == 'ID') {
+      cell.addClass('idcolumn')
+   }
+
    // cell.addClass(org);
 
    // cell.addClass(columnType);

@@ -186,6 +186,12 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
 //Create a table for the resource page function
 function addResourceTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableResource");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableResource");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    // myTableDiv.setAttribute('style', 'margin-left: 18px;');
 
    var table = document.createElement('TABLE');
@@ -204,57 +210,110 @@ function addResourceTable(columns, SNACcolumns) {
       return dropdownOptionsArray;
    }
 
-   for (var i = 0; i < columns.length; i++) {
-      var tr = document.createElement('TR');
-      tableBody.appendChild(tr);
-      var column = columns[i];
+  
 
-      for (var j = 0; j < 2; j+=2) {
-         var td = document.createElement('TD');
-         td.width = '100';
-         var reconConfig = column.reconConfig;
-         var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
-         reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
-         var dragDivElement = cell[0];
-         var dragNode = document.createElement('div');
-         dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
-         dragNode.style = 'width: 150px';
-         dragNode.id = i;
-         dragNode.append(dragDivElement.innerHTML);
-         td.appendChild(dragNode);
-         tr.appendChild(td);
-      }
+   async function saveChanges(){
+      var refreshDict;
+       await $.post(
+         "command/snac/resource",
+         {
+         },
+         function(data, status) {
+            console.log("Stored Dict Values: " + data.resource);
+            refreshDict =  JSON.parse(data.resource);
+         }
+      );
 
-      var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').attr('style', 'width: 180px');
+      console.log("ASDFASDFASDF "+ refreshDict);
+      return refreshDict;
 
-      //Create and append the options
-      var defaultoption = document.createElement("option");
-      defaultoption.setAttribute("value", "");
-      defaultoption.text = "Select an Option";
-      defaultoption.classList.add("dropdown-default-resource");
-      selectList.append(defaultoption);
-
-      for (var j = 0; j < SNACcolumns.length; j++) {
-         var option = document.createElement("option");
-         option.setAttribute("value", SNACcolumns[j]);
-         option.text = SNACcolumns[j];
-         option.classList.add("dropdown-option-resource");
-         selectList.append(option);
-      }
-
-      for (var j = 1; j < 2; j+=2) {
-         var td = document.createElement('TD');
-         // td.width = '75';
-         td.appendChild(selectList[0]);
-         tr.appendChild(td);
-      }
    }
+
+   
+   // var savedChanges = Promise.resolve(saveChanges());
+   // console.log("test saved "+ savedChanges);
+
+
+   saveChanges().then(refreshDict => {
+      // console.log("here1");
+      // if(columns[i].originalName in refreshDict){
+      //    selectList[0].value = "ID";
+      // }
+   // });
+      for (var i = 0; i < columns.length; i++) {
+         var tr = document.createElement('TR');
+         tableBody.appendChild(tr);
+         var column = columns[i];
+
+         for (var j = 0; j < 2; j+=2) {
+            var td = document.createElement('TD');
+            td.width = '100';
+            var reconConfig = column.reconConfig;
+            var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
+            reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
+            var dragDivElement = cell[0];
+            var dragNode = document.createElement('div');
+            dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
+            dragNode.style = 'width: 150px';
+            dragNode.id = i;
+            dragNode.append(dragDivElement.innerHTML);
+            td.appendChild(dragNode);
+            tr.appendChild(td);
+         }
+         var className = columns[i].originalName;
+
+         var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').addClass(columns[i].originalName + "DropDown").attr('style', 'width: 180px');
+         
+
+         if (column.name == 'id') {
+            selectList.addClass('idfield');
+         }
+
+         //Create and append the options
+         var defaultoption = document.createElement("option");
+         defaultoption.setAttribute("value", "");
+         defaultoption.text = "Select an Option";
+         defaultoption.classList.add("dropdown-default-resource");
+         selectList.append(defaultoption);
+
+         for (var j = 0; j < SNACcolumns.length; j++) {
+            var option = document.createElement("option");
+            option.setAttribute("value", SNACcolumns[j]);
+            option.text = SNACcolumns[j];
+            option.classList.add("dropdown-option-resource");
+            selectList.append(option);
+         }
+
+         if(refreshDict[className] != ""){
+            selectList[0].value = refreshDict[className];
+         }
+
+
+         for (var j = 1; j < 2; j+=2) {
+            var td = document.createElement('TD');
+            // td.width = '75';
+            td.appendChild(selectList[0]);
+            tr.appendChild(td);
+         }
+      }
+   });
+
+   
+
+   
+
    return myTableDiv;
  }
 
 //Create a table for the constellation page function
 function addConstellationTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableConstellation");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableConstellation");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    var table = document.createElement('TABLE');
    var tableBody = document.createElement('TBODY');
    table.appendChild(tableBody);
@@ -299,7 +358,13 @@ function addConstellationTable(columns, SNACcolumns) {
          tr.appendChild(td);
       }
 
-      var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').attr('style', 'width: 180px');
+      var className = columns[i].originalName + "DropDown";
+
+      var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').addClass(className).attr('style', 'width: 180px');
+
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
 
       //Create and append the options
       var defaultoption = document.createElement("option");
@@ -777,6 +842,11 @@ SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, or
    } else {
       cell.addClass('wbs-unreconciled-column');
    }
+
+   if (name == 'ID') {
+      cell.addClass('idcolumn')
+   }
+
    // cell.addClass(org);
 
    // cell.addClass(columnType);

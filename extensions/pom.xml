@@ -63,6 +63,7 @@
 						<exclude> **/org/snaccooperative/commands/*SNACResourceCommand.*</exclude>
 						<exclude> **/org/snaccooperative/commands/*SNACPreviewSchemaCommand.*</exclude>
 						<exclude> **/org/snaccooperative/exporters/*SNACConstellationCreator.*</exclude>
+						<exclude> **/org/snaccooperative/connection/*SNACConnector.*</exclude>
 					</excludes>
 				</configuration>
 			 </plugin>

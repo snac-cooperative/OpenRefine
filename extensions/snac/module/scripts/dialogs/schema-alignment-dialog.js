@@ -415,6 +415,18 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       op.text = arrItem.originalName;
       idDropdown.options.add(op); 
    });
+
+   idDropdown.addEventListener("change", function(){
+      var selected = idDropdown.value;
+      // console.log(selected);
+      // TODO: ask what to do if select the default????? :(
+      // if not default selected
+         // remove ID option from all dropdowns
+         // remove ID from draggable list
+         // add ID option to the right dropdown
+         // select that option
+         // also POST request to store this in backend for insert ID column?????
+   });
    this._idDropdownDiv.append(idDropdown);
 
 

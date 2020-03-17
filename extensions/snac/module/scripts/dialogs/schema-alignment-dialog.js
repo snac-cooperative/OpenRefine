@@ -179,6 +179,24 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    this.preview();
 }
 
+//function for saving dropdown vals through page refresh
+async function saveChanges(){
+   var refreshDict;
+    await $.post(
+      "command/snac/resource",
+      {
+      },
+      function(data, status) {
+         console.log("Stored Dict Values: " + data.resource);
+         refreshDict =  JSON.parse(data.resource);
+      }
+   );
+
+   console.log("ASDFASDFASDF "+ refreshDict);
+   return refreshDict;
+
+}
+
 /*******************************************************
 * Schema Tab Matching for Resources and Constellations *
 ********************************************************/
@@ -210,36 +228,7 @@ function addResourceTable(columns, SNACcolumns) {
       return dropdownOptionsArray;
    }
 
-  
-
-   async function saveChanges(){
-      var refreshDict;
-       await $.post(
-         "command/snac/resource",
-         {
-         },
-         function(data, status) {
-            console.log("Stored Dict Values: " + data.resource);
-            refreshDict =  JSON.parse(data.resource);
-         }
-      );
-
-      console.log("ASDFASDFASDF "+ refreshDict);
-      return refreshDict;
-
-   }
-
-   
-   // var savedChanges = Promise.resolve(saveChanges());
-   // console.log("test saved "+ savedChanges);
-
-
    saveChanges().then(refreshDict => {
-      // console.log("here1");
-      // if(columns[i].originalName in refreshDict){
-      //    selectList[0].value = "ID";
-      // }
-   // });
       for (var i = 0; i < columns.length; i++) {
          var tr = document.createElement('TR');
          tableBody.appendChild(tr);
@@ -271,7 +260,7 @@ function addResourceTable(columns, SNACcolumns) {
 
          //Create and append the options
          var defaultoption = document.createElement("option");
-         defaultoption.setAttribute("value", "");
+         defaultoption.setAttribute("value", "default");
          defaultoption.text = "Select an Option";
          defaultoption.classList.add("dropdown-default-resource");
          selectList.append(defaultoption);
@@ -284,10 +273,9 @@ function addResourceTable(columns, SNACcolumns) {
             selectList.append(option);
          }
 
-         if(refreshDict[className] != ""){
+         if(refreshDict[className] != "" && refreshDict[className]!= undefined){
             selectList[0].value = refreshDict[className];
          }
-
 
          for (var j = 1; j < 2; j+=2) {
             var td = document.createElement('TD');
@@ -297,11 +285,6 @@ function addResourceTable(columns, SNACcolumns) {
          }
       }
    });
-
-   
-
-   
-
    return myTableDiv;
  }
 
@@ -327,67 +310,74 @@ function addConstellationTable(columns, SNACcolumns) {
       }
       return dropdownOptionsArray;
    }
+   saveChanges().then(refreshDict => {
 
    // let columnsResource = ["id", "entity_type", "name_entry", "surname", "forename", "exist_dates", "bioghist", "place", "occupation", "related_constellation_ids", "related_resource_ids"];
    // for (var i = 0; i < columnsResource.length; i++) {
-   for (var i = 0; i < columns.length; i++) {
+      for (var i = 0; i < columns.length; i++) {
 
-      var tr = document.createElement('TR');
-      tableBody.appendChild(tr);
-      var column = columns[i];
-      // var columnsResource = columns[i];
+         var tr = document.createElement('TR');
+         tableBody.appendChild(tr);
+         var column = columns[i];
+         // var columnsResource = columns[i];
 
-      for (var j = 0; j < 2; j+=2) {
-         var td = document.createElement('TD');
-         td.width = '100';
-         // var reconConfig = columnsResource.reconConfig;
-         // var cell = SNACSchemaAlignmentDialog._createDraggableColumn(columnsResource[i], false);
-         var reconConfig = column.reconConfig;
-         var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
-         reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
+         for (var j = 0; j < 2; j+=2) {
+            var td = document.createElement('TD');
+            td.width = '100';
+            // var reconConfig = columnsResource.reconConfig;
+            // var cell = SNACSchemaAlignmentDialog._createDraggableColumn(columnsResource[i], false);
+            var reconConfig = column.reconConfig;
+            var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
+            reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
 
-         // var cell = SNACSchemaAlignmentDialog._createDraggableColumn(columnsResource[i],
-         //    reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
-         var dragDivElement = cell[0];
-         var dragNode = document.createElement('div');
-         dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
-         dragNode.style = 'width: 150px';
-         dragNode.id = i + columns.length;
-         dragNode.append(dragDivElement.innerHTML);
-         td.appendChild(dragNode);
-         tr.appendChild(td);
+            // var cell = SNACSchemaAlignmentDialog._createDraggableColumn(columnsResource[i],
+            //    reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
+            var dragDivElement = cell[0];
+            var dragNode = document.createElement('div');
+            dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
+            dragNode.style = 'width: 150px';
+            dragNode.id = i + columns.length;
+            dragNode.append(dragDivElement.innerHTML);
+            td.appendChild(dragNode);
+            tr.appendChild(td);
+         }
+
+         var className = columns[i].originalName + "DropDown";
+
+         var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').addClass(className).attr('style', 'width: 180px');
+
+         if (column.name == 'id') {
+            selectList.addClass('idfield');
+         }
+
+         //Create and append the options
+         var defaultoption = document.createElement("option");
+         defaultoption.setAttribute("value", "default");
+         defaultoption.text = "Select an Option";
+         defaultoption.classList.add("dropdown-default-const");
+         selectList.append(defaultoption);
+
+         for (var j = 0; j < SNACcolumns.length; j++) {
+            var option = document.createElement("option");
+            option.setAttribute("value", SNACcolumns[j]);
+            option.text = SNACcolumns[j];
+            option.classList.add("dropdown-option-const");
+            selectList.append(option);
+         }
+
+         if(refreshDict[className] != "" && refreshDict[className]!= undefined){
+            selectList[0].value = refreshDict[className];
+         }
+        
+
+         for (var j = 1; j < 2; j+=2) {
+            var td = document.createElement('TD');
+            // td.width = '75';
+            td.appendChild(selectList[0]);
+            tr.appendChild(td);
+         }
       }
-
-      var className = columns[i].originalName + "DropDown";
-
-      var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').addClass(className).attr('style', 'width: 180px');
-
-      if (column.name == 'id') {
-         selectList.addClass('idfield');
-      }
-
-      //Create and append the options
-      var defaultoption = document.createElement("option");
-      defaultoption.setAttribute("value", "");
-      defaultoption.text = "Select an Option";
-      defaultoption.classList.add("dropdown-default-const");
-      selectList.append(defaultoption);
-
-      for (var j = 0; j < SNACcolumns.length; j++) {
-         var option = document.createElement("option");
-         option.setAttribute("value", SNACcolumns[j]);
-         option.text = SNACcolumns[j];
-         option.classList.add("dropdown-option-const");
-         selectList.append(option);
-      }
-
-      for (var j = 1; j < 2; j+=2) {
-         var td = document.createElement('TD');
-         // td.width = '75';
-         td.appendChild(selectList[0]);
-         tr.appendChild(td);
-      }
-   }
+   });
    return myTableDiv;
 }
 
@@ -411,6 +401,22 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
 
    var myTableDivResource = addResourceTable(columnsResource, SNACcolumnsResource);
    this._columnAreaResource.append(myTableDivResource);
+
+   this._idDropdownDiv = $("#idSelectionDiv");
+
+   idDropdown = document.createElement("select");
+   var defaultOp = new Option();
+   defaultOp.value = "idDefault";
+   defaultOp.text = "Select ID Column";
+   idDropdown.options.add(defaultOp); 
+   columnsResource.forEach(function (arrItem){
+      var op = new Option();
+      op.value = arrItem.originalName;
+      op.text = arrItem.originalName;
+      idDropdown.options.add(op); 
+   });
+   this._idDropdownDiv.append(idDropdown);
+
 
    for (var i = 0; i < dragItemsResource.length; i++) {
       var cell = SNACSchemaAlignmentDialog._createDraggableColumn(dragItemsResource[i], false);

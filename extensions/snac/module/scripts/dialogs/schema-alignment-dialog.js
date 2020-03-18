@@ -416,6 +416,8 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       idDropdown.options.add(op); 
    });
 
+   // TODO: on load, check if idColumn set and stuff to save changes after reload
+
    idDropdown.addEventListener("change", function(){
       var selected = idDropdown.value;
       // console.log(selected);

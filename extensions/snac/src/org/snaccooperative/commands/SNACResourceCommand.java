@@ -36,6 +36,7 @@ public class SNACResourceCommand extends Command {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String idCol = request.getParameter("idCol");
         String dict = request.getParameter("dict");
         SNACResourceCreator manager = SNACResourceCreator.getInstance();
         if (dict != null){
@@ -46,6 +47,10 @@ public class SNACResourceCommand extends Command {
               e.printStackTrace();
               System.out.println("Failed to set up Resources.");
             }
+        }
+        if(idCol != null){
+          manager.setIDCol(idCol);
+
         }
 
         // Project p = getProject(request);
@@ -60,6 +65,8 @@ public class SNACResourceCommand extends Command {
 
         writer.writeStartObject();
         writer.writeStringField("resource", manager.getColumnMatchesJSONString());
+        writer.writeStringField("idColumn", manager.getIdColumn());
+
         writer.writeEndObject();
         writer.flush();
         writer.close();

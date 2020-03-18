@@ -420,12 +420,36 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       var selected = idDropdown.value;
       // console.log(selected);
       // TODO: ask what to do if select the default????? :(
+      if (selected == "idDefault"){
+         $.post(
+            "command/snac/resource",
+            {
+               "idCol": ""
+            },
+            function(data, status) {
+               console.log("ID col unset");
+            }
+         );
+      }
       // if not default selected
-         // remove ID option from all dropdowns
-         // remove ID from draggable list
-         // add ID option to the right dropdown
-         // select that option
-         // also POST request to store this in backend for insert ID column?????
+      // remove ID option from all dropdowns
+      // remove ID from draggable list
+      // add ID option to the right dropdown
+      // select that option
+      // also POST request to store this in backend for insert ID column?????
+      else{
+         $.post(
+            "command/snac/resource",
+            {
+               "idCol": selected
+            },
+            function(data, status) {
+               console.log("ID col set: " + data.idColumn);
+            }
+         );
+      }
+      
+         
    });
    this._idDropdownDiv.append(idDropdown);
 

@@ -105,6 +105,7 @@ public class SNACResourceCreator {
   */
     public static HashMap<String, Integer> globalCellsLoc = new HashMap<String, Integer>();
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
+    public static String idColumn = "";
     private static Project theProject = new Project();
     private static final SNACResourceCreator instance = new SNACResourceCreator();
     private static List<Resource> resources = new LinkedList<Resource>();
@@ -132,6 +133,10 @@ public class SNACResourceCreator {
     public String getColumnMatchesJSONString(){
         // System.out.println(new JSONObject(match_attributes).toString());
         return new JSONObject(match_attributes).toString();
+    }
+    
+    public String getIdColumn(){
+      return idColumn;
     }
 
     public static void setProject(Project p){
@@ -164,7 +169,11 @@ public class SNACResourceCreator {
         updateColumnMatches(JSON_SOURCE);
         rowsToResources();
         exportResourcesJSON();
-        // test_insertID();
+    }
+
+    public void setIDCol(String idCol){
+      idColumn = idCol;
+      System.out.println("setting id col: "+ idColumn);
     }
 
     /**
@@ -784,17 +793,14 @@ public void test_insertID(){
 
 
   System.out.println("inserting col");
-  for(Column c: colList){
-    // System.out.println("PRINTING COL NAMES: ");
-    // System.out.println(c.getOriginalHeaderLabel());
-    if(c.getOriginalHeaderLabel().equals("id")){
-      // next steps: need to make this work with the checkbox for ID!!
-      // need to check other names too reee
-      // SNAC ID column
-      // checkbox thing : yes? - drag & drop
-      idColExists = true;
-      idColIndex = c.getCellIndex();
-      break;
+  System.out.println(idColumn);
+  if(!idColumn.equals("")){
+    idColExists = true;
+    for(Column c: colList){
+      if(c.getOriginalHeaderLabel().equals(idColumn)){
+        idColIndex = c.getCellIndex();
+        break;
+      }
     }
   }
   System.out.println("RESOURCE IDS: ");

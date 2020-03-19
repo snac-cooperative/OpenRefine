@@ -133,35 +133,35 @@ public class SNACConstellationCreator {
     */
     public Term setDateTerms(String date_type){
         Term t=new Term();
-        if(temp_type.get(0).equals("active")){
-            t.setTerm="Active";
-            t.setID=688;
-            t.setType="date_type";
+        if(date_type.equals("active")){
+            t.setTerm("Active");
+            t.setID(688);
+            t.setType("date_type");
         }
-        else if(temp_type.get(0).equals("death")){
-            t.setTerm="Death";
-            t.setID=690;
-            t.setType="date_type";
+        else if(date_type.equals("death")){
+            t.setTerm("Death");
+            t.setID(690);
+            t.setType("date_type");
         }
-        else if(temp_type.get(0).equals("birth")){
-            t.setTerm="Birth";
-            t.setID=689;
-            t.setType="date_type";
+        else if(date_type.equals("birth")){
+            t.setTerm("Birth");
+            t.setID(689);
+            t.setType("date_type");
         }
-        else if(temp_type.get(0).equals("suspiciousdate")){
-            t.setTerm="SuspiciousDate";
-            t.setID=691;
-            t.setType="date_type";
+        else if(date_type.equals("suspiciousdate")){
+            t.setTerm("SuspiciousDate");
+            t.setID(691);
+            t.setType("date_type");
         }
-        else if(temp_type.get(0).equals("establishment")){
-            t.setTerm="Establishment";
-            t.setID=400484;
-            t.setType="date_type";
+        else if(date_type.equals("establishment")){
+            t.setTerm("Establishment");
+            t.setID(400484);
+            t.setType("date_type");
         }
-        else if(temp_type.get(0).equals("disestablishment")){
-            t.setTerm="Disestablishment";
-            t.setID=400485;
-            t.setType="date_type";
+        else if(date_type.equals("disestablishment")){
+            t.setTerm("Disestablishment");
+            t.setID(400485);
+            t.setType("date_type");
         }
         else{
             //error, the date types wasn't any of these 6 above
@@ -426,28 +426,28 @@ public class SNACConstellationCreator {
             //for(int x=0;x<temp_dates.size();x++){
                 SNACDate d = new SNACDate();
                 SNACDate d2 = new SNACDate();
-                if(temp_type.size()==1){
-                    Term temp_term=setDateTerms(temp_type.get(0));
+                if(temp_types.size()==1){
+                    Term temp_term=setDateTerms(temp_types.get(0));
                     d.setDate(temp_dates.get(0),temp_dates.get(0),temp_term);
                     temp_SNACDates.add(d);
                 }
-                else if(temp_type.size()==2){ //this is under the assuption the rows are always in order of From and To date, aka Active->Death, Birth->Death, etc.
+                else if(temp_types.size()==2){ //this is under the assuption the rows are always in order of From and To date, aka Active->Death, Birth->Death, etc.
                     Term t1=new Term();
                     Term t2=new Term();
-                    t1=setDateTerms(temp_type.get(0));
-                    t2=setDateTerms(temp_type.get(1));
+                    t1=setDateTerms(temp_types.get(0));
+                    t2=setDateTerms(temp_types.get(1));
                     d.setRange(true);
                     d.setFromDate(temp_dates.get(0),temp_dates.get(0),t1);
                     d.setToDate(temp_dates.get(1),temp_dates.get(1),t2);
                     temp_SNACDates.add(d);
                 }
-                else if(temp_type.size()==3){
+                else if(temp_types.size()==3){
                     Term t1=new Term();
                     Term t2=new Term();
                     Term t3=new Term();
-                    t1=setDateTerms(temp_type.get(0));
-                    t2=setDateTerms(temp_type.get(1));
-                    t3=setDateTerms(temp_type.get(2));
+                    t1=setDateTerms(temp_types.get(0));
+                    t2=setDateTerms(temp_types.get(1));
+                    t3=setDateTerms(temp_types.get(2));
                     d.setRange(true);
                     d.setFromDate(temp_dates.get(0),temp_dates.get(0),t1);
                     d.setToDate(temp_dates.get(1),temp_dates.get(1),t2);

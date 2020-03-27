@@ -1773,7 +1773,7 @@ SNACSchemaAlignmentDialog.preview = function() {
     return;
   }
   $.get(
-      "command/snac/preview-snac-schema", //+ $.param({ project: theProject.id }),
+      "command/snac/preview-res-snac-schema", //+ $.param({ project: theProject.id }),
       function(data) {
         self.previewSpinner.hide();
         self.updateNbEdits(data.SNAC_preview);

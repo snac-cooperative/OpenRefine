@@ -11,9 +11,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.refine.commands.Command;
 import com.google.refine.util.ParsingUtilities;
 
-import org.snaccooperative.exporters.SNACResourceCreator;
+import org.snaccooperative.exporters.SNACConstellationCreator;
 
-public class SNACPreviewSchemaCommand extends Command  {
+public class SNACConstellationPreviewSchemaCommand extends Command  {
 
    // @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -28,7 +28,7 @@ public class SNACPreviewSchemaCommand extends Command  {
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        SNACResourceCreator manager = SNACResourceCreator.getInstance();
+        SNACConstellationCreator manager = SNACConstellationCreator.getInstance();
         String previewString = manager.obtainPreview();
         Writer w = response.getWriter();
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);

@@ -35,7 +35,7 @@ public class SNACConstellationPreviewSchemaCommand extends Command  {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");
         writer.writeStartObject();
-        writer.writeStringField("SNAC_preview", previewString);
+        writer.writeStringField("SNAC_Constellationpreview", previewString);
         writer.writeEndObject();
         writer.flush();
         writer.close();

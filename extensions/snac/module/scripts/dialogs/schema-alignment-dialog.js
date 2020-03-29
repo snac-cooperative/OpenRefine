@@ -383,13 +383,16 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    this._columnAreaConstellation.addClass("snac-tab");
    this._columnAreaConstellation.empty();
 
-   var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Surname", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
+   //var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Surname", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
+   var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Occupation", "Function", "BiogHist", "SameAs Relation"];
    this._dropdownAreaConestellation = $(".schema-alignment-dialog-dropdown-area-constellation");
    this._dropdownAreaConestellation.addClass("snac-tab");
    this._dropdownAreaConestellation.empty();
 
    // var dragItemsConstellation = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
-   var dragItemsConstellation = ["BiogHist", "Entity Type", "Exist Dates", "Forename", "ID", "Name Entry" ,"Occupation", "Place", "Related Constellation IDs", "Related Resource IDs", "Surname"];
+   // var dragItemsConstellation = ["BiogHist", "Entity Type", "Exist Dates", "Forename", "ID", "Name Entry" ,"Occupation", "Place", "Related Constellation IDs", "Related Resource IDs", "Surname"];
+   // Based on SNACConstellationCreator
+   var dragItemsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Occupation", "Function", "BiogHist", "SameAs Relation"];
    this._refcolumnAreaConestellation = $(".schema-alignment-dialog-columns-area-constellation--ref");
    this._refcolumnAreaConestellation.addClass("snac-tab");
    this._refcolumnAreaConestellation.empty();
@@ -658,6 +661,9 @@ SNACSchemaAlignmentDialog._reset = function(schema) {
 // Will be used for save & issues
 var error_fields = [];
 
+// Check for determining GET request for either Constellation or Resourecs
+var check_dataType = "";
+
 SNACSchemaAlignmentDialog._save = function(onDone) {
    var self = this;
    var schema = this.getJSON();
@@ -671,10 +677,14 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    // This helps the Issue tab to differentiate between what issues it will look at for Resource vs Constellation
    if (document.getElementById('resourcebutton').checked) {
       var dropDownValues = document.getElementsByClassName('selectColumnRes');
+      check_dataType = "GET_Resource";
    }
    else {
       var dropDownValues = document.getElementsByClassName('selectColumnConst');
+      check_dataType = "GET_Constellation";
    }
+
+   console.log("This is the GET request: " + check_dataType);
 
    //   var dropDownValues = document.getElementsByClassName('selectColumn');
 
@@ -1772,59 +1782,117 @@ SNACSchemaAlignmentDialog.preview = function() {
     $('.invalid-schema-warning').show();
     return;
   }
-  $.get(
-      "command/snac/preview-res-snac-schema", //+ $.param({ project: theProject.id }),
-      function(data) {
-        self.previewSpinner.hide();
-        self.updateNbEdits(data.SNAC_preview);
-        // console.log("edits should be made here");
-        console.log(data.SNAC_preview);
-        var list = []; //Empty Array
-        var line = data.SNAC_preview.split('\n'); //Split the preview string into lines
-        var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
-        line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
+  if(check_dataType == "GET_Resource"){
+   $.get(
+         "command/snac/preview-res-snac-schema", //+ $.param({ project: theProject.id }),
+         function(data) {
+         self.previewSpinner.hide();
+         self.updateNbEdits(data.SNAC_Resourcepreview);
+         console.log("edits should be made here, made it to GET_Resource");
+         console.log(data.SNAC_Resourcepreview);
+         var list = []; //Empty Array
+         var line = data.SNAC_Resourcepreview.split('\n'); //Split the preview string into lines
+         var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
+         line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
 
-        //Remove any empty strings
-        line = line.filter(function(str) {
-           return /\S/.test(str);
-        });
+         //Remove any empty strings
+         line = line.filter(function(str) {
+            return /\S/.test(str);
+         });
 
-        //Fill the list array with each line in HTML list form
-        for(var i = 0; i<line.length; i++) {
-           var line_parts = line[i].split(/:(.+)/); //Split on the first colon
-           list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
-        }
+         //Fill the list array with each line in HTML list form
+         for(var i = 0; i<line.length; i++) {
+            var line_parts = line[i].split(/:(.+)/); //Split on the first colon
+            list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
+         }
 
-        //Find the max length of items in the list[] array
-        var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
+         //Find the max length of items in the list[] array
+         var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
 
-        //Construct a divder string of "-" to be the size of the longest element in list[]
-        var divider = "";
-        for(var i=9; i<max/2; i++) {
-           divider += "—";
-        }
+         //Construct a divder string of "-" to be the size of the longest element in list[]
+         var divider = "";
+         for(var i=9; i<max/2; i++) {
+            divider += "—";
+         }
 
-        //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
-        //More dynamic based on how many csv columns were paired in the editing SNAC schema
-        var pos = 0, interval = list.length/2 + 1;
-        while (pos < list.length) {
-           list.splice(pos, 0, divider);
-           pos += interval;
-        }
+         //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
+         //More dynamic based on how many csv columns were paired in the editing SNAC schema
+         var pos = 0, interval = list.length/2 + 1;
+         while (pos < list.length) {
+            list.splice(pos, 0, divider);
+            pos += interval;
+         }
 
-        //Build the string for the HTML list items
-        for(var i = 0; i<list.length; i++) {
-           building += list[i];
-        }
+         //Build the string for the HTML list items
+         for(var i = 0; i<list.length; i++) {
+            building += list[i];
+         }
 
-        //Update the string into the preview tab
-        self.updateNbEdits(data.SNAC_preview);
+         //Update the string into the preview tab
+         self.updateNbEdits(data.SNAC_Resourcepreview);
 
-        //Get the HTML id element of where the list should be added
-        var element = document.getElementById("preview-here");
-        element.innerHTML = building; //Replace the empty HTML area with the list
-        console.log("hello");
-     });
+         //Get the HTML id element of where the list should be added
+         var element = document.getElementById("preview-here");
+         element.innerHTML = building; //Replace the empty HTML area with the list
+         //console.log("hello");
+      });
+   }
+   else if(check_dataType == "GET_Constellation"){
+      $.get(
+         "command/snac/preview-con-snac-schema", //+ $.param({ project: theProject.id }),
+         function(data) {
+         self.previewSpinner.hide();
+         self.updateNbEdits(data.SNAC_Constellationpreview);
+         console.log("edits should be made here, made it to GET_Constellation");
+         console.log(data.SNAC_Constellationpreview);
+         var list = []; //Empty Array
+         var line = data.SNAC_Constellationpreview.split('\n'); //Split the preview string into lines
+         var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
+         line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
+
+         //Remove any empty strings
+         line = line.filter(function(str) {
+            return /\S/.test(str);
+         });
+
+         //Fill the list array with each line in HTML list form
+         for(var i = 0; i<line.length; i++) {
+            var line_parts = line[i].split(/:(.+)/); //Split on the first colon
+            list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
+         }
+
+         //Find the max length of items in the list[] array
+         var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
+
+         //Construct a divder string of "-" to be the size of the longest element in list[]
+         var divider = "";
+         for(var i=9; i<max/2; i++) {
+            divider += "—";
+         }
+
+         //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
+         //More dynamic based on how many csv columns were paired in the editing SNAC schema
+         var pos = 0, interval = list.length/2 + 1;
+         while (pos < list.length) {
+            list.splice(pos, 0, divider);
+            pos += interval;
+         }
+
+         //Build the string for the HTML list items
+         for(var i = 0; i<list.length; i++) {
+            building += list[i];
+         }
+
+         //Update the string into the preview tab
+         self.updateNbEdits(data.SNAC_Consetllationpreview);
+
+         //Get the HTML id element of where the list should be added
+         var element = document.getElementById("preview-here");
+         element.innerHTML = building; //Replace the empty HTML area with the list
+         console.log("hello");
+      });
+
+   }
 };
 
 Refine.registerUpdateFunction(function(options) {

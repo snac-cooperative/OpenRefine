@@ -703,7 +703,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    else {
       var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
       var required_fields = ["Entity Type", "Name Entry"];
-
    }
 
    // For printing to issues tab
@@ -750,7 +749,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
   // Save resource
   console.log(dropDownValues);
 
-   if (!dup_bool && !empty_required){
+   if (!dup_bool && !empty_required && document.getElementById('resourcebutton').checked){
       var dict = {};
       var columns = theProject.columnModel.columns;
       // console.log(columns);
@@ -761,6 +760,9 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
          console.log(columns[i].name);
          dict[columns[i].name] = dropDownValues[i].value;
       }
+      console.log(dict);
+      console.log("IM HERE: RES");
+
       $.post(
          "command/snac/resource",
          {
@@ -772,6 +774,33 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
          }
       );
    }
+   else {
+      var dict = {};
+      var columns = theProject.columnModel.columns;
+      // console.log(columns);
+      console.log(dropDownValues);
+      console.log(columns);
+      for (var i = 0; i != columns.length; i++){
+         console.log(i);
+         console.log(columns[i].name);
+         dict[columns[i].name] = dropDownValues[i].value;
+      }
+      console.log(dict);
+      console.log("IM HERE: CONST");
+
+      $.post(
+         "command/snac/constellation",
+         {
+            "dict": JSON.stringify(dict),
+            "project": JSON.stringify(theProject.id)
+         },
+         function(data, status) {
+            console.log("Constellation status: " + data.constellation);
+         }
+      );
+   }
+
+
    SNACSchemaAlignmentDialog._hasChanged();
 };
 

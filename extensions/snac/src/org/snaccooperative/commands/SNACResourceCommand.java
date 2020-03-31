@@ -40,7 +40,12 @@ public class SNACResourceCommand extends Command {
         SNACResourceCreator manager = SNACResourceCreator.getInstance();
         if (dict != null){
             Project p = getProject(request);
-            manager.setUp(p, dict);
+            try{
+              manager.setUp(p, dict);
+            } catch (Exception e){
+              e.printStackTrace();
+              System.out.println("Failed to set up Resources.");
+            }
         }
 
         // Project p = getProject(request);

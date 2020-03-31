@@ -54,7 +54,7 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
       .addClass('main-view-panel-tab-header')
       .addClass('active')
       .attr('href', '#view-panel');
-   
+
    this._schemaPanel = $('<div id="snac-schema-panel"></div>')
       .addClass('main-view-panel-tab')
       .appendTo(this._rightPanel);
@@ -186,6 +186,12 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
 //Create a table for the resource page function
 function addResourceTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableResource");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableResource");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    // myTableDiv.setAttribute('style', 'margin-left: 18px;');
 
    var table = document.createElement('TABLE');
@@ -224,8 +230,14 @@ function addResourceTable(columns, SNACcolumns) {
          td.appendChild(dragNode);
          tr.appendChild(td);
       }
-
+      
       var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').attr('style', 'width: 180px');
+      
+
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
+
 
       //Create and append the options
       var defaultoption = document.createElement("option");
@@ -255,6 +267,12 @@ function addResourceTable(columns, SNACcolumns) {
 //Create a table for the constellation page function
 function addConstellationTable(columns, SNACcolumns) {
    var myTableDiv = document.getElementById("myDynamicTableConstellation");
+   if(myTableDiv == null){
+     var myClassDiv = document.getElementsByClassName("snac-columns-container");
+     var myTableDiv = document.createElement("div");
+     myTableDiv.setAttribute("id", "myDynamicTableConstellation");
+     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
    var table = document.createElement('TABLE');
    var tableBody = document.createElement('TBODY');
    table.appendChild(tableBody);
@@ -293,13 +311,17 @@ function addConstellationTable(columns, SNACcolumns) {
          var dragNode = document.createElement('div');
          dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
          dragNode.style = 'width: 150px';
-         dragNode.id = i + 9;
+         dragNode.id = i + columns.length;
          dragNode.append(dragDivElement.innerHTML);
          td.appendChild(dragNode);
          tr.appendChild(td);
       }
 
       var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').attr('style', 'width: 180px');
+
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
 
       //Create and append the options
       var defaultoption = document.createElement("option");
@@ -350,8 +372,19 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    for (var i = 0; i < dragItemsResource.length; i++) {
       var cell = SNACSchemaAlignmentDialog._createDraggableColumn(dragItemsResource[i], false);
       cell.attr('id', 'dragResource');
+      cell.attr('value', dragItemsResource[i]);
       this._refcolumnAreaResource.append(cell);
    }
+   $('[id="dragResource"]').addClass("tooltip");
+
+   // var toolTipSpan = document.createElement("span");                 // Create a <li> node
+   // var toolTiptext = document.createTextNode("Water");
+
+
+
+
+
+   // console.log($('[id="dragResource"]')[0].appendChild());
 
    // ******* CONSTELLATIONS PAGE ******* //
    // var columnsConstellation = theProject.columnModel.columns;
@@ -377,14 +410,15 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    for (var i = 0; i < dragItemsConstellation.length; i++) {
       var cell = SNACSchemaAlignmentDialog._createDraggableColumn(dragItemsConstellation[i], false);
       cell.attr('id', 'dragConstellation');
+      cell.attr('value', dragItemsConstellation[i]);
       this._refcolumnAreaConestellation.append(cell);
    }
 
    // Reference Validator Function
-   var dragResourceIDs =$.makeArray($('[id="dragResource"]'));   
+   var dragResourceIDs =$.makeArray($('[id="dragResource"]'));
    function hideAndDisableRef(evt) {
       const selectedValue = [];  //Array to hold selected values
-      $selectsRef.find(':selected').filter(function(i, el) { // Filter selected values and push to array 
+      $selectsRef.find(':selected').filter(function(i, el) { // Filter selected values and push to array
          return $(el).attr('value');
       }).each(function(i, el) {
          selectedValue.push($(el).attr('value'));
@@ -397,7 +431,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
             } else {
                $(this).attr('disabled', true);
                dragResourceIDs.forEach(r => {
-                  if(r.innerHTML==this.innerHTML){
+                  if(r.value==this.innerHTML){
                      r.style.visibility = 'hidden';   // Hide value
                   };
                });
@@ -405,10 +439,10 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
          } else {
             $(this).attr('disabled', false);
             dragResourceIDs.forEach(c => {
-               if(c.innerHTML==this.innerHTML){
+               if(c.value==this.innerHTML){
                   c.style.visibility = 'visible';  // Show value
                };
-            });         
+            });
          }
       });
    };
@@ -417,20 +451,20 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    var dragConstellationIDs =$.makeArray($('[id="dragConstellation"]'));
    function hideAndDisableConst(evt) {
       const selectedValue = [];  //Array to hold selected values
-      $selectsConst.find(':selected').filter(function(i, el) { //Filter selected values and push to array 
+      $selectsConst.find(':selected').filter(function(i, el) { //Filter selected values and push to array
          return $(el).attr('value');
       }).each(function(i, el) {
          selectedValue.push($(el).attr('value'));
       });
       // loop all the options
-      $selectsConst.find('.dropdown-option-const').each(function(i, option) { 
+      $selectsConst.find('.dropdown-option-const').each(function(i, option) {
          if (selectedValue.indexOf($(option).attr('value')) > -1) { //Re-enable option if array does not contain current value
             if ($(option).is(':checked')) {  //Disable if current value is selected, else skip
                return;
             } else {
                $(this).attr('disabled', true);
                dragConstellationIDs.forEach(r => {
-                  if(r.innerHTML==this.innerHTML){
+                  if(r.value==this.innerHTML){
                      r.style.visibility = 'hidden';   //Hide value
                   };
                });
@@ -438,13 +472,36 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
          } else {
             $(this).attr('disabled', false);
             dragConstellationIDs.forEach(c => {
-               if(c.innerHTML==this.innerHTML){
+               if(c.value==this.innerHTML){
                   c.style.visibility = 'visible';  //Show value
                };
-            });         
+            });
          }
       });
    };
+
+   var tooltipsResource = [
+      "Summary abstract of the resource",                                     // Abstract
+      "Date or date range (YYYY or YYYY-YYYY)",                               // Date
+      "The descriptive display name (e.g. Jacob Miller Papers, 1809-1882)",   // Display Entry
+      "Extent",                                                               // Extent
+      "The SNAC ID of the resource's Holding Repository",                     // Holding Repository
+      "ID",                                                                   // ID
+      "Language",                                                             // Language
+      "The preferred permanent link to find aid",                             // Link
+      "Note",                                                                 // Note
+      "The official title (e.g. Papers, 1809-1882)",                          // Title
+      "The resource type (ArchivalResource, BibliographicResource, etc.)"     // Type
+   ];
+   
+   for(var i = 0 ; i<tooltipsResource.length; i++) {
+      var toolTipSpan = document.createElement("span");
+      var toolTiptext = document.createTextNode(tooltipsResource[i]);
+      toolTipSpan.classList.add("tooltiptext");
+      toolTipSpan.appendChild(toolTiptext);
+      console.log($('[id="dragResource"]')[i]);
+      $('[id="dragResource"]')[i].appendChild(toolTipSpan);
+   }
 
    //Reference Validator Call onChange
    const $selectsRef = $(".selectColumnRes");
@@ -466,7 +523,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
          // var matchingSelector = $('.selectColumn').children('option').closest('[value = "'+$(ui.draggable).text()+'"]')[id];
          // console.log(matchingSelector);
          // matchingSelector.selected = 'true';
-         $('.selectColumn')[id].value = $(ui.draggable).text()
+         $('.selectColumn')[id].value = $(ui.draggable).val();
          hideAndDisableRef();
          hideAndDisableConst();
       }
@@ -476,7 +533,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    $('.selectColumn').droppable({
       hoverClass: 'active',
       drop: function(event, ui) {
-         this.value = $(ui.draggable).text();
+         this.value = $(ui.draggable).val();
          hideAndDisableRef();
          hideAndDisableConst();
       },
@@ -493,7 +550,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
          var original = $(e.target).hasClass("ui-draggable") ? $(e.target) :  $(e.target).closest(".ui-draggable");
          return original.clone().css({
          width: original.width() // or outerWidth*
-         });                
+         });
       },
       cursor: "crosshair",
       snap: ".wbs-target-input input",
@@ -521,7 +578,7 @@ SNACSchemaAlignmentDialog.switchbuttons = function() {
 //       var selectList = document.createElement("select");
 //       selectList.setAttribute("id", "mySelect");
 //       this._dropdownArea.appendChild(selectList);
-      
+
 //       //Create and append the options
 //       for (var j = 0; j < SNACcolumns.length; j++) {
 //          var option = document.createElement("option");
@@ -620,14 +677,35 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    }
 
    var columns = theProject.columnModel.columns;
-   var dropDownValues = document.getElementsByClassName('selectColumn');
+   
+   // This helps the Issue tab to differentiate between what issues it will look at for Resource vs Constellation
+   if (document.getElementById('resourcebutton').checked) {
+      var dropDownValues = document.getElementsByClassName('selectColumnRes');
+   }
+   else {
+      var dropDownValues = document.getElementsByClassName('selectColumnConst');
+   }
+
+   //   var dropDownValues = document.getElementsByClassName('selectColumn');
+
    var array_ddv = [];
    for (var j = 0; j < dropDownValues.length; j++){
       array_ddv.push(dropDownValues[j].value);
    }
 
    // Empty required field check (for issues tab)
-   var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+   // The required fields for Resource vs Constellation are different, so required_fields will be used to check whether all the fields in this array have been used
+   if (document.getElementById('resourcebutton').checked) {
+      var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
+      var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
+   }
+
+   else {
+      var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
+      var required_fields = ["Entity Type", "Name Entry"];
+
+   }
+
    // For printing to issues tab
    var empty_required = false;
    $.post(
@@ -744,6 +822,11 @@ SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, or
    } else {
       cell.addClass('wbs-unreconciled-column');
    }
+
+   if (name == 'ID') {
+      cell.addClass('idcolumn')
+   }
+
    // cell.addClass(org);
 
    // cell.addClass(columnType);
@@ -1729,68 +1812,69 @@ SNACSchemaAlignmentDialog.issues = function() {
  *************************/
 
 SNACSchemaAlignmentDialog.preview = function() {
-   var self = this;
+  var self = this;
 
-   this._previewPanes.empty();
-   this.updateNbEdits(0);
-   this.previewSpinner.show();
-   var schema = this.getJSON();
-   if (schema === null) {
-      $('.invalid-schema-warning').show();
-      return;
-   }
-   $.get(
+  this._previewPanes.empty();
+  this.updateNbEdits(0);
+  this.previewSpinner.show();
+  var schema = this.getJSON();
+  if (schema === null) {
+    $('.invalid-schema-warning').show();
+    return;
+  }
+  $.get(
       "command/snac/preview-snac-schema", //+ $.param({ project: theProject.id }),
       function(data) {
-         self.previewSpinner.hide();
-         self.updateNbEdits(data.SNAC_preview);
-         // console.log("edits should be made here");
+        self.previewSpinner.hide();
+        self.updateNbEdits(data.SNAC_preview);
+        console.log("edits should be made here");
+        console.log(data.SNAC_preview);
+        var list = []; //Empty Array
+        var line = data.SNAC_preview.split('\n'); //Split the preview string into lines
+        var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
+        line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
 
-         var list = []; //Empty Array
-         var line = data.SNAC_preview.split('\n'); //Split the preview string into lines
-         var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
-         line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
+        //Remove any empty strings
+        line = line.filter(function(str) {
+           return /\S/.test(str);
+        });
 
-         //Remove any empty strings
-         line = line.filter(function(str) {
-            return /\S/.test(str);
-         });
+        //Fill the list array with each line in HTML list form
+        for(var i = 0; i<line.length; i++) {
+           var line_parts = line[i].split(/:(.+)/); //Split on the first colon
+           list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
+        }
 
-         //Fill the list array with each line in HTML list form
-         for(var i = 0; i<line.length; i++) {
-            list[i] = "<li>" + line[i] + "</li>";
-         }
+        //Find the max length of items in the list[] array
+        var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
 
-         //Find the max length of items in the list[] array
-         var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
+        //Construct a divder string of "-" to be the size of the longest element in list[]
+        var divider = "";
+        for(var i=9; i<max/2; i++) {
+           divider += "—";
+        }
 
-         //Construct a divder string of "-" to be the size of the longest element in list[]
-         var divider = "";
-         for(var i=9; i<max/2; i++) {
-            divider += "—";
-         }
+        //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
+        //More dynamic based on how many csv columns were paired in the editing SNAC schema
+        var pos = 0, interval = list.length/2 + 1;
+        while (pos < list.length) {
+           list.splice(pos, 0, divider);
+           pos += interval;
+        }
 
-         //Insert that divider at every 11 position to split each resource (of 10 bullets)
-         var pos = 0, interval = 11;
-         while (pos < list.length) {
-            list.splice(pos, 0, divider);
-            pos += interval;
-         }
+        //Build the string for the HTML list items
+        for(var i = 0; i<list.length; i++) {
+           building += list[i];
+        }
 
-         //Build the string for the HTML list items
-         for(var i = 0; i<list.length; i++) {
-            building += list[i];
-         }
+        //Update the string into the preview tab
+        self.updateNbEdits(data.SNAC_preview);
 
-         //Update the string into the preview tab
-         self.updateNbEdits(data.SNAC_preview);
-
-         //Get the HTML id element of where the list should be added
-         var element = document.getElementById("preview-here");
-         element.innerHTML = building; //Replace the empty HTML area with the list
-         // console.log("hello");
-      }
-   );
+        //Get the HTML id element of where the list should be added
+        var element = document.getElementById("preview-here");
+        element.innerHTML = building; //Replace the empty HTML area with the list
+        console.log("hello");
+     });
 };
 
 Refine.registerUpdateFunction(function(options) {

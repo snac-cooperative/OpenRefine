@@ -32,7 +32,7 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import com.google.refine.tests.RefineTest;
+import com.google.refine.RefineTest;
 
 /*
 import org.openrefine.wikidata.schema.WbLanguageConstant;
@@ -54,9 +54,25 @@ import com.google.refine.model.ReconCandidate;
 
 public class TestingData2 {
 
-    public static final String resourceCsv = "title,link,abstract\n"
-            + "Title1,http://row1test.com,abstract_example1\n"
-            + "Title2,http://row2test.com,abstract_example2";
+    public static final String simpleCsv = "id\n1";
+
+    public static final String resourceCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
+            + "1,696,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
+            + "2,697,Title2,display_entry2,http://record2test.com,abstract_example2,extent2,2020,eng,English,12346\n"
+            + "3,400479,Title3,display_entry3,http://record3test.com,abstract_example3,extent3,2020,eng,English,12347";
+
+    public static final String resourceRecordCsv = "id,type,title,display entry,link,abstract,extent,date,language,script,holding repository snac id\n"
+            + "2,696,Title2,display_entry2,http://record2test.com,abstract_example2,extent2,2020,eng,English,12346\n"
+            + "1,697,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,eng,English,12345\n"
+            + ",,,,,,,,kor,,";
+
+    public static final String resourceRecordCsv2 = "id,type,title,display entry,link,abstract,extent,date,script,language,holding repository snac id\n"
+            + "1,400479,Title1,display_entry1,http://record1test.com,abstract_example1,extent1,2020,English,eng,12345\n"
+            + ",,,,,,,,Korean,,";
+
+    public static final String resourceCsv2 = "title,link,abstract,language,id,type,extent,date\n"
+            + "A,B,C,eng,E,696,G,H\n"
+            + "A1,B1,C1,eng,E1,697,G1,H1\n";
 
     public static final String inceptionCsv = "subject,inception,reference\n"
             + "Q1377,1919,http://www.ljubljana-slovenia.com/university-ljubljana\n" + "Q865528,1965,";
@@ -68,6 +84,10 @@ public class TestingData2 {
             + "\tS813\t+2018-02-28T00:00:00Z/11\n" + "Q865528\tP571\t+1965-01-01T00:00:00Z/9"
             + "\tS813\t+2018-02-28T00:00:00Z/11\n" + "CREATE\n" + "LAST\tP571\t+2016-01-01T00:00:00Z/9"
             + "\tS854\t\"http://new-uni.com/\"" + "\tS813\t+2018-02-28T00:00:00Z/11\n";
+
+    public static final String constellationCsv = "subject,place,occupation\n"
+            + "Kaijus,Kyoto,Demolition\n"
+            + "kaijus,Tokyo,Demolition";
 
     public static String jsonFromFile(String filename)
             throws IOException {

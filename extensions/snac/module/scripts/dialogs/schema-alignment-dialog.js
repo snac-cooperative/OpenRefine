@@ -41,6 +41,18 @@ var SNACSchemaAlignmentDialog = {
 
 };
 
+var saved_Dict;
+$.post(
+   "command/snac/resource",
+   {
+   },
+   function(data, status) {
+      console.log("Stored Dict Values: " + data.resource);
+      saved_Dict =  JSON.parse(data.resource);
+   }
+);
+
+
 /**
  * Installs the tabs in the UI the first time the snac
  * extension is called.
@@ -155,7 +167,7 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    * Init the dropdowns area
    */
    // this.addDropdowns();
-
+   
    /**
    * Init the issues tab
    */
@@ -177,25 +189,27 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    this._reset(theProject.overlayModels.wikibaseSchema);
    // Perform initial preview
    this.preview();
+
+
 }
 
 //function for saving dropdown vals through page refresh
-async function saveChanges(){
-   var refreshDict;
-    await $.post(
-      "command/snac/resource",
-      {
-      },
-      function(data, status) {
-         console.log("Stored Dict Values: " + data.resource);
-         refreshDict =  JSON.parse(data.resource);
-      }
-   );
+// async function saveChanges(){
+//    var refreshDict;
+//    $.post(
+//       "command/snac/resource",
+//       {
+//       },
+//       function(data, status) {
+//          console.log("Stored Dict Values: " + data.resource);
+//          refreshDict =  JSON.parse(data.resource);
+//       }
+//    );
 
-   console.log("ASDFASDFASDF "+ refreshDict);
-   return refreshDict;
+//    // console.log("ASDFASDFASDF "+ refreshDict);
+//    return refreshDict;
 
-}
+// }
 
 /*******************************************************
 * Schema Tab Matching for Resources and Constellations *
@@ -227,8 +241,9 @@ function addResourceTable(columns, SNACcolumns) {
       }
       return dropdownOptionsArray;
    }
-
-   saveChanges().then(refreshDict => {
+//async
+   // saveChanges().then(refreshDict => {
+      // var refreshDict = saveChanges();
       for (var i = 0; i < columns.length; i++) {
          var tr = document.createElement('TR');
          tableBody.appendChild(tr);
@@ -273,8 +288,8 @@ function addResourceTable(columns, SNACcolumns) {
             selectList.append(option);
          }
 
-         if(refreshDict[className] != "" && refreshDict[className]!= undefined){
-            selectList[0].value = refreshDict[className];
+         if(saved_Dict[className] != "" && saved_Dict[className]!= undefined){
+            selectList[0].value = saved_Dict[className];
          }
 
          for (var j = 1; j < 2; j+=2) {
@@ -284,7 +299,7 @@ function addResourceTable(columns, SNACcolumns) {
             tr.appendChild(td);
          }
       }
-   });
+   // });
    return myTableDiv;
  }
 
@@ -310,7 +325,7 @@ function addConstellationTable(columns, SNACcolumns) {
       }
       return dropdownOptionsArray;
    }
-   saveChanges().then(refreshDict => {
+   // saveChanges().then(refreshDict => {
 
    // let columnsResource = ["id", "entity_type", "name_entry", "surname", "forename", "exist_dates", "bioghist", "place", "occupation", "related_constellation_ids", "related_resource_ids"];
    // for (var i = 0; i < columnsResource.length; i++) {
@@ -365,8 +380,8 @@ function addConstellationTable(columns, SNACcolumns) {
             selectList.append(option);
          }
 
-         if(refreshDict[className] != "" && refreshDict[className]!= undefined){
-            selectList[0].value = refreshDict[className];
+         if(saved_Dict[className] != "" && saved_Dict[className]!= undefined){
+            selectList[0].value = saved_Dict[className];
          }
         
 
@@ -377,7 +392,7 @@ function addConstellationTable(columns, SNACcolumns) {
             tr.appendChild(td);
          }
       }
-   });
+   // });
    return myTableDiv;
 }
 
@@ -596,11 +611,17 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       hideAndDisableRef();
    });
 
+   $(document).ready(function() {
+      hideAndDisableRef();
+  });
+   
+
    //Constellation Validator Call onChange
    const $selectsConst = $(".selectColumnConst");
    $selectsConst.on('change', function(){
       hideAndDisableConst();
    });
+
 
    //Allow names column (first column) to be droppable
    $('.wbs-draggable-column').droppable({
@@ -1925,9 +1946,11 @@ SNACSchemaAlignmentDialog.preview = function() {
         //Get the HTML id element of where the list should be added
         var element = document.getElementById("preview-here");
         element.innerHTML = building; //Replace the empty HTML area with the list
-        console.log("hello");
+      //   console.log("hello");
      });
 };
+
+
 
 Refine.registerUpdateFunction(function(options) {
    // Inject tabs in any project where the schema has been defined

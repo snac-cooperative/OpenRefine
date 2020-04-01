@@ -303,7 +303,9 @@ public class SNACResourceCreator {
                       }
                       // If there are more rows, then insert more languages
                       if(z != rows.size()){
-                        temp_val = rows.get(z).getCellValue(x).toString();
+                        if(rows.get(z).getCellValue(x)!=null){
+                          temp_val = rows.get(z).getCellValue(x).toString();
+                        }
                       }
                     }
                   // If Languages already exists then add onto them
@@ -335,7 +337,9 @@ public class SNACResourceCreator {
                       res.addLanguage(lang);
                       // If there are more rows, then insert more scripts
                       if(z != rows.size()){
-                        temp_val = rows.get(z).getCellValue(x).toString();
+                        if(rows.get(z).getCellValue(x)!=null){
+                         temp_val = rows.get(z).getCellValue(x).toString();
+                        }
                       }
                     }
                   // If Languages already exists then add onto them

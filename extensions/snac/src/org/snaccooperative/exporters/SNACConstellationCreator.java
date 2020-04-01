@@ -254,63 +254,78 @@ public class SNACConstellationCreator {
                    */
                   List<NameEntry> name_list = new LinkedList<NameEntry>();
                   System.out.println("Name Entry start");
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  // for(int c = 0; c < con.getNameEntries().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
+                  //temp_val = rows.get(c).getCellValue(x).toString();
                   if(!temp_val.equals("")){
                     NameEntry nameEntryValue = new NameEntry();
                     nameEntryValue.setOriginal(temp_val);
                     name_list.add(nameEntryValue);
                   }
-                }
+                
                   con.setNameEntries(name_list);
-                  System.out.print("Name entry" + temp_val);
+                  System.out.print("Name entry:" + temp_val);
                   break;
               case "date":
-                    temp_dates.add(temp_val);
-                    break;
+                  for(int z = 1; z < rows.size() + 1; z++){
+                    /*Set the value of the date */
+                    if(!temp_val.equals("")){
+                      temp_dates.add(temp_val);
+                    }
+                    if(z != rows.size()){
+                      if(rows.get(z).getCellValue(x)!=null){
+                        temp_val = rows.get(z).getCellValue(x).toString();
+                      }
+                    }
+                  }  
+                    
+                  break;
               case "date type": //active, birth, death, suspiciousdate
-                    temp_types.add(temp_val);
-                    break;
+                  for(int z = 1; z < rows.size() + 1; z++){
+                    /*Set the value of the date */
+                    if(!temp_val.equals("")){
+                      temp_types.add(temp_val);
+                    }
+                    if(z != rows.size()){
+                      if(rows.get(z).getCellValue(x)!=null){
+                        temp_val = rows.get(z).getCellValue(x).toString();
+                      }
+                    }
+                  }
+                  break;
               case "subject":
                   /* Iterate through all the subject entries, create a Subject object
                    * which will be added to a list of Subject. 
                    * Add the list of Subject to the constellation. 
                    */
+
+
                   List<Subject> subject_list = new LinkedList<Subject>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  // for(int c = 0; c < con.getSubjects().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
-                  if(!temp_val.equals("")){
+                  for(int z = 1; z < rows.size() + 1; z++){
                     /*Set the value of the subject via a term. */
-                    Subject subjectValue = new Subject();
-                    Term t1 = new Term();
-                    t1.setType(temp_val);
-                    subjectValue.setTerm(t1);
-                    subject_list.add(subjectValue);
+                      if(!temp_val.equals("")){
+                        Subject subjectValue = new Subject();
+                        Term t1 = new Term();
+                        t1.setType(temp_val);
+                        subjectValue.setTerm(t1);
+                        subject_list.add(subjectValue);
+                      }
+                      // If there are more rows, then insert more subjects
+                    if(z != rows.size()){
+                      if(rows.get(z).getCellValue(x)!=null){
+                        temp_val = rows.get(z).getCellValue(x).toString();
+                      }
+                    }
                   }
-                }
+                
                   System.out.print("subject: " + temp_val);
                   con.setSubjects(subject_list);
                   break;
               case "place":
-                  /* Iterate through all the subject entries, create a Subject object
-                   * which will be added to a list of Subject. 
-                   * Add the list of Subject to the constellation. 
+                  /* Iterate through all the Place entries, create a Place object
+                   * which will be added to a list of Place. 
+                   * Add the list of Place to the constellation. 
                    */
                   List<Place> place_list = new LinkedList<Place>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  // for(int c = 0; c < con.getPlaces().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
+                  // temp_val = rows.get(c).getCellValue(x).toString();
                   if(!temp_val.equals("")){
                     /*Set the value of the subject via a term. */
                     Place placeValue = new Place();
@@ -319,47 +334,43 @@ public class SNACConstellationCreator {
                     placeValue.setType(t1);
                     place_list.add(placeValue);
                   }
-                }
+                
                   System.out.print("place: " + temp_val);
                   con.setPlaces(place_list);
 //                con.setPlace();
                   break;
               case "occupation":
-                  /* Iterate through all the subject entries, create a Subject object
-                   * which will be added to a list of Subject. 
-                   * Add the list of Subject to the constellation. 
+                  /* Iterate through all the Occupation entries, create a Occupation object
+                   * which will be added to a list of Occupation. 
+                   * Add the list of Occupation to the constellation. 
                    */
                   List<Occupation> occupation_list = new LinkedList<Occupation>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  //for(int c = 0; c < con.getOccupations().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
+
+                  for(int z = 1; z < rows.size() + 1; z++){
+                      if(!temp_val.equals("")){
+                        /*Set the value of the occupation via a term. */
+                        Occupation occupationValue = new Occupation();
+                        Term t1 = new Term();
+                        t1.setType(temp_val);
+                        occupationValue.setTerm(t1);
+                        occupation_list.add(occupationValue);
+                      }
+                    if(z != rows.size()){
+                      if(rows.get(z).getCellValue(x)!=null){
+                        temp_val = rows.get(z).getCellValue(x).toString();
+                      }
                     }
-                  temp_val = rows.get(c).getCellValue(x).toString();
-                  if(!temp_val.equals("")){
-                    /*Set the value of the subject via a term. */
-                    Occupation occupationValue = new Occupation();
-                    Term t1 = new Term();
-                    t1.setType(temp_val);
-                    occupationValue.setTerm(t1);
-                    occupation_list.add(occupationValue);
-                  }
                 }
+                
                   System.out.print("Occupation: " + temp_val);
                   con.setOccupations(occupation_list);
                   break;
               case "function":
                   /* Iterate through all the SNACFunction entries, create a Function object
-                   * which will be added to a list of Function. 
-                   * Add the list of Subject to the constellation. 
+                   * which will be added to a list of Functions. 
+                   * Add the list of Function to the constellation. 
                    */
                   List<SNACFunction> SNACFunc_list = new LinkedList<SNACFunction>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  //for(int c = 0; c < con.getOccupations().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
                   if(!temp_val.equals("")){
                     /*Set the value of the subject via a term. */
                     SNACFunction snacFuncValue = new SNACFunction();
@@ -368,29 +379,22 @@ public class SNACConstellationCreator {
                     snacFuncValue.setTerm(t1);
                     SNACFunc_list.add(snacFuncValue);
                   }
-                }
                 System.out.print("SNACFunction: " + temp_val);
                 con.setFunctions(SNACFunc_list);
                 break;
               case "bioghist":
-                    /* Iterate through all the biogHist entries, create a Function object
-                   * which will be added to a list of bioHist. 
-                   * Add the list of bioHist to the constellation. 
-                   */
-                  List<BiogHist> biogHist_list = new LinkedList<BiogHist>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  //for(int c = 0; c < con.getOccupations().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
-                  if(!temp_val.equals("")){
-                    /*Set the value of the subject via a term. */
-                    BiogHist biogHistValue = new BiogHist();
-                    biogHistValue.setText(temp_val);
-                    biogHist_list.add(biogHistValue);
-                  }
+                  /* Iterate through all the biogHist entries, create a Function object
+                  * which will be added to a list of bioHists. 
+                  * Add the list of bioHist to the constellation. 
+                  */
+                List<BiogHist> biogHist_list = new LinkedList<BiogHist>();
+                if(!temp_val.equals("")){
+                  /*Set the value of the subject via a term. */
+                  BiogHist biogHistValue = new BiogHist();
+                  biogHistValue.setText(temp_val);
+                  biogHist_list.add(biogHistValue);
                 }
+                
                 System.out.print("BiogHist: " + temp_val);
                 con.setBiogHists(biogHist_list);
                 break;
@@ -400,19 +404,12 @@ public class SNACConstellationCreator {
                    * Add the list of sameAs to the constellation. 
                    */
                   List<SameAs> sameAs_list = new LinkedList<SameAs>();
-                  for(int c = 0; c < rows.size() + 1; c++){
-                  //for(int c = 0; c < con.getOccupations().size(); c++){
-                    if(rows.get(c).getCellValue(x) == null){
-                      continue;
-                    }
-                  temp_val = rows.get(c).getCellValue(x).toString();
                   if(!temp_val.equals("")){
                     /*Set the value of the subject via a term. */
                     SameAs sameAsValue = new SameAs();
                     sameAsValue.setText(temp_val);
                     sameAs_list.add(sameAsValue);
                   }
-                }
                 System.out.print("SameAs: " + temp_val);
                 //con.sameas(sameAs_list);
                 break;
@@ -422,7 +419,7 @@ public class SNACConstellationCreator {
         }
 
         //Logic for date handling
-        if(temp_types.size()==temp_dates.size() && !temp_types.contains("") && !temp_dates.contains("") && temp_types.size()!=0){
+        if(temp_types.size()==temp_dates.size() && temp_types.size()!=0){
             //for(int x=0;x<temp_dates.size();x++){
                 SNACDate d = new SNACDate();
                 SNACDate d2 = new SNACDate();

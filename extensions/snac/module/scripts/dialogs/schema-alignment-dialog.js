@@ -774,7 +774,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
          }
       );
    }
-   else {
+   else if (!dup_bool && !empty_required && document.getElementById('constellationbutton').checked) {
       var dict = {};
       var columns = theProject.columnModel.columns;
       // console.log(columns);

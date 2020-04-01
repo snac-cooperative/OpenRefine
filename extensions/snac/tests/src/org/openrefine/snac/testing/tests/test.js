@@ -171,28 +171,28 @@ const puppeteer = require("puppeteer");
       await page.waitFor(1000);
 
       // UNIT TEST: 'Edit SNAC schema' will take you to the SNAC extension frontend
-      var editSchmeaOptionExistTest = false;
+      // var editSchmeaOptionExistTest = false;
       
-      menuHandler = await page.$('.menu-container > .menu-item');
-      for (const menuOption of menuHandler){
-        var text = await page.evaluate(option => option.innerText, menuOption);
-        if(text == 'Edit SNAC schema'){
-          menuOption.click();
-          editSchmeaOptionExistTest = true;
-          break;
-        }
-      }
-      if(editSchmeaOptionExistTest){
-        console.log("TEST PASSED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
-      } else {
-        console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
-      }
-      await page.waitFor(1000);
+      // menuHandler = await page.$('.menu-container > .menu-item');
+      // for (const menuOption of menuHandler){
+      //   var text = await page.evaluate(option => option.innerText, menuOption);
+      //   if(text == 'Edit SNAC schema'){
+      //     menuOption.click();
+      //     editSchmeaOptionExistTest = true;
+      //     break;
+      //   }
+      // }
+      // if(editSchmeaOptionExistTest){
+      //   console.log("TEST PASSED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // } else {
+      //   console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // }
+      // await page.waitFor(1000);
 
-      // UNIT TEST: dropdown testing
-      var editSchmeaOptionExistTest = false;
+      // // UNIT TEST: dropdown testing
+      // var editSchmeaOptionExistTest = false;
       
-      dropHandler = await page.$('.selectColumn');
+      // dropHandler = await page.$('.selectColumn');
       // for (const menuOption of dropHandler){
       //   var text = await page.evaluate(option => option.innerText, menuOption);
       //   if(text == 'Edit SNAC schema'){
@@ -214,27 +214,46 @@ const puppeteer = require("puppeteer");
        **********************/ 
 
       // UNIT TEST: Issues tab exists
-      // var issuesExistTest = false;
+      var issuesExistTest = false;
     
-      // const tabHandlers = await page.$$('.main-view-panel-tabs-snac');
-      // for (const tab of tabHandlers){
-      //   var text = await page.evaluate(tab => tab.innerText, tab);
-      //   if (text == 'Issues '){
-      //     tab.click();
-      //     issuesExistTest = true;
-      //     break;
-      //   }
-      // }
-      // if(issuesExistTest){
-      //   console.log("TEST PASSED: Issues tab appears after clicking 'Edit SNAC schema'.");
-      // } else {
-      //   console.log("TEST FAILED: Issues tab appears after clicking Edit SNAC schema.");
-      // }
-      // await page.waitFor(1000);
+      const tabHandlers = await page.$$('.main-view-panel-tabs-snac');
+      for (const tab of tabHandlers){
+        var text = await page.evaluate(tab => tab.innerText, tab);
+        if (text == 'Issues '){
+          tab.click();
+          issuesExistTest = true;
+          break;
+        }
+      }
+      if(issuesExistTest){
+        console.log("TEST PASSED: Issues tab appears after clicking 'Edit SNAC schema'.");
+      } else {
+        console.log("TEST FAILED: Issues tab appears after clicking Edit SNAC schema.");
+      }
+      await page.waitFor(1000);
 
-      // await page.waitFor(10000);
-      // await browser.close();
-      // console.log("Browser Closed");
+      // UNIT TEST: Preview
+      var previewExistTest = false;
+    
+      const previewTabHandlers = await page.$('.main-view-panel-tabs-snac');
+      for (const tab of tabHandlers){
+        var text = await page.evaluate(tab => tab.innerText, tab);
+        if (text == 'Preview '){
+          tab.click();
+          issuesExistTest = true;
+          break;
+        }
+      }
+      if(previewExistTest){
+        console.log("TEST PASSED: Previews exist");
+      } else {
+        console.log("TEST FAILED: No Previews to show");
+      }
+      await page.waitFor(1000);
+
+      await page.waitFor(10000);
+      await browser.close();
+      console.log("Browser Closed");
     } catch (err) {
         console.log(err);
         await browser.close();

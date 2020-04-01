@@ -509,7 +509,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    });
 
    //Allow names column (first column) to be droppable
-   $('.wbs-draggable-column').droppable({
+   $('.wbs-unreconciled-column-undraggable').droppable({
       hoverClass: 'active',
       drop: function(event, ui) {
          var id = $(this).attr('id');

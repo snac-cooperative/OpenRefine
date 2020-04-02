@@ -417,6 +417,7 @@ public class SNACConstellationCreator {
                     sameAs_list.add(sameAsValue);
                   }
                 System.out.print("SameAs: " + temp_val);
+                con.setSameAsRelations(sameAs_list);
                 //con.sameas(sameAs_list);
                 break;
               default:
@@ -610,7 +611,7 @@ public class SNACConstellationCreator {
                     break;
                   case "sameas relation":
                     /* not 100% sure? */
-                    samplePreview+="Sameas relation " + previewConstellation.getResourceRelations()  + "\n";
+                    samplePreview+="Sameas relation: " + previewConstellation.getSameAsRelations()  + "\n";
                     break;         
                   default:
                     break;

@@ -132,6 +132,7 @@ public class SNACConstellationCreator {
     * @return Term
     */
     public Term setDateTerms(String date_type){
+        date_type=date_type.toLowerCase();
         Term t=new Term();
         if(date_type.equals("active")){
             t.setTerm("Active");
@@ -164,6 +165,8 @@ public class SNACConstellationCreator {
             t.setType("date_type");
         }
         else{
+            t.setTerm("INVALID");
+            t.setType("date_type");
             //error, the date types wasn't any of these 6 above
         }
         return t;

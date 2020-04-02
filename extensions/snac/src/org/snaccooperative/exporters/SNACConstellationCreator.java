@@ -304,7 +304,7 @@ public class SNACConstellationCreator {
                       if(!temp_val.equals("")){
                         Subject subjectValue = new Subject();
                         Term t1 = new Term();
-                        t1.setType(temp_val);
+                        t1.setTerm(temp_val);
                         subjectValue.setTerm(t1);
                         subject_list.add(subjectValue);
                       }
@@ -313,6 +313,9 @@ public class SNACConstellationCreator {
                       if(rows.get(z).getCellValue(x)!=null){
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
+                      else{
+                        temp_val="";
+                      }                      
                     }
                   }
                 
@@ -347,20 +350,23 @@ public class SNACConstellationCreator {
                   List<Occupation> occupation_list = new LinkedList<Occupation>();
 
                   for(int z = 1; z < rows.size() + 1; z++){
-                      if(!temp_val.equals("")){
+                      if((!temp_val.equals("")) && (temp_val.length()>=1)){
                         /*Set the value of the occupation via a term. */
                         Occupation occupationValue = new Occupation();
                         Term t1 = new Term();
-                        t1.setType(temp_val);
+                        t1.setTerm(temp_val);
                         occupationValue.setTerm(t1);
                         occupation_list.add(occupationValue);
                       }
-                    if(z != rows.size()){
-                      if(rows.get(z).getCellValue(x)!=null){
-                        temp_val = rows.get(z).getCellValue(x).toString();
+                      if(z != rows.size()){
+                        if(rows.get(z).getCellValue(x)!=null){
+                          temp_val = rows.get(z).getCellValue(x).toString();
+                        }
+                        else{
+                          temp_val="";
+                        }
                       }
-                    }
-                }
+                  }
                 
                   System.out.print("Occupation: " + temp_val);
                   con.setOccupations(occupation_list);
@@ -594,7 +600,7 @@ public class SNACConstellationCreator {
                     samplePreview+="Place: " + previewConstellation.getPlaces() + "\n";
                     break;
                   case "occupation":
-                    samplePreview+="Extent: " + previewConstellation.getOccupations() +  "\n";
+                    samplePreview+="Occupation: " + previewConstellation.getOccupations() +  "\n";
                     break;
                   case "function":
                     samplePreview+="Function: " + previewConstellation.getFunctions() + "\n";

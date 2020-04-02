@@ -265,7 +265,7 @@ public class SNACConstellationCreator {
                   }
                 
                   con.setNameEntries(name_list);
-                  System.out.print("Name entry:" + temp_val);
+                  System.out.print("Name entry: " + temp_val);
                   break;
               case "date":
                   for(int z = 1; z < rows.size() + 1; z++){
@@ -316,6 +316,9 @@ public class SNACConstellationCreator {
                       if(rows.get(z).getCellValue(x)!=null){
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
+                      /* It is possible that a row may be empty so we continue on until we 
+                      * find one (or else this repeats the less non-empty row)
+                      */
                       else{
                         temp_val="";
                       }                      
@@ -336,7 +339,8 @@ public class SNACConstellationCreator {
                     /*Set the value of the subject via a term. */
                     Place placeValue = new Place();
                     Term t1 = new Term();
-                    t1.setType(temp_val);
+                    t1.setType("place_match");
+                    placeValue.setOriginal(temp_val);
                     placeValue.setType(t1);
                     place_list.add(placeValue);
                   }
@@ -365,6 +369,9 @@ public class SNACConstellationCreator {
                         if(rows.get(z).getCellValue(x)!=null){
                           temp_val = rows.get(z).getCellValue(x).toString();
                         }
+                      /* It is possible that a row may be empty so we continue on until we 
+                      * find one (or else this repeats the less non-empty row)
+                      */
                         else{
                           temp_val="";
                         }
@@ -384,7 +391,9 @@ public class SNACConstellationCreator {
                     /*Set the value of the subject via a term. */
                     SNACFunction snacFuncValue = new SNACFunction();
                     Term t1 = new Term();
-                    t1.setType(temp_val);
+                    t1.setType("function_type");
+                    t1.setTerm(temp_val);
+                    //t1.setType(temp_val);
                     snacFuncValue.setTerm(t1);
                     SNACFunc_list.add(snacFuncValue);
                   }
@@ -421,7 +430,6 @@ public class SNACConstellationCreator {
                   }
                 System.out.print("SameAs: " + temp_val);
                 con.setSameAsRelations(sameAs_list);
-                //con.sameas(sameAs_list);
                 break;
               default:
                   continue;

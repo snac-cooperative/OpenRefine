@@ -587,8 +587,7 @@ public class SNACConstellationCreator {
         for(int x = 0; x < iterations; x++){
           Constellation previewConstellation = constellations.get(x);
           System.out.println(Constellation.toJSON(previewConstellation));
-          for(Map.Entry mapEntry: match_attributes.entrySet())
-          {
+          for(Map.Entry mapEntry: match_attributes.entrySet()){
               if(!((String)mapEntry.getValue()).equals("")){
                 System.out.println(((String)mapEntry.getValue()).toLowerCase());
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
@@ -636,48 +635,6 @@ public class SNACConstellationCreator {
 
     }
 
-    /*
-    * Helps determine whether a given ISO language exists on the SNAC database
-    *
-    * @param lang (ISO language code)
-    * @return lang_term or null (ISO language code found in API Request)
-    */
-
-    /*
-    public String detectLanguage(String lang){
-        // Insert API request calls for lang (if exists: insert into language dict, if not: return None)
-        try{
-          DefaultHttpClient client = new DefaultHttpClient();
-          HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
-          String query = "{\"command\": \"vocabulary\",\"query_string\": \"" + lang + "\",\"type\": \"language_code\",\"entity_type\": null}";
-          post.setEntity(new StringEntity(query,"UTF-8"));
-          HttpResponse response = client.execute(post);
-          String result = EntityUtils.toString(response.getEntity());
-          JSONParser jp = new JSONParser();
-          JSONArray json_result = (JSONArray)((JSONObject)jp.parse(result)).get("results");
-          // System.out.println(json_result);
-          if (json_result.size() <= 0){
-            return null;
-          }
-          else{
-            JSONObject json_val = (JSONObject)json_result.get(0);
-            String lang_id = (String)json_val.get("id");
-            String lang_desc = (String)json_val.get("description");
-            String lang_term = (String)json_val.get("term");
-            String[] lang_val = {lang_id, lang_desc};
-            language_code.put(lang_term, lang_val);
-            return lang_term;
-          }
-        }
-        catch(IOException e){
-          return null;
-        }
-        catch(ParseException e){
-          return null;
-        }
-    }
-    */
-
     /**
     * Converts Constellation Array into one JSON Object used to export
     *
@@ -705,36 +662,44 @@ public class SNACConstellationCreator {
     public void uploadConstellations(String apiKey, String state) {
         String result="";
         try{
-            String opIns = ",\n\"operation\":\"insert\"\n},\"apikey\":\"" + apiKey +"\"";
+            String key = "\"apikey\":\"" + apiKey +"\",";
             List<Constellation> new_list_constellations = new LinkedList<Constellation>();
             DefaultHttpClient client = new DefaultHttpClient();
             HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
-
-
             if(state == "prod") {
                 post = new HttpPost("http://api.snaccooperative.org/");
                 System.out.println(state);
             }
-            //System.out.println(state);
-
-
             System.out.println("Querying SNAC...");
-            for(Constellation temp_res : constellations){
-                  String rtj = Constellation.toJSON(temp_res);
-                  String api_query = "{\"command\": \"insert_constellation\",\n \"constellation\":" + rtj.substring(0,rtj.length()-1) + opIns + "}";
+            for(Constellation temp_con : constellations){
+              if(temp_con.getID()==0){ //SNAC ID exists, try to update
+                  String ctj = Constellation.toJSON(temp_con);
+                  String api_query = "{\"command\": \"update_constellation\",\n" + key +  "\n\"constellation\":" + ctj.substring(0,ctj.length()-1) + "}}";
+                  //System.out.println("\n\n\n\n\n" + api_query + "\n\n\n\n\n");
+                  StringEntity casted_api = new StringEntity(api_query,"UTF-8");
+                  post.setEntity(casted_api);
+                  HttpResponse response = client.execute(post);
+                  result = EntityUtils.toString(response.getEntity());
+                  //System.out.println("RESULT:" + result);
+                  //new_list_constellations.add(insertID(result,temp_con));
+              }
+              else{ //SNAC ID not provided, should be a new Constellation
+                  String ctj = Constellation.toJSON(temp_con);
+                  String api_query = "{\"command\": \"insert_constellation\",\n" + key +  "\n\"constellation\":" + ctj.substring(0,ctj.length()-1) + "}}";
                   // System.out.println("\n\n" + api_query + "\n\n");
                   StringEntity casted_api = new StringEntity(api_query,"UTF-8");
                   post.setEntity(casted_api);
                   HttpResponse response = client.execute(post);
                   result = EntityUtils.toString(response.getEntity());
                   //System.out.println("RESULT:" + result);
-                  new_list_constellations.add(insertID(result,temp_res));
+                  //new_list_constellations.add(insertID(result,temp_con));
               }
-              constellations = new_list_constellations;
-              System.out.println("Uploading Attempt Complete");
-            }catch(IOException e){
-              System.out.println(e);
             }
+            //constellations = new_list_constellations;
+            System.out.println("Uploading Attempt Complete");
+        }catch(IOException e){
+          System.out.println(e);
+        }
 
     }
 

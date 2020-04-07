@@ -34,6 +34,9 @@ public class SNACUploadCommand extends Command {
         String dataType = request.getParameter("dataType");
         SNACResourceCreator res_manager = SNACResourceCreator.getInstance();
         SNACConstellationCreator con_manager = SNACConstellationCreator.getInstance();
+        if(dataType==null){
+            dataType="";
+        }
         if(dataType.contains("GET_Resource")){
             SNACConnector key_manager = SNACConnector.getInstance();
             String API_key = key_manager.getKey();
@@ -44,6 +47,7 @@ public class SNACUploadCommand extends Command {
             String API_key = key_manager.getKey();
             con_manager.uploadConstellations(API_key, state);
         }
+        
         // System.out.println("Key: "+ API_key);
         // System.out.println("State: "+ state);
         
@@ -60,11 +64,14 @@ public class SNACUploadCommand extends Command {
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
         writer.writeStartObject();
-        if(dataType.equals("GET_Resource")){   
+        if(dataType.contains("GET_Resource")){   
             writer.writeStringField("done", res_manager.getColumnMatchesJSONString());
         }
-        else if(dataType.equals("GET_Constellation")){
+        else if(dataType.contains("GET_Constellation")){
             writer.writeStringField("done", con_manager.getColumnMatchesJSONString());
+        }
+        else{
+            writer.writeStringField("done", "Not a Resource nor Constellation");
         }
         
         writer.writeEndObject();

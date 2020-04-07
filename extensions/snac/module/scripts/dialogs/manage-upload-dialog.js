@@ -1,5 +1,7 @@
 var ManageUploadDialog = {};
 
+var check_dataType = "";
+
 var myVar;
 
 function _getChangedText() {
@@ -43,6 +45,13 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
   var self = this;
   var frame = $(DOM.loadHTML("snac", "scripts/dialogs/manage-upload-dialog.html"));
   var elmts = this._elmts = DOM.bind(frame);
+
+  if (document.getElementById('resourcebutton').checked) {   
+    check_dataType = "GET_Resource";
+ }
+ else {
+    check_dataType = "GET_Constellation";
+ }
 
   ManageUploadDialog.firstLaunch = false;
 
@@ -89,7 +98,7 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
       });
   }
 
-  elmts.uploadButton.click(function() {
+    elmts.uploadButton.click(function() {
     
     console.log(prod_or_dev);
     console.log(elmts.apiKeyForm.serialize());
@@ -99,7 +108,8 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
       "command/snac/upload",
       // elmts.apiKeyForm.serialize(),
       {
-        "state": JSON.stringify(prod_or_dev)
+        "state": JSON.stringify(prod_or_dev),
+        "dataType": JSON.stringify(check_dataType)
       },
       function(data) {
         // if (data.apikey) {

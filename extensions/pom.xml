@@ -36,7 +36,7 @@
         <version>0.8.2</version>
         <executions>
             <execution>
-                <id>prepare-agent</id>
+                <id>default-prepare-agent</id>
                 <goals>
                     <goal>prepare-agent</goal>
                 </goals>
@@ -61,7 +61,8 @@
 					<excludes>
 						<exclude> **/org/snaccooperative/commands/*SNACLoginCommand.*</exclude> <!-- I think it's this one -->
 						<exclude> **/org/snaccooperative/commands/*SNACResourceCommand.*</exclude>
-						<exclude> **/org/snaccooperative/commands/*SNACPreviewSchemaCommand.*</exclude>
+						<exclude> **/org/snaccooperative/commands/*SNACResourcePreviewSchemaCommand.*</exclude>
+  					<exclude> **/org/snaccooperative/commands/*SNACConstellationPreviewSchemaCommand.*</exclude>
 						<exclude> **/org/snaccooperative/exporters/*SNACConstellationCreator.*</exclude>
 						<exclude> **/org/snaccooperative/connection/*SNACConnector.*</exclude>
 					</excludes>

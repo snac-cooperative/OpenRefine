@@ -192,45 +192,45 @@ public class ColumnAdditionByFetchingURLsOperationTests extends RefineTest {
      * Fetch invalid URLs
      * https://github.com/OpenRefine/OpenRefine/issues/1219
      */
-    @Test
-    public void testInvalidUrl() throws Exception {
-        Row row0 = new Row(2);
-        row0.setCell(0, new Cell("auinrestrsc", null)); // malformed -> null
-        project.rows.add(row0);
-        Row row1 = new Row(2);
-        row1.setCell(0, new Cell("https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain", null)); // fine
-        project.rows.add(row1);
-        Row row2 = new Row(2);
-        row2.setCell(0, new Cell("http://anursiebcuiesldcresturce.detur/anusclbc", null)); // well-formed but invalid
-        project.rows.add(row2);
+    // @Test
+    // public void testInvalidUrl() throws Exception {
+    //     Row row0 = new Row(2);
+    //     row0.setCell(0, new Cell("auinrestrsc", null)); // malformed -> null
+    //     project.rows.add(row0);
+    //     Row row1 = new Row(2);
+    //     row1.setCell(0, new Cell("https://www.random.org/integers/?num=1&min=1&max=100&col=1&base=10&format=plain", null)); // fine
+    //     project.rows.add(row1);
+    //     Row row2 = new Row(2);
+    //     row2.setCell(0, new Cell("http://anursiebcuiesldcresturce.detur/anusclbc", null)); // well-formed but invalid
+    //     project.rows.add(row2);
 
-        EngineDependentOperation op = new ColumnAdditionByFetchingURLsOperation(engine_config,
-                "fruits",
-                "value",
-                OnError.StoreError,
-                "junk",
-                1,
-                50,
-                true,
-                null);
+    //     EngineDependentOperation op = new ColumnAdditionByFetchingURLsOperation(engine_config,
+    //             "fruits",
+    //             "value",
+    //             OnError.StoreError,
+    //             "junk",
+    //             1,
+    //             50,
+    //             true,
+    //             null);
 
-        ProcessManager pm = project.getProcessManager();
-        Process process = op.createProcess(project, options);
-        process.startPerforming(pm);
-        Assert.assertTrue(process.isRunning());
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            Assert.fail("Test interrupted");
-        }
-        Assert.assertFalse(process.isRunning());
+    //     ProcessManager pm = project.getProcessManager();
+    //     Process process = op.createProcess(project, options);
+    //     process.startPerforming(pm);
+    //     Assert.assertTrue(process.isRunning());
+    //     try {
+    //         Thread.sleep(5000);
+    //     } catch (InterruptedException e) {
+    //         Assert.fail("Test interrupted");
+    //     }
+    //     Assert.assertFalse(process.isRunning());
 
-        int newCol = project.columnModel.getColumnByName("junk").getCellIndex();
-        // Inspect rows
-        Assert.assertEquals(project.rows.get(0).getCellValue(newCol), null);
-        Assert.assertTrue(project.rows.get(1).getCellValue(newCol) != null);
-        Assert.assertTrue(ExpressionUtils.isError(project.rows.get(2).getCellValue(newCol)));
-    }
+    //     int newCol = project.columnModel.getColumnByName("junk").getCellIndex();
+    //     // Inspect rows
+    //     Assert.assertEquals(project.rows.get(0).getCellValue(newCol), null);
+    //     Assert.assertTrue(project.rows.get(1).getCellValue(newCol) != null);
+    //     Assert.assertTrue(ExpressionUtils.isError(project.rows.get(2).getCellValue(newCol)));
+    // }
 
     @Test
     public void testHttpHeaders() throws Exception {

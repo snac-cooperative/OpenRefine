@@ -171,42 +171,44 @@ const puppeteer = require("puppeteer");
       await page.waitFor(1000);
 
       // UNIT TEST: 'Edit SNAC schema' will take you to the SNAC extension frontend
-      var editSchmeaOptionExistTest = false;
+      // var editSchmeaOptionExistTest = false;
       
-      menuHandler = await page.$$('.menu-container > .menu-item');
-      for (const menuOption of menuHandler){
-        var text = await page.evaluate(option => option.innerText, menuOption);
-        if(text == 'Edit SNAC schema'){
-          menuOption.click();
-          editSchmeaOptionExistTest = true;
-          break;
-        }
-      }
-      if(editSchmeaOptionExistTest){
-        console.log("TEST PASSED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
-      } else {
-        console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
-      }
-      await page.waitFor(1000);
 
-      // UNIT TEST: Disabled options testing
-      var editSchmeaOptionExistTest = false;
+      // menuHandler = await page.$('.menu-container > .menu-item');
+      // for (const menuOption of menuHandler){
+      //   var text = await page.evaluate(option => option.innerText, menuOption);
+      //   if(text == 'Edit SNAC schema'){
+      //     menuOption.click();
+      //     editSchmeaOptionExistTest = true;
+      //     break;
+      //   }
+      // }
+      // if(editSchmeaOptionExistTest){
+      //   console.log("TEST PASSED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // } else {
+      //   console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // }
+      // await page.waitFor(1000);
 
-      var dropdHandler = await page.evaluate(selected => {
-        let dropdowns = $('.selectColumn').get();
-        console.log(dropdowns[0]);
-        dropdowns[0].click();
-
-        return null;
-      });
-      // console.log(dropdHandler);
-      if (dropdHandler == null){
-        console.log("TEST PASSED: Disabled other slections, unique selections");
-      } else if (dropdHandler == "ID") {
-        console.log("TEST FAILED: Same value identified");
-      }
+      // // UNIT TEST: dropdown testing
+      // var editSchmeaOptionExistTest = false;
       
-      await page.waitFor(1000);
+      // dropHandler = await page.$('.selectColumn');
+      // for (const menuOption of dropHandler){
+      //   var text = await page.evaluate(option => option.innerText, menuOption);
+      //   if(text == 'Edit SNAC schema'){
+      //     dropHandler.click();
+      //     editSchmeaOptionExistTest = true;
+      //     break;
+      //   }
+      // }
+      // if(editSchmeaOptionExistTest){
+      //   console.log("TEST PASSED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // } else {
+      //   console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
+      // }
+      // await page.waitFor(1000);
+
 
 
       /********************** 
@@ -232,7 +234,25 @@ const puppeteer = require("puppeteer");
       }
       await page.waitFor(1000);
 
-      await page.waitFor(10000);
+      // UNIT TEST: Preview
+      var previewExistTest = false;
+    
+      const previewTabHandlers = await page.$('.main-view-panel-tabs-snac');
+      for (const tab of tabHandlers){
+        var text = await page.evaluate(tab => tab.innerText, tab);
+        if (text == 'Preview '){
+          tab.click();
+          issuesExistTest = true;
+          break;
+        }
+      }
+      if(previewExistTest){
+        console.log("TEST PASSED: Previews exist");
+      } else {
+        console.log("TEST FAILED: No Previews to show");
+      }
+      await page.waitFor(1000);
+      //await page.waitFor(10000);
       await browser.close();
       console.log("Browser Closed");
     } catch (err) {

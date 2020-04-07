@@ -173,6 +173,7 @@ const puppeteer = require("puppeteer");
       // UNIT TEST: 'Edit SNAC schema' will take you to the SNAC extension frontend
       // var editSchmeaOptionExistTest = false;
       
+
       // menuHandler = await page.$('.menu-container > .menu-item');
       // for (const menuOption of menuHandler){
       //   var text = await page.evaluate(option => option.innerText, menuOption);
@@ -207,6 +208,7 @@ const puppeteer = require("puppeteer");
       //   console.log("TEST FAILED: 'Edit SNAC schema' option exists in SNAC extension dropdown.");
       // }
       // await page.waitFor(1000);
+
 
 
       /********************** 
@@ -250,8 +252,7 @@ const puppeteer = require("puppeteer");
         console.log("TEST FAILED: No Previews to show");
       }
       await page.waitFor(1000);
-
-      await page.waitFor(10000);
+      //await page.waitFor(10000);
       await browser.close();
       console.log("Browser Closed");
     } catch (err) {

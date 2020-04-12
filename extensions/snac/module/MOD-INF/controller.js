@@ -50,6 +50,7 @@ function init() {
     RefineServlet.registerCommand(module, "constellation", new SNACConstellationCommand());
     RefineServlet.registerCommand(module, "apikey", new SNACLoginCommand());
     RefineServlet.registerCommand(module, "upload", new SNACUploadCommand());
+    RefineServlet.registerCommand(module, "issue-snac-schema", new SNACSchemaIssuesCommand());
     RefineServlet.registerCommand(module, "preview-res-snac-schema", new SNACResourcePreviewSchemaCommand());
     RefineServlet.registerCommand(module, "preview-con-snac-schema", new SNACConstellationPreviewSchemaCommand());
 

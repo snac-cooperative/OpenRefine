@@ -89,8 +89,8 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
       .addClass('main-view-panel-tabs-snac')
       .attr('href', '#snac-issues-panel')
       .text($.i18n('snac-schema/warnings-tab-header')+' ')
-      .appendTo(this._toolPanel)
-      .click(function() { SNACSchemaAlignmentDialog._save(); });
+      .appendTo(this._toolPanel);
+      // .click(function() { SNACSchemaAlignmentDialog._save(); });
    this.issuesTabCount = $('<span></span>')
       .addClass('schema-alignment-total-warning-count')
       .appendTo(issuesButton)
@@ -104,7 +104,7 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
       .addClass('main-view-panel-tabs-snac')
       .attr('href', '#snac-preview-panel')
       .text($.i18n('snac-schema/edits-preview-tab-header'))
-      .appendTo(this._toolPanel)
+      .appendTo(this._toolPanel);
       // .click(function() { SNACSchemaAlignmentDialog._save(); });
    this.previewSpinner = $('<img />')
       .attr('src', 'images/large-spinner.gif')
@@ -706,6 +706,7 @@ SNACSchemaAlignmentDialog.switchTab = function(targetTab) {
    $('.main-view-panel-tab-header[href="'+targetTab+'"]').addClass('active');
    $(targetTab).show();
    resizeAll();
+   SNACSchemaAlignmentDialog.issues();
    SNACSchemaAlignmentDialog.preview();
    var panelHeight = this._viewPanel.height();
    this._schemaPanel.height(panelHeight);
@@ -777,10 +778,10 @@ SNACSchemaAlignmentDialog._reset = function(schema) {
  *************************/
 
 // Will be used for save & issues
-var error_fields = [];
 
 // Check for determining GET request for either Constellation or Resourecs
 var check_dataType = "";
+var first_save = false;
 
 SNACSchemaAlignmentDialog._save = function(onDone) {
    var self = this;
@@ -817,7 +818,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
       var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
    }
-
    else {
       var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
       var required_fields = ["Entity Type", "Name Entry"];
@@ -825,16 +825,36 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
 
    // For printing to issues tab
    var empty_required = false;
-   for (var x = 0; x < required_fields.length; x++){
-      if (!(array_ddv.includes(required_fields[x]))){
-         empty_required = true;
-         error = {
-            title: `'${required_fields[x]}' found empty`,
-            body: `The required field '${required_fields[x]}' is missing from schema.`,
-         };
-         error_fields.push(error);
+   $.post(
+      "command/snac/issue-snac-schema",
+      {
+         "flush": "true",
+      },
+      function(data, status) {
+         for (var x = 0; x < required_fields.length; x++){
+            if (!(array_ddv.includes(required_fields[x]))){
+               empty_required = true;
+               error = {
+                  title: `'${required_fields[x]}' found empty`,
+                  body: `The required field '${required_fields[x]}' is missing from schema.`,
+               };
+               $.post(
+                  "command/snac/issue-snac-schema",
+                  {
+                     "error": JSON.stringify(error),
+                     "flush": "false",
+                  },
+                  function(data, status) {
+                     console.log("Issue recorded: " + data.error);
+                  }
+               );
+            }
+         }
       }
-   }
+   );
+   // setTimeout(function(){
+      
+   // }, 300);
 
    // Duplicate field check (for issues tab)
    var dup_dict = {}
@@ -845,20 +865,26 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       }
       if (!(array_ddv[y] in dup_dict)){
          dup_dict[array_ddv[y]] = 1;
-      }
-      else{
-         if (mainfields.includes(array_ddv[y])) {
+      } else {
+         if(mainfields.includes(array_ddv[y])){
             dup_bool = true;
             error = {
                title: `Duplicate values of '${array_ddv[y]}'`,
                body: `Duplicate values found for '${array_ddv[y]}'.`,
             };
-            error_fields.push(error);
-         }
-         else {
+            $.post(
+               "command/snac/issue-snac-schema",
+               {
+                  "error": JSON.stringify(error),
+                  "flush": "false",
+               },
+               function(data, status) {
+                  console.log("Issue recorded: " + data.error);
+               }
+            );
+         } else {
             continue;
          }
-        
       }
    }
 
@@ -922,6 +948,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       );
    }
    SNACSchemaAlignmentDialog._hasChanged();
+   first_save = true;
 };
 
 SNACSchemaAlignmentDialog._discardChanges = function() {
@@ -1903,23 +1930,32 @@ If there are errors, user will not be able to upload to SNAC*/
 var validationCount = 0;
 
 SNACSchemaAlignmentDialog.issues = function() {
-   this.issueSpinner.show();
-   var schema = this.getJSON();
+   var self = this;
+
+   self.issueSpinner.show();
+   var schema = self.getJSON();
 
    if(schema == null){
       return;
    }
-   this.issueSpinner.hide();
-   $('.invalid-schema-warning').hide();
-   if(error_fields.length != 0){
-      this._updateWarnings(error_fields, error_fields.length);
-      validationCount = this._updateWarnings(error_fields, error_fields.length);
-      error_fields = [];
-   } else {
-      validationCount = this._updateWarnings([],0);
-      this._updateWarnings([],0);
-   }
-}
+   setTimeout(function(){
+      $.get(
+         "command/snac/issue-snac-schema",
+         function(data) {
+            self.issueSpinner.hide();
+            $('.invalid-schema-warning').hide();
+            error_fields = JSON.parse(data.errors).errors;
+            if(error_fields.length != 0){
+               self._updateWarnings(error_fields, error_fields.length);
+               validationCount = error_fields.length;
+            } else {
+               validationCount = 0;
+               self._updateWarnings([],0);
+            }
+         }
+      );
+   }, 500);
+};
 
 /*************************
  * PREVIEW TAB RENDERING *
@@ -1933,8 +1969,20 @@ SNACSchemaAlignmentDialog.preview = function() {
   this.previewSpinner.show();
   var schema = this.getJSON();
   if (schema === null) {
-    $('.invalid-schema-warning').show();
-    return;
+   $('.invalid-schema-warning').show();
+   return;
+  }
+  if (validationCount != 0){
+   this.previewSpinner.hide();
+   var element = document.getElementById("preview-here");
+   element.innerHTML = "Cannot make a preview of elements. Please fix the " + validationCount + " issues.";
+   return;
+  }
+  if (!first_save){
+   this.previewSpinner.hide();
+   var element = document.getElementById("preview-here");
+   element.innerHTML = "Unable to make preview because no schema is saved. Please press 'Save schema' in the SchemaSNAC tab to make a preview.";
+   return;
   }
   if(check_dataType == "GET_Resource"){
    $.get(

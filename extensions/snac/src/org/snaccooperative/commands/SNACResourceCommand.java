@@ -30,7 +30,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-import org.snaccooperative.exporters.SNACResourceCreator;
+// import org.snaccooperative.exporters.SNACResourceCreator;
 
 public class SNACResourceCommand extends Command {
     @Override

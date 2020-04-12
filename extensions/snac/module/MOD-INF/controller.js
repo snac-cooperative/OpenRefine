@@ -47,10 +47,13 @@ function init() {
     //RefineServlet.registerCommand(module, "save-wikibase-schema", new SaveWikibaseSchemaCommand());
     //RefineServlet.registerCommand(module, "preview-wikibase-schema", new PreviewWikibaseSchemaCommand());
     RefineServlet.registerCommand(module, "resource", new SNACResourceCommand());
+    RefineServlet.registerCommand(module, "constellation", new SNACConstellationCommand());
     RefineServlet.registerCommand(module, "apikey", new SNACLoginCommand());
     RefineServlet.registerCommand(module, "upload", new SNACUploadCommand());
-    RefineServlet.registerCommand(module, "preview-snac-schema", new SNACPreviewSchemaCommand());
     RefineServlet.registerCommand(module, "issue-snac-schema", new SNACSchemaIssuesCommand());
+    RefineServlet.registerCommand(module, "preview-res-snac-schema", new SNACResourcePreviewSchemaCommand());
+    RefineServlet.registerCommand(module, "preview-con-snac-schema", new SNACConstellationPreviewSchemaCommand());
+
     /*
      * Resources
      */

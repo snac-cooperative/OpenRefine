@@ -21,6 +21,7 @@ import com.google.refine.model.Row;
 import com.google.refine.model.Cell;
 import com.google.refine.ProjectManager;
 
+import org.snaccooperative.exporters.SNACConstellationCreator;
 import org.snaccooperative.exporters.SNACResourceCreator;
 import org.snaccooperative.connection.SNACConnector;
 
@@ -30,12 +31,26 @@ public class SNACUploadCommand extends Command {
             throws ServletException, IOException {
         // String API_key = request.getParameter("apikey");
         String state =  request.getParameter("state");
-        SNACResourceCreator manager = SNACResourceCreator.getInstance();
-        SNACConnector key_manager = SNACConnector.getInstance();
-        String API_key = key_manager.getKey();
+        String dataType = request.getParameter("dataType");
+        SNACResourceCreator res_manager = SNACResourceCreator.getInstance();
+        SNACConstellationCreator con_manager = SNACConstellationCreator.getInstance();
+        if(dataType==null){
+            dataType="";
+        }
+        if(dataType.contains("GET_Resource")){
+            SNACConnector key_manager = SNACConnector.getInstance();
+            String API_key = key_manager.getKey();
+            res_manager.uploadResources(API_key, state);
+        }
+        else if(dataType.contains("GET_Constellation")){
+            SNACConnector key_manager = SNACConnector.getInstance();
+            String API_key = key_manager.getKey();
+            con_manager.uploadConstellations(API_key, state);
+        }
+        
         // System.out.println("Key: "+ API_key);
         // System.out.println("State: "+ state);
-        manager.uploadResources(API_key, state);
+        
 
 
         // Project p = getProject(request);
@@ -49,7 +64,16 @@ public class SNACUploadCommand extends Command {
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
         writer.writeStartObject();
-        writer.writeStringField("done", manager.getColumnMatchesJSONString());
+        if(dataType.contains("GET_Resource")){   
+            writer.writeStringField("done", res_manager.getColumnMatchesJSONString());
+        }
+        else if(dataType.contains("GET_Constellation")){
+            writer.writeStringField("done", con_manager.getColumnMatchesJSONString());
+        }
+        else{
+            writer.writeStringField("done", "Not a Resource nor Constellation");
+        }
+        
         writer.writeEndObject();
         writer.flush();
         writer.close();
@@ -61,6 +85,13 @@ public class SNACUploadCommand extends Command {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);
+
+        /*
+        *
+        * Wait...how do I make this work for both?
+        *
+        */
+
         SNACResourceCreator manager = SNACResourceCreator.getInstance();
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");

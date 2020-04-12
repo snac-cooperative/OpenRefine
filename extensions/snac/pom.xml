@@ -91,6 +91,9 @@
           <suiteXmlFiles>
             <suiteXmlFile>tests/conf/tests.xml</suiteXmlFile>
           </suiteXmlFiles>
+          <excludes>
+            <exclude>**/*Tests.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
 

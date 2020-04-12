@@ -95,6 +95,9 @@
         <version>${surefire.version}</version>
         <configuration>
           <argLine>${surefireArgs}</argLine>
+          <excludes>
+            <exclude>*Tests.java</exclude>
+          </excludes>
           <suiteXmlFiles>
             <suiteXmlFile>main/tests/server/conf/tests.xml</suiteXmlFile>
           </suiteXmlFiles>
@@ -106,7 +109,7 @@
         <version>0.8.2</version>
         <executions>
             <execution>
-                <id>prepare-agent</id>
+                <id>default-prepare-agent</id>
                 <goals>
                     <goal>prepare-agent</goal>
                 </goals>

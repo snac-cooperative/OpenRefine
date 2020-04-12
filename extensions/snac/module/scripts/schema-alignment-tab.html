@@ -46,25 +46,38 @@
             </div>
 
             <div id="idradio" style="padding-left: 20px;"> 
-                <p>Does ID column exist?: </p>
-                <input type="radio" name="group2" value="Yes" id="yesidbutton" checked="checked" onclick="function3()"> Yes<br>
-                <input type="radio" name="group2" value="No" id="noidbutton" onclick="function4()"> No<br>
-
-
+                <p>Does the SNAC ID column already exist in the CSV?: </p>
+                <input type="radio" name="group2" value="Yes" id="yesidbutton" onclick="function3()"> Yes<br>
+                <input type="radio" name="group2" value="No" id="noidbutton" checked="checked" onclick="function4()"> No<br>
                 <!-- Javascript to enable/disable ID dropdown -->
                 <script>
-
-                    // If 'Yes' button is clicked, dont disable the ID dropdown
+                    // If 'Yes' button is clicked, disable the ID dropdown and hide the ID draggable column to hide that option
+                    // also create a popup to choose which field represents the ID
                     function function3() {                   
                         $(".idfield").prop("disabled", false);
+                        $("#idSelectionDiv").css("visibility", "visible");
                     }
 
-                    // If 'No' button is clicked, disable the ID dropdown and hide the ID draggable column to hide that option   
+                    // If 'No' button is clicked, proceed as usual.  
                     function function4() {
                         $(".idfield").prop("disabled", true);
+                        $("#idSelectionDiv").css("visibility", "hidden");
+                        $.post(
+                            "command/snac/resource",
+                            {
+                            "idCol": ""
+                            },
+                            function(data, status) {
+                            console.log("ID col unset");
+                            }
+                        );
                     }
                 </script>
 
+            </div>
+            <div id="idSelectionDiv" style = "padding-left: 20px; visibility: hidden;">
+                <p>Which CSV column is associated to the SNAC ID: </p>
+                <!-- dropdown of column names-->
             </div>
         </div>
         

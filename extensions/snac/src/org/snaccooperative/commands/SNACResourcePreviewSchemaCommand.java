@@ -13,7 +13,7 @@ import com.google.refine.util.ParsingUtilities;
 
 import org.snaccooperative.exporters.SNACResourceCreator;
 
-public class SNACPreviewSchemaCommand extends Command  {
+public class SNACResourcePreviewSchemaCommand extends Command  {
 
    // @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -35,7 +35,7 @@ public class SNACPreviewSchemaCommand extends Command  {
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");
         writer.writeStartObject();
-        writer.writeStringField("SNAC_preview", previewString);
+        writer.writeStringField("SNAC_Resourcepreview", previewString);
         writer.writeEndObject();
         writer.flush();
         writer.close();

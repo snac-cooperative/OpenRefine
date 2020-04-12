@@ -79,15 +79,15 @@
 
 .schema-alignment-dialog-columns-area-resource.snac-tab, 
 .schema-alignment-dialog-columns-area-constellation.snac-tab{
-  border-left: 0;
-  border-right: 0;
+  /* border-left: 0;
+  border-right: 0; */
   padding: 5px;
-  overflow-y: visible;
-  display: flex;
-  width: 30%;
-  flex-direction: column;
+  /* overflow-y: visible;
+  display: flex; */
+  /* width: 30%; */
+  /* flex-direction: column;
   max-height: none;
-  margin-left: 0%;
+  margin-left: 0%; */
 }
 
 .schema-alignment-dialog-dropdown-area-resource, .schema-alignment-dialog-dropdown-area-constellation{

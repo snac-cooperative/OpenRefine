@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import org.apache.http.*;
 import org.apache.http.util.EntityUtils;
@@ -35,13 +36,20 @@ import com.google.refine.model.RecordModel;
 import com.google.refine.model.Record;
 
 
-import com.google.refine.model.changes.CellAtRow;
-import com.google.refine.model.changes.ColumnAdditionChange;
+// import com.google.refine.model.changes.CellAtRow;
+// import com.google.refine.model.changes.ColumnAdditionChange;
 
 import org.snaccooperative.data.Resource;
 import org.snaccooperative.data.Term;
 import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.Language;
+
+import com.google.refine.model.Column;
+import com.google.refine.model.Recon;
+import com.google.refine.model.changes.ColumnAdditionChange;
+import com.google.refine.model.changes.ColumnRemovalChange;
+import com.google.refine.model.changes.CellAtRow;
+
 
 
 /*
@@ -97,6 +105,7 @@ public class SNACResourceCreator {
   */
     public static HashMap<String, Integer> globalCellsLoc = new HashMap<String, Integer>();
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
+    public static String idColumn = "";
     private static Project theProject = new Project();
     private static final SNACResourceCreator instance = new SNACResourceCreator();
     private static List<Resource> resources = new LinkedList<Resource>();
@@ -124,6 +133,10 @@ public class SNACResourceCreator {
     public String getColumnMatchesJSONString(){
         // System.out.println(new JSONObject(match_attributes).toString());
         return new JSONObject(match_attributes).toString();
+    }
+    
+    public String getIdColumn(){
+      return idColumn;
     }
 
     public static void setProject(Project p){
@@ -156,7 +169,11 @@ public class SNACResourceCreator {
         updateColumnMatches(JSON_SOURCE);
         rowsToResources();
         exportResourcesJSON();
-        // test_insertID();
+    }
+
+    public void setIDCol(String idCol){
+      idColumn = idCol;
+      System.out.println("setting id col: "+ idColumn);
     }
 
     /**
@@ -303,7 +320,9 @@ public class SNACResourceCreator {
                       }
                       // If there are more rows, then insert more languages
                       if(z != rows.size()){
-                        temp_val = rows.get(z).getCellValue(x).toString();
+                        if(rows.get(z).getCellValue(x)!=null){
+                          temp_val = rows.get(z).getCellValue(x).toString();
+                        }
                       }
                     }
                   // If Languages already exists then add onto them
@@ -313,7 +332,6 @@ public class SNACResourceCreator {
                         continue;
                       }
                       temp_val = rows.get(r).getCellValue(x).toString();
-                      // temp_val = rows.get(r).getCellValue(x).toString();
                       if(!temp_val.equals("")){
                         String checked_lang = detectLanguage(temp_val);
                         if(checked_lang != null){
@@ -336,7 +354,9 @@ public class SNACResourceCreator {
                       res.addLanguage(lang);
                       // If there are more rows, then insert more scripts
                       if(z != rows.size()){
-                        temp_val = rows.get(z).getCellValue(x).toString();
+                        if(rows.get(z).getCellValue(x)!=null){
+                         temp_val = rows.get(z).getCellValue(x).toString();
+                        }
                       }
                     }
                   // If Languages already exists then add onto them
@@ -410,6 +430,7 @@ public class SNACResourceCreator {
                       break;
                   }
                   catch (NumberFormatException e){
+                      resource_ids.add(-1);
                       break;
                   }
               case "type":
@@ -731,12 +752,13 @@ public class SNACResourceCreator {
           }
           resources = new_list_resources;
           System.out.println("Uploading Attempt Complete");
+          test_insertID();
         }catch(IOException e){
           System.out.println(e);
         }
     }
     public Resource insertID(String result, Resource res){
-    JSONParser jp = new JSONParser();
+      JSONParser jp = new JSONParser();
     try{
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
@@ -756,21 +778,76 @@ public class SNACResourceCreator {
         System.out.println(e);
     }
     return res;
+  }
+
+public void test_insertID(){
+  // Run this function after insertID (above) within SNACUploadCommand
+  // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+  // If exists: Go through and set the cell values based on the resource_ids
+  // If not: Create a new column "id" and insert cell values based on resource_ids
+
+  boolean idColExists = false;
+  // Iterator hmIterator = match_attributes.entrySet().iterator(); 
+  int idColIndex = -1;
+  List<Column> colList = theProject.columnModel.columns;
+  List<CellAtRow> res_row_ids = new ArrayList<CellAtRow>();
+
+  List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
+
+
+  System.out.println("inserting col");
+  System.out.println(idColumn);
+  if(!idColumn.equals("")){
+    idColExists = true;
+    for(Column c: colList){
+      if(c.getOriginalHeaderLabel().equals(idColumn)){
+        idColIndex = c.getCellIndex();
+        break;
+      }
+    }
+  }
+  System.out.println("RESOURCE IDS: ");
+  System.out.println(resource_ids);
+
+  // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
+  for (int x = 0; x < theProject.rows.size(); x++){
+    Cell test_cell = new Cell(resource_ids.get(x), new Recon(0, null, null));
+
+    // Cell test_cell = new Cell(x, new Recon(0, null, null));
+    res_row_ids.add(new CellAtRow(x, test_cell));
+  }
+
+  //iterating by records instead of rows
+  System.out.println("RECORDS: ");
+  System.out.println(theProject.recordModel.getRecordCount());
+  int rec_size = theProject.recordModel.getRecordCount();
+  for (int z = 0; z < rec_size; z++){
+    Record rec_temp = theProject.recordModel.getRecord(z);
+    int fromRowInd = rec_temp.fromRowIndex;
+    // int toRowInd = rec_temp.toRowIndex;
+    Cell test_cell_r = new Cell(resource_ids.get(z), new Recon(0, null, null)); //how does resource_ids look when using records????
+
+    record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
+  }
+
+  if(idColExists){
+  // replace existing col 
+    ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
+    CRC.apply(theProject);
+    // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
+    ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
+
+    CAC.apply(theProject);
+  }
+  else {
+    // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+    ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
+    CAC.apply(theProject);
+  }
+  
 }
 
-// public void test_insertID(){
-//   // Run this function after insertID (above) within SNACUploadCommand
-//   // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
-//   // If exists: Go through and set the cell values based on the resource_ids
-//   // If not: Create a new column "id" and insert cell values based on resource_ids
-//
-//
-//   // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
-//   for (int x = 0; x < theProject.rows.size(); x++){
-//     Cell test_cell = new Cell(x, new Recon(0, null, null));
-//     res_row_ids.add(new CellAtRow(x, test_cell));
-//   }
-//   ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
-//   CAC.apply(theProject);
-// }
+public static void main(String[] args) {
+    System.out.println("Hello");
+}
 }

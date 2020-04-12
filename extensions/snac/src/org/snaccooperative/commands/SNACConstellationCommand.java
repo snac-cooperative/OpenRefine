@@ -30,15 +30,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 
-// import org.snaccooperative.exporters.SNACResourceCreator;
+import org.snaccooperative.exporters.SNACConstellationCreator;
 
-public class SNACResourceCommand extends Command {
+public class SNACConstellationCommand extends Command {
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String idCol = request.getParameter("idCol");
         String dict = request.getParameter("dict");
-        SNACResourceCreator manager = SNACResourceCreator.getInstance();
+        SNACConstellationCreator manager = SNACConstellationCreator.getInstance();
         if (dict != null){
             Project p = getProject(request);
             try{
@@ -47,10 +46,6 @@ public class SNACResourceCommand extends Command {
               e.printStackTrace();
               System.out.println("Failed to set up Resources.");
             }
-        }
-        if(idCol != null){
-          manager.setIDCol(idCol);
-
         }
 
         // Project p = getProject(request);
@@ -64,9 +59,7 @@ public class SNACResourceCommand extends Command {
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
         writer.writeStartObject();
-        writer.writeStringField("resource", manager.getColumnMatchesJSONString());
-        writer.writeStringField("idColumn", manager.getIdColumn());
-
+        writer.writeStringField("constellation", manager.getColumnMatchesJSONString());
         writer.writeEndObject();
         writer.flush();
         writer.close();
@@ -78,7 +71,7 @@ public class SNACResourceCommand extends Command {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // doPost(request, response);
-        SNACResourceCreator manager = SNACResourceCreator.getInstance();
+        SNACConstellationCreator manager = SNACConstellationCreator.getInstance();
 
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");
@@ -87,7 +80,7 @@ public class SNACResourceCommand extends Command {
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
         writer.writeStartObject();
-        writer.writeStringField("resource", manager.exportResourcesJSON());
+        writer.writeStringField("constellation", manager.exportConstellationsJSON());
         writer.writeEndObject();
         writer.flush();
         writer.close();

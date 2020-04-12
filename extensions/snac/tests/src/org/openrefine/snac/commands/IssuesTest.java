@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.commands.Command;
 import com.google.refine.model.Project;
 // import com.google.refine.model.Row;
-import com.google.refine.tests.RefineTest;
+import com.google.refine.RefineTest;
 import com.google.refine.util.ParsingUtilities;
 
 import org.apache.http.*;
@@ -99,10 +99,10 @@ public class IssuesTest extends RefineTest{
       try{
         issues.doPost(request, response);
         ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-        String response_str = response.get("error").textValue();
+        Assert.assertTrue(response.get("error").textValue() == null);
       } catch (Exception e){
         String a = "";
-        Assert.assertTrue(a.equals(""));
+        Assert.assertFalse(a.equals(""));
       }
     }
 
@@ -111,7 +111,20 @@ public class IssuesTest extends RefineTest{
     */
     @Test
     public void testPostNoFlush() throws Exception{
+      try{
+        when(request.getParameter("error")).thenReturn("{\"title\": \"\'title\' found empty\", "
+          + "\"body\": \"The required field \'title\' is missing from schema.\"}");
+        issues.doPost(request, response);
 
+        ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
+        String response_str = response.get("error").textValue();
+
+        Assert.assertTrue(response_str.equals("{\"title\": \"\'title\' found empty\", "
+        + "\"body\": \"The required field \'title\' is missing from schema.\"}"));
+      } catch (Exception e){
+        String a = "";
+        Assert.assertFalse(a.equals(""));
+      }
     }
 
     /*
@@ -119,7 +132,23 @@ public class IssuesTest extends RefineTest{
     */
     @Test
     public void testPostTrueFlush() throws Exception{
+      try{
+        when(request.getParameter("error")).thenReturn("{\"title\": \"\'title\' found empty\", "
+          + "\"body\": \"The required field \'title\' is missing from schema.\"}");
+        when(request.getParameter("flush")).thenReturn("true");
+        issues.doPost(request, response);
 
+        ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
+        String error_response_str = response.get("error").textValue();
+        String flush_response_str = response.get("flush").textValue();
+
+        Assert.assertTrue(error_response_str.equals("{\"title\": \"\'title\' found empty\", "
+        + "\"body\": \"The required field \'title\' is missing from schema.\"}"));
+        Assert.assertTrue(flush_response_str.equals("true"));
+      } catch (Exception e){
+        String a = "";
+        Assert.assertFalse(a.equals(""));
+      }
     }
 
     /*
@@ -128,9 +157,16 @@ public class IssuesTest extends RefineTest{
     @Test
     public void testGet() throws Exception{
       try{
+        when(request.getParameter("error")).thenReturn("{\"title\": \"\'title\' found empty\", "
+          + "\"body\": \"The required field \'title\' is missing from schema.\"}");
+        when(request.getParameter("flush")).thenReturn("true");
+        issues.doPost(request, response);
+
         issues.doGet(request, response);
         ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-        String response_str = response.get("doneGet").textValue();
+        String response_str = response.get("errors").textValue();
+        Assert.assertTrue(response_str != null);
+        System.out.println(response_str);
       }
       catch(Exception e){
           String a="";

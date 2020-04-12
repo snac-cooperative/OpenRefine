@@ -30,14 +30,12 @@ public class SNACSchemaIssuesCommand extends Command  {
         String error = request.getParameter("error");
         String flush = request.getParameter("flush");
 
-        System.out.println("Checking if flush is needed...");
         // Flush errors if asked
         if(flush != null && flush.equals("true")){
             errors.clear();
         }
         // Add errors to the command
         if(error != null){
-            System.out.println("Adding errors...");
             errors.add(error);
         }
 
@@ -51,6 +49,9 @@ public class SNACSchemaIssuesCommand extends Command  {
 
         writer.writeStartObject();
         writer.writeStringField("error", error);
+        if (flush != null){
+            writer.writeStringField("flush", flush);
+        }
         writer.writeEndObject();
         writer.flush();
         writer.close();

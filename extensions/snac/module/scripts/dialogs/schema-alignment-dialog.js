@@ -1791,15 +1791,12 @@ SNACSchemaAlignmentDialog.issues = function() {
          function(data) {
             self.issueSpinner.hide();
             $('.invalid-schema-warning').hide();
-            console.log("This is the errors: ");
-            console.log(data.errors);
             error_fields = JSON.parse(data.errors).errors;
-            console.log("The size is: " + error_fields.length);
             if(error_fields.length != 0){
                self._updateWarnings(error_fields, error_fields.length);
-               validationCount = self._updateWarnings(error_fields, error_fields.length);
+               validationCount = error_fields.length;
             } else {
-               validationCount = self._updateWarnings([],0);
+               validationCount = 0;
                self._updateWarnings([],0);
             }
          }
@@ -1821,6 +1818,12 @@ SNACSchemaAlignmentDialog.preview = function() {
   if (schema === null) {
     $('.invalid-schema-warning').show();
     return;
+  }
+  if(validationCount != 0){
+   this.previewSpinner.hide();
+   var element = document.getElementById("preview-here");
+   element.innerHTML = "Cannot make a preview of elements. Please fix the " + validationCount + " issues.";
+   return;
   }
   $.get(
       "command/snac/preview-snac-schema", //+ $.param({ project: theProject.id }),

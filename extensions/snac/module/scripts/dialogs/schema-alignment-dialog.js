@@ -781,6 +781,7 @@ SNACSchemaAlignmentDialog._reset = function(schema) {
 
 // Check for determining GET request for either Constellation or Resourecs
 var check_dataType = "";
+var first_save = false;
 
 SNACSchemaAlignmentDialog._save = function(onDone) {
    var self = this;
@@ -817,7 +818,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
       var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
    }
-
    else {
       var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
       var required_fields = ["Entity Type", "Name Entry"];
@@ -948,6 +948,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       );
    }
    SNACSchemaAlignmentDialog._hasChanged();
+   first_save = true;
 };
 
 SNACSchemaAlignmentDialog._discardChanges = function() {
@@ -1968,13 +1969,19 @@ SNACSchemaAlignmentDialog.preview = function() {
   this.previewSpinner.show();
   var schema = this.getJSON();
   if (schema === null) {
-    $('.invalid-schema-warning').show();
-    return;
+   $('.invalid-schema-warning').show();
+   return;
   }
   if (validationCount != 0){
    this.previewSpinner.hide();
    var element = document.getElementById("preview-here");
    element.innerHTML = "Cannot make a preview of elements. Please fix the " + validationCount + " issues.";
+   return;
+  }
+  if (!first_save){
+   this.previewSpinner.hide();
+   var element = document.getElementById("preview-here");
+   element.innerHTML = "Unable to make preview because no schema is saved. Please press 'Save schema' in the SchemaSNAC tab to make a preview.";
    return;
   }
   if(check_dataType == "GET_Resource"){

@@ -843,9 +843,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
                   {
                      "error": JSON.stringify(error),
                      "flush": "false",
-                  },
-                  function(data, status) {
-                     console.log("Issue recorded: " + data.error);
                   }
                );
             }
@@ -877,9 +874,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
                {
                   "error": JSON.stringify(error),
                   "flush": "false",
-               },
-               function(data, status) {
-                  console.log("Issue recorded: " + data.error);
                }
             );
          } else {

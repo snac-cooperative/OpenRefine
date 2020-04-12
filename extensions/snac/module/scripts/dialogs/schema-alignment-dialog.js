@@ -831,7 +831,6 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
          "flush": "true",
       },
       function(data, status) {
-         console.log("Errors flushed");
          for (var x = 0; x < required_fields.length; x++){
             if (!(array_ddv.includes(required_fields[x]))){
                empty_required = true;
@@ -867,21 +866,25 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
       if (!(array_ddv[y] in dup_dict)){
          dup_dict[array_ddv[y]] = 1;
       } else {
-         dup_bool = true;
-         error = {
-            title: `Duplicate values of '${array_ddv[y]}'`,
-            body: `Duplicate values found for '${array_ddv[y]}'.`,
-         };
-         $.post(
-            "command/snac/issue-snac-schema",
-            {
-               "error": JSON.stringify(error),
-               "flush": "false",
-            },
-            function(data, status) {
-               console.log("Issue recorded: " + data.error);
-            }
-         );
+         if(mainfields.includes(array_ddv[y])){
+            dup_bool = true;
+            error = {
+               title: `Duplicate values of '${array_ddv[y]}'`,
+               body: `Duplicate values found for '${array_ddv[y]}'.`,
+            };
+            $.post(
+               "command/snac/issue-snac-schema",
+               {
+                  "error": JSON.stringify(error),
+                  "flush": "false",
+               },
+               function(data, status) {
+                  console.log("Issue recorded: " + data.error);
+               }
+            );
+         } else {
+            continue;
+         }
       }
    }
 

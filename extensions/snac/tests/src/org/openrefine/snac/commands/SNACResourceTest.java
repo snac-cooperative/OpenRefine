@@ -149,16 +149,10 @@ public class SNACResourceTest extends RefineTest{
       manager.clearResources();
       manager.setProject(createCSVProject(TestingData2.resourceRecordCsv2));
       manager.rowsToResources();
-      // try{
       manager.uploadResources("fake_api_key", "prod");
       manager.clearResources();
       String a="";
       Assert.assertTrue(a.equals(""));
-      // }
-      // catch(IOException e){
-      //     String a="";
-      //     Assert.assertTrue(a.equals(""));
-      // }
     }
 
     @Test
@@ -254,18 +248,12 @@ public class SNACResourceTest extends RefineTest{
 
     @Test
     public void testResourceGlobalOne() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
       String response_str = manager.getColumnMatchesJSONString();
       Assert.assertTrue(response_str.contains("title"));
     }
 
     @Test
     public void testResourceGlobalFalseFive() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
       String response_str = manager.getColumnMatchesJSONString();
       Assert.assertFalse(response_str.contains("col5"));
     }
@@ -273,27 +261,18 @@ public class SNACResourceTest extends RefineTest{
 
     @Test
     public void testResourceGlobalTwo() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
       String response_str = manager.getColumnMatchesJSONString();
       Assert.assertTrue(response_str.contains("abstract"));
     }
 
     @Test
     public void testResourceGlobalThree() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
       String response_str = manager.getColumnMatchesJSONString();
       Assert.assertTrue(response_str.contains("link"));
     }
 
     @Test
     public void testResourceGlobalFalseFour() throws Exception{
-      // command.doPost(request, response);
-      // ObjectNode response = ParsingUtilities.evaluateJsonStringToObjectNode(writer.toString());
-      // String response_str = response.get("resource").textValue();
       String response_str = manager.getColumnMatchesJSONString();
       Assert.assertFalse(response_str.contains("col4"));
     }

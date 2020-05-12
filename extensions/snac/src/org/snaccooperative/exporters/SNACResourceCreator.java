@@ -99,10 +99,6 @@ Constellation Object
 */
 
 public class SNACResourceCreator {
-  /*Concerns to look for in terms of global cell values
-      - Add columns (add onto the list? What if we removed it after adding?)
-      - Remove columns (stays in the cache of columns?)
-  */
     public static HashMap<String, Integer> globalCellsLoc = new HashMap<String, Integer>();
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
     public static String idColumn = "";
@@ -643,6 +639,12 @@ public class SNACResourceCreator {
 
     }
 
+    /**
+    * Preps and attempts to upload the constellation
+    *
+    * @param apiKey
+    * @param state upload environment of production or develop
+    */
     public void uploadResources(String apiKey, String state){
 
     try{
@@ -673,6 +675,13 @@ public class SNACResourceCreator {
           System.out.println(e);
         }
     }
+    
+    /**
+    * Supposed to take the reply from the API and make a column field in the schema 
+    *
+    * @param result the reply from the API including the SNAC ID (for new entries)
+    * @param res the resource to add the ID into
+    */    
     public Resource insertID(String result, Resource res){
       JSONParser jp = new JSONParser();
     try{
@@ -695,13 +704,13 @@ public class SNACResourceCreator {
     }
     return res;
   }
-
+    /**
+    * Run this function after insertID (above) within SNACUploadCommand
+    * Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+    * If exists: Go through and set the cell values based on the resource_ids
+    * If not: Create a new column "id" and insert cell values based on resource_ids
+    */
   public void test_insertID(){
-    // Run this function after insertID (above) within SNACUploadCommand
-    // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
-    // If exists: Go through and set the cell values based on the resource_ids
-    // If not: Create a new column "id" and insert cell values based on resource_ids
-
     boolean idColExists = false;
     int idColIndex = -1;
     List<Column> colList = theProject.columnModel.columns;

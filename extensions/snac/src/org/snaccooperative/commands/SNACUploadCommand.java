@@ -48,9 +48,6 @@ public class SNACUploadCommand extends Command {
             con_manager.uploadConstellations(API_key, state);
         }
 
-        // Project p = getProject(request);
-        // SNACResourceCreator.setProject(p);
-        // List<Row> rows = p.rows;
 
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");

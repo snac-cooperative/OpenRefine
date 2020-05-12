@@ -41,12 +41,6 @@ public class SNACConnector {
     public void saveKey(String apikey) {
         JFrame jf = new JFrame();
         if (apikey == "") {
-            // final JFrame myFrame = new JFrame();
-            // JOptionPane.showMessageDialog(null, "Key cleared!");
-            // myFrame.setSize(450,200);
-            // myFrame.setLocationRelativeTo(null);
-            // myFrame.setVisible(true);
-            // myFrame.setAlwaysOnTop(true);
             jf.setAlwaysOnTop(true);
             JOptionPane.showMessageDialog(jf, "Key cleared!");
 

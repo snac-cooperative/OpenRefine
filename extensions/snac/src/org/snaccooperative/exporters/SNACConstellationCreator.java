@@ -623,6 +623,12 @@ public class SNACConstellationCreator {
 
     }
 
+    /**
+    * Preps and attempts to upload the constellation
+    *
+    * @param apiKey
+    * @param state upload environment of production or develop
+    */
     public void uploadConstellations(String apiKey, String state) {
         String result="";
         try{
@@ -658,7 +664,12 @@ public class SNACConstellationCreator {
         }
 
     }
-
+    /**
+    * Supposed to take the reply from the API and make a column field in the schema 
+    *
+    * @param result the reply from the API including the SNAC ID (for new entries)
+    * @param con the constellation to add the ID into
+    */
     public Constellation insertID(String result, Constellation con){
     JSONParser jp = new JSONParser();
     try{
@@ -679,12 +690,15 @@ public class SNACConstellationCreator {
     return con;
 }
 
-  public void test_insertID(){
-    // Run this function after insertID (above) within SNACUploadCommand
-    // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
-    // If exists: Go through and set the cell values based on the constellation_ids
-    // If not: Create a new column "id" and insert cell values based on constellation_ids
 
+    /**
+    * Preps and attempts to upload the constellation
+    * Run this function after insertID (above) within SNACUploadCommand
+    * Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+    * If exists: Go through and set the cell values based on the constellation_ids
+    * If not: Create a new column "id" and insert cell values based on constellation_ids
+    */
+  public void test_insertID(){
 
     // Operation below creates new column "id" and insert cell values from uploaded Constellation objects through SNAC API
     for (int x = 0; x < theProject.rows.size(); x++){

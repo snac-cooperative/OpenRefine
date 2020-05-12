@@ -85,13 +85,6 @@ public class CommandTest extends RefineTest{
 
     @BeforeMethod
     public void SetUp() {
-        // Setup for Post Request
-        // resourceManager.csv_headers = new LinkedList<String>(){{add("title"); add("link"); add("abstract");}};
-        // HashMap<String, String> hash_map = new HashMap<String, String>();
-        // hash_map.put("title", "title");
-        // hash_map.put("link", "link");
-        // hash_map.put("abstract", "abstract");
-        //
         constellationManager.csv_headers = new LinkedList<String>(){{add("subject"); add("place"); add("occupation");}};
         HashMap<String, String> hash_map2 = new HashMap<String, String>();
         hash_map2.put("subject", "subject");

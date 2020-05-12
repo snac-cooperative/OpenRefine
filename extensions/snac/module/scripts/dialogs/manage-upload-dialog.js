@@ -8,9 +8,6 @@ function _getChangedText() {
   var words = ["Uploading", "Uploading.", "Uploading..", "Uploading..."];
 
   var i = 0;
-  // words.forEach(e => {
-  //   console.log(e);
-  // });
 
   i = (i + 1) % words.length;
   return words[i];
@@ -21,9 +18,6 @@ function _changeText() {
   document.getElementById("changer").innerHTML = txt;
 }
 function displayProgressBar() {
-  // var words = ["Uploading", "Uploading.", "Uploading..", "Uploading..."];
-  // var i = 0;
-  // var text = ".";
   
   myVar = setInterval("_changeText()", 1000); 
   // find way to terminate this...maybe put in new function (using a start/stop)
@@ -37,7 +31,6 @@ ManageUploadDialog.launch = function(apikey, callback) {
       "command/snac/apikey",
        function(data) {
         ManageUploadDialog.display(apikey, data.apikey, callback);
-          //callback(data.username);
    });
 };
 
@@ -58,18 +51,14 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
   this._elmts.dialogHeader.text($.i18n('snac-upload/dialog-header'));
   this._elmts.explainUpload.html($.i18n('snac-upload/explain-key'));
   this._elmts.keyLabel.text($.i18n('snac-upload/key-label'));
-  //this._elmts.keyInput.text(saved_apikey);
-  // this._elmts.keyInput.text($.i18n('snac-upload/key-placeholder'));
-  //this._elmts.keyInput.attr("placeholder", $.i18n('snac-upload/key-placeholder'));
   this._elmts.cancelButton.text($.i18n('snac-upload/close'));
   this._elmts.uploadButton.text($.i18n('snac-upload/upload'));
 
   if (apikey != null) {
     this._elmts.keyInput.text(apikey);
-    // elmts.keyInput.val(apikey);
+
     } else if (saved_apikey != null) {
       this._elmts.keyInput.text(saved_apikey);
-      // elmts.keyInput.val(saved_apikey);
     }
   this._level = DialogSystem.showDialog(frame);
 
@@ -79,9 +68,7 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
 
   frame.find('.cancel-btn').click(function() {
      dismiss();
-    //  console.log(checked);
      callback(null);
-    // callback(apikey);
   });
 
   var rad = document.getElementsByName('uploadOption')
@@ -94,7 +81,6 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
               prev = this;
           }
           prod_or_dev = this.value;
-          // console.log(prod_or_dev);
       });
   }
 
@@ -102,27 +88,17 @@ ManageUploadDialog.display = function(apikey, saved_apikey, callback) {
     
     console.log(prod_or_dev);
     console.log(elmts.apiKeyForm.serialize());
-    // frame.hide();
 
     $.post(
       "command/snac/upload",
-      // elmts.apiKeyForm.serialize(),
       {
         "state": JSON.stringify(prod_or_dev),
         "dataType": JSON.stringify(check_dataType)
       },
       function(data) {
-        // if (data.apikey) {
-        //   alert(data.apikey);
-        //   dismiss();
-        //   callback(data.apikey);
-        // } else {
-        //   alert(data.apikey);
           dismiss();
           callback(null); 
-          // console.log(myVar);
           clearInterval(myVar);//maybe here you need to terminate the setInterval call
-        // }
       });
   });
 };

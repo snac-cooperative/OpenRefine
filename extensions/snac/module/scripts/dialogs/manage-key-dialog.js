@@ -7,7 +7,6 @@ ManageKeysDialog.launch = function(apikey, callback) {
       "command/snac/apikey",
        function(data) {
           ManageKeysDialog.display(apikey, data.apikey, callback);
-          //callback(data.username);
    });
 };
 
@@ -59,8 +58,6 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
       checkedOrNah = document.getElementById("myCheck");
       if (checkedOrNah.checked == true) {
         checked = 1;
-        // document.getElementById("myCheck").checked = true;
-        // console.log(checked);
       } else if (checkedOrNah.checked == false) {
           if (checked == null) {
               localStorage.removeItem('mycheckedvalue');
@@ -87,9 +84,7 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
 
   frame.find('.cancel-btn').click(function() {
      dismiss();
-    //  console.log(checked);
      callback(null);
-    // callback(apikey);
   });
 
   elmts.loginButton.click(function() {
@@ -99,7 +94,6 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
           elmts.apiKeyForm.serialize(),
           function(data) {
               if (data.apikey) {
-                //alert(data.apikey);
                 dismiss();
                 callback(data.apikey);
               } else {

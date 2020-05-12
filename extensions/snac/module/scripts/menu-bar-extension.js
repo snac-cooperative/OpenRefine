@@ -8,7 +8,6 @@ $.ajax({
 	async : false,
 	data : {
 	  module : "snac",
-//		lang : lang
 	},
 	success : function(data) {
 		dictionary = data['dictionary'];

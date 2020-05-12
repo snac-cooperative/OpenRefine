@@ -78,16 +78,12 @@ public class SNACConstellationCreator {
     }
 
     public String getColumnMatchesJSONString(){
-        // System.out.println(new JSONObject(match_attributes).toString());
         return new JSONObject(match_attributes).toString();
     }
 
     public static void setProject(Project p){
         theProject = p;
         csv_headers = theProject.columnModel.getColumnNames();
-        // for (int x = 0; x < csv_headers.size(); x++){
-        //    System.out.println(csv_headers.get(x));
-        // }
     }
 
     public void setUp(Project p, String JSON_SOURCE){
@@ -95,7 +91,6 @@ public class SNACConstellationCreator {
         updateColumnMatches(JSON_SOURCE);
         rowsToConstellations();
         exportConstellationsJSON();
-        // test_insertID();
     }
 
     /**
@@ -110,7 +105,6 @@ public class SNACConstellationCreator {
         // RecordModel rm = theProject.recordModel;
         RecordModel rm = theProject.recordModel;
         int rec_size = rm.getRecordCount();
-        System.out.println(rec_size);
         for (int z = 0; z < rec_size; z++){
           Record rec_temp = rm.getRecord(z);
           int fromRowInd = rec_temp.fromRowIndex;
@@ -193,7 +187,6 @@ public class SNACConstellationCreator {
             String temp_val;
             // If cell empty, set value to empty value
             if (rows.get(0).getCellValue(x) == null || rows.get(0).getCellValue(x) == ""){
-                // Should it be empty or continue without adding?
                 temp_val = "";
                 // continue;
             } else{
@@ -204,7 +197,6 @@ public class SNACConstellationCreator {
                   try{
                       con.setID(Integer.parseInt(temp_val));
                       constellation_ids.add(Integer.parseInt(temp_val));
-                      System.out.println("ID: " + temp_val);
                       break;
                   }
                   catch (NumberFormatException e){
@@ -233,30 +225,18 @@ public class SNACConstellationCreator {
                       }
                       else {
                         System.out.println(temp_val + " is not a valid Constellation type.");
-                        //throw new NumberFormatException();
                         break;
                       }
                       t.setTerm(term);
                       con.setEntityType(t);
                       break;
-                  //}
-                  // catch (NumberFormatException e){
-                  //     System.out.println(temp_val + " is not a valid constellation type.");
-                  //     break;
-                  // }
-                  // catch (Exception e){
-                  //   System.out.println(e);
-                  //   break;
-                  // }
               case "name entry":
                    /* Iterate through all the name entries, create a NameEntry object
                    * which will be added to a list of NameEntry. 
                    * Add the list of NameEntry to the constellation. 
                    * 
-                   * NOTE: check setOriginal?
                    */
                   List<NameEntry> name_list = new LinkedList<NameEntry>();
-                  System.out.println("Name Entry start");
                   //temp_val = rows.get(c).getCellValue(x).toString();
                   if(!temp_val.equals("")){
                     NameEntry nameEntryValue = new NameEntry();
@@ -265,7 +245,6 @@ public class SNACConstellationCreator {
                   }
                 
                   con.setNameEntries(name_list);
-                  System.out.print("Name entry: " + temp_val);
                   break;
               case "date":
                   for(int z = 1; z < rows.size() + 1; z++){
@@ -324,8 +303,6 @@ public class SNACConstellationCreator {
                       }                      
                     }
                   }
-                
-                  System.out.print("subject: " + temp_val);
                   con.setSubjects(subject_list);
                   break;
               case "place":
@@ -345,7 +322,6 @@ public class SNACConstellationCreator {
                     place_list.add(placeValue);
                   }
                 
-                  System.out.print("place: " + temp_val);
                   con.setPlaces(place_list);
 //                con.setPlace();
                   break;
@@ -377,8 +353,6 @@ public class SNACConstellationCreator {
                         }
                       }
                   }
-                
-                  System.out.print("Occupation: " + temp_val);
                   con.setOccupations(occupation_list);
                   break;
               case "function":
@@ -397,7 +371,6 @@ public class SNACConstellationCreator {
                     snacFuncValue.setTerm(t1);
                     SNACFunc_list.add(snacFuncValue);
                   }
-                System.out.print("SNACFunction: " + temp_val);
                 con.setFunctions(SNACFunc_list);
                 break;
               case "bioghist":
@@ -412,8 +385,6 @@ public class SNACConstellationCreator {
                   biogHistValue.setText(temp_val);
                   biogHist_list.add(biogHistValue);
                 }
-                
-                System.out.print("BiogHist: " + temp_val);
                 con.setBiogHists(biogHist_list);
                 break;
               case "sameas relation":
@@ -428,7 +399,6 @@ public class SNACConstellationCreator {
                     sameAsValue.setText(temp_val);
                     sameAs_list.add(sameAsValue);
                   }
-                System.out.print("SameAs: " + temp_val);
                 con.setSameAsRelations(sameAs_list);
                 break;
               default:
@@ -471,7 +441,7 @@ public class SNACConstellationCreator {
                     temp_SNACDates.add(d2);
                 }
                 else{
-                    //error, you gave us 4+ dates???
+                    //error, you gave us 4+ dates?
                 }
             //}
             con.setDateList(temp_SNACDates);
@@ -497,7 +467,6 @@ public class SNACConstellationCreator {
             String temp_val;
             // If cell empty, set value to empty value
             if (row.getCellValue(x) == null || row.getCellValue(x) == ""){
-                // Should it be empty or continue without adding?
                 temp_val = "";
                 // continue;
             } else{
@@ -508,7 +477,6 @@ public class SNACConstellationCreator {
                   try{
                       con.setID(Integer.parseInt(temp_val));
                       constellation_ids.add(Integer.parseInt(temp_val));
-                      // System.out.println("ID: " + temp_val);
                       break;
                   }
                   catch (NumberFormatException e){
@@ -586,10 +554,9 @@ public class SNACConstellationCreator {
 
         for(int x = 0; x < iterations; x++){
           Constellation previewConstellation = constellations.get(x);
-          System.out.println(Constellation.toJSON(previewConstellation));
+          // System.out.println(Constellation.toJSON(previewConstellation));
           for(Map.Entry mapEntry: match_attributes.entrySet()){
               if(!((String)mapEntry.getValue()).equals("")){
-                System.out.println(((String)mapEntry.getValue()).toLowerCase());
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
                   case "id":
                     samplePreview+= "ID: " + previewConstellation.getID() + "\n";
@@ -620,7 +587,6 @@ public class SNACConstellationCreator {
                     samplePreview+="Bioghist: " + previewConstellation.getBiogHistList() + "\n";
                     break;
                   case "sameas relation":
-                    /* not 100% sure? */
                     samplePreview+="Sameas relation: " + previewConstellation.getSameAsRelations()  + "\n";
                     break;         
                   default:
@@ -630,7 +596,6 @@ public class SNACConstellationCreator {
           }
         }
       }
-      //System.out.println(samplePreview);
       return samplePreview;
 
     }
@@ -654,7 +619,6 @@ public class SNACConstellationCreator {
           }
         }
         jo.put("constellations", ja);
-        //System.out.println(jo.toString());
         return jo.toString();
 
     }
@@ -668,34 +632,26 @@ public class SNACConstellationCreator {
             HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
             if(state == "prod") {
                 post = new HttpPost("http://api.snaccooperative.org/");
-                System.out.println(state);
             }
             System.out.println("Querying SNAC...");
             for(Constellation temp_con : constellations){
               if(temp_con.getID()==0){ //SNAC ID exists, try to update
                   String ctj = Constellation.toJSON(temp_con);
                   String api_query = "{\"command\": \"update_constellation\",\n" + key +  "\n\"constellation\":" + ctj.substring(0,ctj.length()-1) + "}}";
-                  //System.out.println("\n\n\n\n\n" + api_query + "\n\n\n\n\n");
                   StringEntity casted_api = new StringEntity(api_query,"UTF-8");
                   post.setEntity(casted_api);
                   HttpResponse response = client.execute(post);
                   result = EntityUtils.toString(response.getEntity());
-                  //System.out.println("RESULT:" + result);
-                  //new_list_constellations.add(insertID(result,temp_con));
               }
               else{ //SNAC ID not provided, should be a new Constellation
                   String ctj = Constellation.toJSON(temp_con);
                   String api_query = "{\"command\": \"insert_constellation\",\n" + key +  "\n\"constellation\":" + ctj.substring(0,ctj.length()-1) + "}}";
-                  // System.out.println("\n\n" + api_query + "\n\n");
                   StringEntity casted_api = new StringEntity(api_query,"UTF-8");
                   post.setEntity(casted_api);
                   HttpResponse response = client.execute(post);
                   result = EntityUtils.toString(response.getEntity());
-                  //System.out.println("RESULT:" + result);
-                  //new_list_constellations.add(insertID(result,temp_con));
               }
             }
-            //constellations = new_list_constellations;
             System.out.println("Uploading Attempt Complete");
         }catch(IOException e){
           System.out.println(e);
@@ -739,7 +695,4 @@ public class SNACConstellationCreator {
     CAC.apply(theProject);
   }
 
-  public static void main(String[] args) {
-      System.out.println("Hello");
-  }
 }

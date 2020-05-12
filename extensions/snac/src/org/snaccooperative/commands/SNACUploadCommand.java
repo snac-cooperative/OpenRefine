@@ -47,11 +47,6 @@ public class SNACUploadCommand extends Command {
             String API_key = key_manager.getKey();
             con_manager.uploadConstellations(API_key, state);
         }
-        
-        // System.out.println("Key: "+ API_key);
-        // System.out.println("State: "+ state);
-        
-
 
         // Project p = getProject(request);
         // SNACResourceCreator.setProject(p);
@@ -85,12 +80,6 @@ public class SNACUploadCommand extends Command {
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         doPost(request, response);
-
-        /*
-        *
-        * Wait...how do I make this work for both?
-        *
-        */
 
         SNACResourceCreator manager = SNACResourceCreator.getInstance();
         response.setCharacterEncoding("UTF-8");

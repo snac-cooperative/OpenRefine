@@ -200,28 +200,8 @@ public class CommandTest extends RefineTest{
       post.setEntity(new StringEntity("{\"command\":\"recently_published\"}", "UTF-8"));
       HttpResponse response = client.execute(post);
       String result = EntityUtils.toString(response.getEntity());
-      //System.out.println(result);
       Assert.assertTrue(result.contains("success"));
     }
-
-/*
-    @BeforeMethod(alwaysRun = true)
-    public void setUpProject() {
-        project = createCSVProject(TestingData2.inceptionWithNewCsv);
-        TestingData2.reconcileInceptionCells(project);
-        request = mock(HttpServletRequest.class);
-        response = mock(HttpServletResponse.class);
-        writer = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(writer);
-
-        when(request.getParameter("project")).thenReturn(String.valueOf(project.id));
-
-        try {
-            when(response.getWriter()).thenReturn(printWriter);
-        } catch (IOException e1) {
-            Assert.fail();
-        }
-    }*/
 
     @Test
     public void testProjectColumns() throws Exception{
@@ -243,9 +223,9 @@ public class CommandTest extends RefineTest{
         Assert.assertFalse(result.contains("2164"));
     }
 
-    // /*
-    // * Test the converting of a string into a JSON for download
-    // */
+     /*
+     * Test the converting of a string into a JSON for download
+     */
     @Test
     public void testStringToJSONDownload2() throws Exception{
         DefaultHttpClient client = new DefaultHttpClient();

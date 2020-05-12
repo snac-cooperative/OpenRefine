@@ -131,7 +131,6 @@ public class SNACResourceCreator {
     }
 
     public String getColumnMatchesJSONString(){
-        // System.out.println(new JSONObject(match_attributes).toString());
         return new JSONObject(match_attributes).toString();
     }
     
@@ -142,9 +141,6 @@ public class SNACResourceCreator {
     public static void setProject(Project p){
         theProject = p;
         csv_headers = theProject.columnModel.getColumnNames();
-        // for (int x = 0; x < csv_headers.size(); x++){
-        //    System.out.println(csv_headers.get(x));
-        // }
     }
 
     public static Resource getResource(int index){
@@ -173,7 +169,6 @@ public class SNACResourceCreator {
 
     public void setIDCol(String idCol){
       idColumn = idCol;
-      System.out.println("setting id col: "+ idColumn);
     }
 
     /**
@@ -200,10 +195,6 @@ public class SNACResourceCreator {
           resources.add(temp);
         }
 
-        // for (int x = 0; x < rows.size(); x++){
-        //   Resource temp = createResourceRow(rows.get(x));
-        //   resources.add(temp);
-        // }
 
     }
     /**
@@ -216,18 +207,14 @@ public class SNACResourceCreator {
         Resource res = new Resource();
         for (int x = 0; x < csv_headers.size(); x++){
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
-            // System.out.println("Snac header: " + snac_header);
-            // System.out.println("CSV header: " + csv_headers.get(x));
-            // System.out.println("Cell value: " + rows.get(0).getCellValue(x));
-            // System.out.println();
             if (snac_header == null || snac_header == ""){
                 continue;
             }
-            // Insert switch statements || Bunch of if statements for setters
+
             String temp_val;
             // If cell empty, set value to empty value
             if (rows.get(0).getCellValue(x) == null || rows.get(0).getCellValue(x) == ""){
-                // Should it be empty or continue without adding?
+
                 temp_val = "";
                 // continue;
             } else{
@@ -237,15 +224,13 @@ public class SNACResourceCreator {
               case "id":
                   try{
                       res.setID(Integer.parseInt(temp_val));
-                      resource_ids.add(Integer.parseInt(temp_val));
-                      // System.out.println("ID: " + temp_val);
+                      resource_ids.add(Integer.parseInt(temp_val));;
                       break;
                   }
                   catch (NumberFormatException e){
                       break;
                   }
               case "type":
-                  // try{
                       Term t = new Term();
                       t.setType("document_type");
                       String term;
@@ -269,38 +254,23 @@ public class SNACResourceCreator {
                       t.setTerm(term);
                       res.setDocumentType(t);
                       break;
-                  // }
-                  // catch (NumberFormatException e){
-                  //     System.out.println(temp_val + " is not a valid resource type.");
-                  //     break;
-                  // }
-                  // catch (Exception e){
-                  //   System.out.println(e);
-                  //   break;
-                  // }
               case "title":
                   res.setTitle(temp_val);
-                  // System.out.println("Title: " + temp_val);
                   break;
               case "display entry":
                   res.setDisplayEntry(temp_val);
-                  // System.out.println("Display Entry: " + temp_val);
                   break;
               case "link":
                   res.setLink(temp_val);
-                  // System.out.println("Link: " + temp_val);
                   break;
               case "abstract":
                   res.setAbstract(temp_val);
-                  // System.out.println("Abstract: " + temp_val);
                   break;
               case "extent":
                   res.setExtent(temp_val);
-                  // System.out.println("Extent: " + temp_val);
                   break;
               case "date":
                   res.setDate(temp_val);
-                  // System.out.println("Date: " + temp_val);
                   break;
               case "language":
                   // If Languages haven't been made due to Script, then make new Languages with language
@@ -308,8 +278,7 @@ public class SNACResourceCreator {
                     for(int z = 1; z < rows.size() + 1; z++){
                       if(!temp_val.equals("")){
                         String checked_lang = detectLanguage(temp_val);
-                        // System.out.println(temp_val);
-                        // System.out.println("checked: " + checked_lang);
+
                         if(checked_lang != null){
                           Language lang = new Language();
                           Term t2 = new Term();
@@ -362,10 +331,6 @@ public class SNACResourceCreator {
                   // If Languages already exists then add onto them
                   }else{
                     for(int r = 0; r < res.getLanguages().size(); r++){
-                      // System.out.println("R: " + r);
-                      // System.out.println("X: " + x);
-                      // System.out.println("VALUE: " + rows.get(r));
-                      // System.out.println("CELLVALUE: " + rows.get(r).getCellValue(x));
                       if(rows.get(r).getCellValue(x) == null){
                         continue;
                       }
@@ -377,7 +342,6 @@ public class SNACResourceCreator {
                   }
                   break;
               case "holding repository snac id":
-                  // System.out.println("HRSID: " + temp_val);
                   Constellation cons = new Constellation();
                   if(!temp_val.equals("")){
                     try{
@@ -388,7 +352,6 @@ public class SNACResourceCreator {
                     }
                   }
                   res.setRepository(cons);
-                  // System.out.println("Result: " + Integer.toString(res.getRepository().getID()));
                   break;
               default:
                   continue;
@@ -426,7 +389,6 @@ public class SNACResourceCreator {
                   try{
                       res.setID(Integer.parseInt(temp_val));
                       resource_ids.add(Integer.parseInt(temp_val));
-                      // System.out.println("ID: " + temp_val);
                       break;
                   }
                   catch (NumberFormatException e){
@@ -434,7 +396,6 @@ public class SNACResourceCreator {
                       break;
                   }
               case "type":
-                  // try{
                       Term t = new Term();
                       t.setType("document_type");
                       String term;
@@ -458,38 +419,23 @@ public class SNACResourceCreator {
                       t.setTerm(term);
                       res.setDocumentType(t);
                       break;
-                  // }
-                  // catch (NumberFormatException e){
-                  //     System.out.println(temp_val + " is not a valid resource type.");
-                  //     break;
-                  // }
-                  // catch (Exception e){
-                  //   System.out.println(e);
-                  //   break;
-                  // }
               case "title":
                   res.setTitle(temp_val);
-                  // System.out.println("Title: " + temp_val);
                   break;
               case "display entry":
                   res.setDisplayEntry(temp_val);
-                  // System.out.println("Display Entry: " + temp_val);
                   break;
               case "link":
                   res.setLink(temp_val);
-                  // System.out.println("Link: " + temp_val);
                   break;
               case "abstract":
                   res.setAbstract(temp_val);
-                  // System.out.println("Abstract: " + temp_val);
                   break;
               case "extent":
                   res.setExtent(temp_val);
-                  // System.out.println("Extent: " + temp_val);
                   break;
               case "date":
                   res.setDate(temp_val);
-                  // System.out.println("Date: " + temp_val);
                   break;
               case "language":
                   String checked_lang = detectLanguage(temp_val);
@@ -499,11 +445,9 @@ public class SNACResourceCreator {
                     t2.setType(temp_val);
                     lang.setLanguage(t2);
                     res.addLanguage(lang);
-                    // System.out.println("HM: " + res.getLanguages().get(0).getLanguage().getType());
                   }
                   break;
               case "holding repository snac id":
-                  // System.out.println("HRSID: " + temp_val);
                   Constellation cons = new Constellation();
                   if(!temp_val.equals("")){
                     try{
@@ -514,7 +458,6 @@ public class SNACResourceCreator {
                     }
                   }
                   res.setRepository(cons);
-                  // System.out.println("Result: " + Integer.toString(res.getRepository().getID()));
                   break;
               default:
                   continue;
@@ -541,11 +484,9 @@ public class SNACResourceCreator {
 
         for(int x = 0; x < iterations; x++){
           Resource previewResource = resources.get(x);
-          // System.out.println(Resource.toJSON(previewResource));
           for(Map.Entry mapEntry: match_attributes.entrySet())
           {
               if(!((String)mapEntry.getValue()).equals("")){
-                // System.out.println(((String)mapEntry.getValue()).toLowerCase());
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
                   case "id":
                     samplePreview+= "ID: " + previewResource.getID() + "\n";
@@ -579,8 +520,6 @@ public class SNACResourceCreator {
                       previewResourceLanguages = "Language(s): " + "\n" ;
                     }
                     else{
-                      // System.out.println(languageList);
-                      // System.out.println(Resource.toJSON(previewResource));
                       List<String> valid_lang = new LinkedList<String>();
                       for(int i=0; i<languageList.size();i++){
                         if (languageList.get(i).getLanguage() == null){
@@ -591,13 +530,6 @@ public class SNACResourceCreator {
                           continue;
                         }
                         valid_lang.add(language_code.get(lang_var)[1] + "(" + lang_var + ")");
-                        // if(i != languageList.size()-1){
-                        //   previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var +"), ";
-                        // }
-                        // else{
-                        //   // English(eng), French(fre)
-                        //   previewResourceLanguages+=language_code.get(lang_var)[1] + "(" + lang_var + ")\n";
-                        // }
                       }
                       for(int j = 0; j < valid_lang.size() - 1; j++){
                         previewResourceLanguages += valid_lang.get(j) + ", ";
@@ -613,8 +545,6 @@ public class SNACResourceCreator {
                       previewResourceScripts = "Script(s): " + "\n" ;
                     }
                     else{
-                      // System.out.println(languageList);
-                      // System.out.println(Resource.toJSON(previewResource));
                       List<String> valid_script = new LinkedList<String>();
                       for(int i=0; i<scriptList.size();i++){
                         if (scriptList.get(i).getScript() == null){
@@ -625,13 +555,6 @@ public class SNACResourceCreator {
                           continue;
                         }
                         valid_script.add(lang_var);
-                        // if(i != scriptList.size()-1){
-                        //   previewResourceScripts+= lang_var + ", ";
-                        // }
-                        // else{
-                        //   // English(eng), French(fre)
-                        //   previewResourceScripts+= lang_var + "\n";
-                        // }
                       }
                       for(int j = 0; j < valid_script.size() - 1; j++){
                         previewResourceScripts += valid_script.get(j) + ", ";
@@ -655,7 +578,6 @@ public class SNACResourceCreator {
           }
         }
       }
-      // System.out.println(samplePreview);
       return samplePreview;
 
     }
@@ -677,7 +599,6 @@ public class SNACResourceCreator {
           String result = EntityUtils.toString(response.getEntity());
           JSONParser jp = new JSONParser();
           JSONArray json_result = (JSONArray)((JSONObject)jp.parse(result)).get("results");
-          // System.out.println(json_result);
           if (json_result.size() <= 0){
             return null;
           }
@@ -718,7 +639,6 @@ public class SNACResourceCreator {
           }
         }
         jo.put("resources", ja);
-        //System.out.println(jo.toString());
         return jo.toString();
 
     }
@@ -733,21 +653,17 @@ public class SNACResourceCreator {
 
         if(state == "prod") {
             post = new HttpPost("http://api.snaccooperative.org/");
-            System.out.println(state);
         }
-        System.out.println(state);
 
 
         System.out.println("Querying SNAC...");
         for(Resource temp_res : resources){
             String rtj = Resource.toJSON(temp_res);
               String api_query = "{\"command\": \"insert_resource\",\n \"resource\":" + rtj.substring(0,rtj.length()-1) + opIns + "}";
-              // System.out.println("\n\n" + api_query + "\n\n");
               StringEntity casted_api = new StringEntity(api_query,"UTF-8");
               post.setEntity(casted_api);
               HttpResponse response = client.execute(post);
               String result = EntityUtils.toString(response.getEntity());
-              //System.out.println("RESULT:" + result);
               new_list_resources.add(insertID(result,temp_res));
           }
           resources = new_list_resources;
@@ -780,74 +696,62 @@ public class SNACResourceCreator {
     return res;
   }
 
-public void test_insertID(){
-  // Run this function after insertID (above) within SNACUploadCommand
-  // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
-  // If exists: Go through and set the cell values based on the resource_ids
-  // If not: Create a new column "id" and insert cell values based on resource_ids
+  public void test_insertID(){
+    // Run this function after insertID (above) within SNACUploadCommand
+    // Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
+    // If exists: Go through and set the cell values based on the resource_ids
+    // If not: Create a new column "id" and insert cell values based on resource_ids
 
-  boolean idColExists = false;
-  // Iterator hmIterator = match_attributes.entrySet().iterator(); 
-  int idColIndex = -1;
-  List<Column> colList = theProject.columnModel.columns;
-  List<CellAtRow> res_row_ids = new ArrayList<CellAtRow>();
+    boolean idColExists = false;
+    int idColIndex = -1;
+    List<Column> colList = theProject.columnModel.columns;
+    List<CellAtRow> res_row_ids = new ArrayList<CellAtRow>();
 
-  List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
+    List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
 
-
-  System.out.println("inserting col");
-  System.out.println(idColumn);
-  if(!idColumn.equals("")){
-    idColExists = true;
-    for(Column c: colList){
-      if(c.getOriginalHeaderLabel().equals(idColumn)){
-        idColIndex = c.getCellIndex();
-        break;
+    if(!idColumn.equals("")){
+      idColExists = true;
+      for(Column c: colList){
+        if(c.getOriginalHeaderLabel().equals(idColumn)){
+          idColIndex = c.getCellIndex();
+          break;
+        }
       }
     }
+
+    // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
+    for (int x = 0; x < theProject.rows.size(); x++){
+      Cell test_cell = new Cell(resource_ids.get(x), new Recon(0, null, null));
+
+      // Cell test_cell = new Cell(x, new Recon(0, null, null));
+      res_row_ids.add(new CellAtRow(x, test_cell));
+    }
+
+    //iterating by records instead of rows
+    int rec_size = theProject.recordModel.getRecordCount();
+    for (int z = 0; z < rec_size; z++){
+      Record rec_temp = theProject.recordModel.getRecord(z);
+      int fromRowInd = rec_temp.fromRowIndex;
+      // int toRowInd = rec_temp.toRowIndex;
+      Cell test_cell_r = new Cell(resource_ids.get(z), new Recon(0, null, null)); //how does resource_ids look when using records????
+
+      record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
+    }
+
+    if(idColExists){
+    // replace existing col 
+      ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
+      CRC.apply(theProject);
+      // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
+      ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
+
+      CAC.apply(theProject);
+    }
+    else {
+      // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+      ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
+      CAC.apply(theProject);
+    }
+    
   }
-  System.out.println("RESOURCE IDS: ");
-  System.out.println(resource_ids);
-
-  // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
-  for (int x = 0; x < theProject.rows.size(); x++){
-    Cell test_cell = new Cell(resource_ids.get(x), new Recon(0, null, null));
-
-    // Cell test_cell = new Cell(x, new Recon(0, null, null));
-    res_row_ids.add(new CellAtRow(x, test_cell));
-  }
-
-  //iterating by records instead of rows
-  System.out.println("RECORDS: ");
-  System.out.println(theProject.recordModel.getRecordCount());
-  int rec_size = theProject.recordModel.getRecordCount();
-  for (int z = 0; z < rec_size; z++){
-    Record rec_temp = theProject.recordModel.getRecord(z);
-    int fromRowInd = rec_temp.fromRowIndex;
-    // int toRowInd = rec_temp.toRowIndex;
-    Cell test_cell_r = new Cell(resource_ids.get(z), new Recon(0, null, null)); //how does resource_ids look when using records????
-
-    record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
-  }
-
-  if(idColExists){
-  // replace existing col 
-    ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
-    CRC.apply(theProject);
-    // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
-    ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
-
-    CAC.apply(theProject);
-  }
-  else {
-    // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
-    ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
-    CAC.apply(theProject);
-  }
-  
-}
-
-public static void main(String[] args) {
-    System.out.println("Hello");
-}
 }

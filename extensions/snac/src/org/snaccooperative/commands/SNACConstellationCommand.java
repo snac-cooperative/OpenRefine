@@ -44,7 +44,7 @@ public class SNACConstellationCommand extends Command {
               manager.setUp(p, dict);
             } catch (Exception e){
               e.printStackTrace();
-              System.out.println("Failed to set up Resources.");
+              //System.out.println("Failed to set up Resources.");
             }
         }
 

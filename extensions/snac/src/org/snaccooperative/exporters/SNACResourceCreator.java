@@ -129,7 +129,7 @@ public class SNACResourceCreator {
     public String getColumnMatchesJSONString(){
         return new JSONObject(match_attributes).toString();
     }
-    
+
     public String getIdColumn(){
       return idColumn;
     }
@@ -588,7 +588,7 @@ public class SNACResourceCreator {
         // Insert API request calls for lang (if exists: insert into language dict, if not: return None)
         try{
           DefaultHttpClient client = new DefaultHttpClient();
-          HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
+          HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
           String query = "{\"command\": \"vocabulary\",\"query_string\": \"" + lang + "\",\"type\": \"language_code\",\"entity_type\": null}";
           post.setEntity(new StringEntity(query,"UTF-8"));
           HttpResponse response = client.execute(post);
@@ -651,7 +651,7 @@ public class SNACResourceCreator {
         String opIns = ",\n\"operation\":\"insert\"\n},\"apikey\":\"" + apiKey +"\"";
         List<Resource> new_list_resources = new LinkedList<Resource>();
         DefaultHttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
+        HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
 
         if(state == "prod") {
             post = new HttpPost("http://api.snaccooperative.org/");
@@ -675,13 +675,13 @@ public class SNACResourceCreator {
           System.out.println(e);
         }
     }
-    
+
     /**
-    * Supposed to take the reply from the API and make a column field in the schema 
+    * Supposed to take the reply from the API and make a column field in the schema
     *
     * @param result the reply from the API including the SNAC ID (for new entries)
     * @param res the resource to add the ID into
-    */    
+    */
     public Resource insertID(String result, Resource res){
       JSONParser jp = new JSONParser();
     try{
@@ -748,7 +748,7 @@ public class SNACResourceCreator {
     }
 
     if(idColExists){
-    // replace existing col 
+    // replace existing col
       ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
       CRC.apply(theProject);
       // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
@@ -761,6 +761,6 @@ public class SNACResourceCreator {
       ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
       CAC.apply(theProject);
     }
-    
+
   }
 }

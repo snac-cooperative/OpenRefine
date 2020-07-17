@@ -23,8 +23,8 @@ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
 A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
 OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
 SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,           
-DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY           
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -55,16 +55,16 @@ public class Column  {
     private String          _name;
     private ReconConfig     _reconConfig;
     private ReconStats      _reconStats;
-    
+
     // from data package metadata Field.java:
     private String type = "";
     private String format = "default";
     private String title = "";
     private String description = "";
     private Map<String, Object> constraints = Collections.emptyMap();
-    
+
     transient protected Map<String, Object> _precomputes;
-    
+
     @JsonCreator
     public Column(
             @JsonProperty("cellIndex")
@@ -74,7 +74,7 @@ public class Column  {
         _cellIndex = cellIndex;
         _originalName = _name = originalName;
     }
-    
+
     @JsonProperty("cellIndex")
     public int getCellIndex() {
         return _cellIndex;
@@ -84,7 +84,7 @@ public class Column  {
     public String getOriginalHeaderLabel() {
         return _originalName;
     }
-    
+
     @JsonProperty("name")
     public void setName(String name) {
         this._name = name;
@@ -116,7 +116,7 @@ public class Column  {
     public ReconStats getReconStats() {
         return _reconStats;
     }
-    
+
     /**
      * Clear all cached precomputed values.
      * <p>
@@ -130,21 +130,21 @@ public class Column  {
             _precomputes.clear();
         }
     }
-    
+
     public Object getPrecompute(String key) {
         if (_precomputes != null) {
             return _precomputes.get(key);
         }
         return null;
     }
-    
+
     public void setPrecompute(String key, Object value) {
         if (_precomputes == null) {
             _precomputes = new HashMap<String, Object>();
         }
         _precomputes.put(key, value);
     }
-    
+
     @JsonProperty("type")
     public String getType() {
         return type;
@@ -155,7 +155,7 @@ public class Column  {
         this.type = type;
     }
 
-    
+
     @JsonProperty("format")
     public String getFormat() {
         return format;
@@ -166,7 +166,7 @@ public class Column  {
         this.format = format;
     }
 
-    
+
     @JsonProperty("title")
     public String getTitle() {
         return title;
@@ -176,7 +176,7 @@ public class Column  {
     public void setTitle(String title) {
         this.title = title;
     }
-    
+
     @JsonProperty("description")
     public String getDescription() {
         return description;
@@ -196,7 +196,7 @@ public class Column  {
             return "{}";
         }
     }
-    
+
     @JsonProperty("constraints")
     public void setConstraintsJson(String json) {
         try {
@@ -205,12 +205,12 @@ public class Column  {
             e.printStackTrace();
         }
     }
-    
+
     public Map<String, Object> getConstraints() {
         return constraints;
     }
 
-    
+
     public void setConstraints(Map<String, Object> constraints) {
         this.constraints = constraints;
     }
@@ -222,11 +222,11 @@ public class Column  {
             e.printStackTrace();
         }
     }
-    
+
     static public Column load(String s) throws Exception {
         return ParsingUtilities.mapper.readValue(s, Column.class);
     }
-    
+
     @Override
     public String toString() {
         return _name;

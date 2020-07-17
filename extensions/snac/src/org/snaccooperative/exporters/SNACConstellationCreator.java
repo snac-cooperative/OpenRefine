@@ -232,9 +232,9 @@ public class SNACConstellationCreator {
                       break;
               case "name entry":
                    /* Iterate through all the name entries, create a NameEntry object
-                   * which will be added to a list of NameEntry. 
-                   * Add the list of NameEntry to the constellation. 
-                   * 
+                   * which will be added to a list of NameEntry.
+                   * Add the list of NameEntry to the constellation.
+                   *
                    */
                   List<NameEntry> name_list = new LinkedList<NameEntry>();
                   //temp_val = rows.get(c).getCellValue(x).toString();
@@ -243,7 +243,7 @@ public class SNACConstellationCreator {
                     nameEntryValue.setOriginal(temp_val);
                     name_list.add(nameEntryValue);
                   }
-                
+
                   con.setNameEntries(name_list);
                   break;
               case "date":
@@ -257,8 +257,8 @@ public class SNACConstellationCreator {
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
                     }
-                  }  
-                    
+                  }
+
                   break;
               case "date type": //active, birth, death, suspiciousdate
                   for(int z = 1; z < rows.size() + 1; z++){
@@ -275,8 +275,8 @@ public class SNACConstellationCreator {
                   break;
               case "subject":
                   /* Iterate through all the subject entries, create a Subject object
-                   * which will be added to a list of Subject. 
-                   * Add the list of Subject to the constellation. 
+                   * which will be added to a list of Subject.
+                   * Add the list of Subject to the constellation.
                    */
 
 
@@ -295,20 +295,20 @@ public class SNACConstellationCreator {
                       if(rows.get(z).getCellValue(x)!=null){
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
-                      /* It is possible that a row may be empty so we continue on until we 
+                      /* It is possible that a row may be empty so we continue on until we
                       * find one (or else this repeats the less non-empty row)
                       */
                       else{
                         temp_val="";
-                      }                      
+                      }
                     }
                   }
                   con.setSubjects(subject_list);
                   break;
               case "place":
                   /* Iterate through all the Place entries, create a Place object
-                   * which will be added to a list of Place. 
-                   * Add the list of Place to the constellation. 
+                   * which will be added to a list of Place.
+                   * Add the list of Place to the constellation.
                    */
                   List<Place> place_list = new LinkedList<Place>();
                   // temp_val = rows.get(c).getCellValue(x).toString();
@@ -321,14 +321,14 @@ public class SNACConstellationCreator {
                     placeValue.setType(t1);
                     place_list.add(placeValue);
                   }
-                
+
                   con.setPlaces(place_list);
 //                con.setPlace();
                   break;
               case "occupation":
                   /* Iterate through all the Occupation entries, create a Occupation object
-                   * which will be added to a list of Occupation. 
-                   * Add the list of Occupation to the constellation. 
+                   * which will be added to a list of Occupation.
+                   * Add the list of Occupation to the constellation.
                    */
                   List<Occupation> occupation_list = new LinkedList<Occupation>();
 
@@ -345,7 +345,7 @@ public class SNACConstellationCreator {
                         if(rows.get(z).getCellValue(x)!=null){
                           temp_val = rows.get(z).getCellValue(x).toString();
                         }
-                      /* It is possible that a row may be empty so we continue on until we 
+                      /* It is possible that a row may be empty so we continue on until we
                       * find one (or else this repeats the less non-empty row)
                       */
                         else{
@@ -357,8 +357,8 @@ public class SNACConstellationCreator {
                   break;
               case "function":
                   /* Iterate through all the SNACFunction entries, create a Function object
-                   * which will be added to a list of Functions. 
-                   * Add the list of Function to the constellation. 
+                   * which will be added to a list of Functions.
+                   * Add the list of Function to the constellation.
                    */
                   List<SNACFunction> SNACFunc_list = new LinkedList<SNACFunction>();
                   if(!temp_val.equals("")){
@@ -375,8 +375,8 @@ public class SNACConstellationCreator {
                 break;
               case "bioghist":
                   /* Iterate through all the biogHist entries, create a Function object
-                  * which will be added to a list of bioHists. 
-                  * Add the list of bioHist to the constellation. 
+                  * which will be added to a list of bioHists.
+                  * Add the list of bioHist to the constellation.
                   */
                 List<BiogHist> biogHist_list = new LinkedList<BiogHist>();
                 if(!temp_val.equals("")){
@@ -389,8 +389,8 @@ public class SNACConstellationCreator {
                 break;
               case "sameas relation":
                     /* Iterate through all the sameAs entries, create a sameAs object
-                   * which will be added to a list of sameAs. 
-                   * Add the list of sameAs to the constellation. 
+                   * which will be added to a list of sameAs.
+                   * Add the list of sameAs to the constellation.
                    */
                   List<SameAs> sameAs_list = new LinkedList<SameAs>();
                   if(!temp_val.equals("")){
@@ -588,7 +588,7 @@ public class SNACConstellationCreator {
                     break;
                   case "sameas relation":
                     samplePreview+="Sameas relation: " + previewConstellation.getSameAsRelations()  + "\n";
-                    break;         
+                    break;
                   default:
                     break;
                 }
@@ -635,7 +635,7 @@ public class SNACConstellationCreator {
             String key = "\"apikey\":\"" + apiKey +"\",";
             List<Constellation> new_list_constellations = new LinkedList<Constellation>();
             DefaultHttpClient client = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
+            HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
             if(state == "prod") {
                 post = new HttpPost("http://api.snaccooperative.org/");
             }
@@ -665,7 +665,7 @@ public class SNACConstellationCreator {
 
     }
     /**
-    * Supposed to take the reply from the API and make a column field in the schema 
+    * Supposed to take the reply from the API and make a column field in the schema
     *
     * @param result the reply from the API including the SNAC ID (for new entries)
     * @param con the constellation to add the ID into

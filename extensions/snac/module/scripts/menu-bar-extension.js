@@ -126,13 +126,13 @@ $(function(){
                             else{
                                 window.alert("Error: unable to upload edits to SNAC. Please fix the " + validationCount + " issue(s) first.");
                             }
-                            
+
                         }
                     },
                     {
                         id:"snac/export-schema",
                         label: $.i18n('snac-extension/export-to-json'),
-                        click: function() { 
+                        click: function() {
                             if(validationCount == 0){
                                 SNACExporterMenuBar.stringToJSONDownload();;
                             }

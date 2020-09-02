@@ -37,14 +37,14 @@ public class SNACConnector {
         prefStore = ProjectManager.singleton.getPreferenceStore();
         restoreSavedKey();
     }
-    
+
     public void saveKey(String apikey) {
         JFrame jf = new JFrame();
         if (apikey == "") {
             jf.setAlwaysOnTop(true);
             JOptionPane.showMessageDialog(jf, "Key cleared!");
 
-        } 
+        }
         logger.error("Trying to save key " + apikey);
         ArrayNode array = ParsingUtilities.mapper.createArrayNode();
         ObjectNode obj = ParsingUtilities.mapper.createObjectNode();

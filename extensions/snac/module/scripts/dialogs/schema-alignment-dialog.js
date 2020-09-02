@@ -159,7 +159,7 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    /**
    * Init the dropdowns area
    */
-   
+
    /**
    * Init the issues tab
    */
@@ -237,7 +237,7 @@ function addResourceTable(columns, SNACcolumns) {
          var className = columns[i].originalName;
 
          var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').addClass(columns[i].originalName + "DropDown").attr('style', 'width: 180px');
-         
+
 
          if (column.name == 'id') {
             selectList.addClass('idfield');
@@ -340,7 +340,7 @@ function addConstellationTable(columns, SNACcolumns) {
          if(saved_Dict[className] != "" && saved_Dict[className]!= undefined){
             selectList[0].value = saved_Dict[className];
          }
-        
+
 
          for (var j = 1; j < 2; j+=2) {
             var td = document.createElement('TD');
@@ -377,12 +377,12 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    var defaultOp = new Option();
    defaultOp.value = "idDefault";
    defaultOp.text = "Select ID Column";
-   idDropdown.options.add(defaultOp); 
+   idDropdown.options.add(defaultOp);
    columnsResource.forEach(function (arrItem){
       var op = new Option();
       op.value = arrItem.originalName;
       op.text = arrItem.originalName;
-      idDropdown.options.add(op); 
+      idDropdown.options.add(op);
    });
 
    // TODO: on load, check if idColumn set and stuff to save changes after reload
@@ -418,8 +418,8 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
             }
          );
       }
-      
-         
+
+
    });
    this._idDropdownDiv.append(idDropdown);
 
@@ -538,7 +538,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       "The official title (e.g. Papers, 1809-1882)",                          // Title
       "The resource type (ArchivalResource, BibliographicResource, etc.)"     // Type
    ];
-   
+
    for(var i = 0 ; i<tooltipsResource.length; i++) {
       var toolTipSpan = document.createElement("span");
       var toolTiptext = document.createTextNode(tooltipsResource[i]);
@@ -556,7 +556,7 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    $(document).ready(function() {
       hideAndDisableRef();
   });
-   
+
 
    //Constellation Validator Call onChange
    const $selectsConst = $(".selectColumnConst");
@@ -693,7 +693,7 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    }
 
    var columns = theProject.columnModel.columns;
-   
+
    // This helps the Issue tab to differentiate between what issues it will look at for Resource vs Constellation
    if (document.getElementById('resourcebutton').checked) {
       var dropDownValues = document.getElementsByClassName('selectColumnRes');
@@ -1906,7 +1906,7 @@ SNACSchemaAlignmentDialog.preview = function() {
    }
    else if(check_dataType == "GET_Constellation"){
       $.get(
-         "command/snac/preview-con-snac-schema", 
+         "command/snac/preview-con-snac-schema",
          function(data) {
          self.previewSpinner.hide();
          self.updateNbEdits(data.SNAC_Constellationpreview);

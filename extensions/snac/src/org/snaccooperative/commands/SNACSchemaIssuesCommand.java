@@ -40,7 +40,7 @@ public class SNACSchemaIssuesCommand extends Command  {
         }
 
         // Write JSON to response
-        
+
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Content-Type", "application/json");
 
@@ -56,7 +56,7 @@ public class SNACSchemaIssuesCommand extends Command  {
         writer.flush();
         writer.close();
         w.flush();
-        w.close();        
+        w.close();
     }
 
     @Override
@@ -67,7 +67,7 @@ public class SNACSchemaIssuesCommand extends Command  {
 
         Writer w = response.getWriter();
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
-        
+
         writer.writeStartObject();
         writer.writeStringField("errors", errorsToJSON());
         writer.writeEndObject();

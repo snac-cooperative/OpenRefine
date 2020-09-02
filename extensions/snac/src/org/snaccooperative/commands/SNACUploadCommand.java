@@ -56,7 +56,7 @@ public class SNACUploadCommand extends Command {
         JsonGenerator writer = ParsingUtilities.mapper.getFactory().createGenerator(w);
 
         writer.writeStartObject();
-        if(dataType.contains("GET_Resource")){   
+        if(dataType.contains("GET_Resource")){
             writer.writeStringField("done", res_manager.getColumnMatchesJSONString());
         }
         else if(dataType.contains("GET_Constellation")){
@@ -65,7 +65,7 @@ public class SNACUploadCommand extends Command {
         else{
             writer.writeStringField("done", "Not a Resource nor Constellation");
         }
-        
+
         writer.writeEndObject();
         writer.flush();
         writer.close();

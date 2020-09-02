@@ -79,7 +79,7 @@ public class ColumnAdditionByFetchingURLsOperation extends EngineDependentOperat
         final public String name;
         @JsonProperty("value")
         final public String value;
-        
+
         @JsonCreator
         public HttpHeader(
                 @JsonProperty("name")
@@ -90,7 +90,7 @@ public class ColumnAdditionByFetchingURLsOperation extends EngineDependentOperat
             this.value = value;
         }
     }
-    
+
     final protected String     _baseColumnName;
     final protected String     _urlExpression;
     final protected OnError    _onError;
@@ -135,42 +135,42 @@ public class ColumnAdditionByFetchingURLsOperation extends EngineDependentOperat
         _cacheResponses = cacheResponses;
         _httpHeadersJson = httpHeadersJson;
     }
-    
+
     @JsonProperty("newColumnName")
     public String getNewColumnName() {
         return _newColumnName;
     }
-    
+
     @JsonProperty("columnInsertIndex")
     public int getColumnInsertIndex() {
         return _columnInsertIndex;
     }
-    
+
     @JsonProperty("baseColumnName")
     public String getBaseColumnName() {
         return _baseColumnName;
     }
-    
+
     @JsonProperty("urlExpression")
     public String getUrlExpression() {
         return _urlExpression;
     }
-    
+
     @JsonProperty("onError")
     public OnError getOnError() {
         return _onError;
     }
-    
+
     @JsonProperty("delay")
     public int getDelay() {
         return _delay;
     }
-    
+
     @JsonProperty("httpHeadersJson")
     public List<HttpHeader> getHttpHeadersJson() {
         return _httpHeadersJson;
     }
-    
+
     @JsonProperty("cacheResponses")
     public boolean getCacheResponses() {
         return _cacheResponses;
@@ -259,7 +259,7 @@ public class ColumnAdditionByFetchingURLsOperation extends EngineDependentOperat
                         });
             }
         }
-        
+
         @Override
         protected Runnable getRunnable() {
             return this;

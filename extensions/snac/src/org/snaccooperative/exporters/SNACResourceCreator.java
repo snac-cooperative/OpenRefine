@@ -598,7 +598,7 @@ public class SNACResourceCreator {
           if (json_result.size() <= 0){
             return null;
           }
-          else{
+          else {
             JSONObject json_val = (JSONObject)json_result.get(0);
             String lang_id = (String)json_val.get("id");
             String lang_desc = (String)json_val.get("description");

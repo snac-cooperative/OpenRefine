@@ -69,7 +69,7 @@ public class SNACConstellationCreator {
         return instance;
     }
 
-    public void updateColumnMatches(String JSON_SOURCE){
+    public void updateColumnMatches(String JSON_SOURCE) {
         try {
           match_attributes = new ObjectMapper().readValue(JSON_SOURCE, HashMap.class);
         } catch (IOException e) {
@@ -77,16 +77,16 @@ public class SNACConstellationCreator {
         }
     }
 
-    public String getColumnMatchesJSONString(){
+    public String getColumnMatchesJSONString() {
         return new JSONObject(match_attributes).toString();
     }
 
-    public static void setProject(Project p){
+    public static void setProject(Project p) {
         theProject = p;
         csv_headers = theProject.columnModel.getColumnNames();
     }
 
-    public void setUp(Project p, String JSON_SOURCE){
+    public void setUp(Project p, String JSON_SOURCE) {
         setProject(p);
         updateColumnMatches(JSON_SOURCE);
         rowsToConstellations();
@@ -98,19 +98,19 @@ public class SNACConstellationCreator {
     *
     * @param none
     */
-    public void rowsToConstellations(){
+    public void rowsToConstellations() {
         // Clear LinkedList before adding constellations
         constellations.clear();
         List<Row> rows = theProject.rows;
         // RecordModel rm = theProject.recordModel;
         RecordModel rm = theProject.recordModel;
         int rec_size = rm.getRecordCount();
-        for (int z = 0; z < rec_size; z++){
+        for (int z = 0; z < rec_size; z++) {
           Record rec_temp = rm.getRecord(z);
           int fromRowInd = rec_temp.fromRowIndex;
           int toRowInd = rec_temp.toRowIndex;
           List<Row> temp_rows = new LinkedList<Row>();
-          for (int y = fromRowInd; y < toRowInd; y++){
+          for (int y = fromRowInd; y < toRowInd; y++) {
             temp_rows.add(rows.get(y));
           }
           Constellation temp = createConstellationRecord(temp_rows);
@@ -125,40 +125,40 @@ public class SNACConstellationCreator {
     * @param String
     * @return Term
     */
-    public Term setDateTerms(String date_type){
+    public Term setDateTerms(String date_type) {
         date_type=date_type.toLowerCase();
         Term t=new Term();
-        if(date_type.equals("active")){
+        if(date_type.equals("active")) {
             t.setTerm("Active");
             t.setID(688);
             t.setType("date_type");
         }
-        else if(date_type.equals("death")){
+        else if(date_type.equals("death")) {
             t.setTerm("Death");
             t.setID(690);
             t.setType("date_type");
         }
-        else if(date_type.equals("birth")){
+        else if(date_type.equals("birth")) {
             t.setTerm("Birth");
             t.setID(689);
             t.setType("date_type");
         }
-        else if(date_type.equals("suspiciousdate")){
+        else if(date_type.equals("suspiciousdate")) {
             t.setTerm("SuspiciousDate");
             t.setID(691);
             t.setType("date_type");
         }
-        else if(date_type.equals("establishment")){
+        else if(date_type.equals("establishment")) {
             t.setTerm("Establishment");
             t.setID(400484);
             t.setType("date_type");
         }
-        else if(date_type.equals("disestablishment")){
+        else if(date_type.equals("disestablishment")) {
             t.setTerm("Disestablishment");
             t.setID(400485);
             t.setType("date_type");
         }
-        else{
+        else {
             t.setTerm("INVALID");
             t.setType("date_type");
             //error, the date types wasn't any of these 6 above
@@ -173,52 +173,52 @@ public class SNACConstellationCreator {
     * @param row (Row found in List<Row> from Project)
     * @return Constellation converted from Row
     */
-    public Constellation createConstellationRecord(List<Row> rows){ //here
+    public Constellation createConstellationRecord(List<Row> rows) { //here
         Constellation con = new Constellation();
         List<String> temp_dates = new LinkedList<String>();
         List<String> temp_types = new LinkedList<String>();
         List<SNACDate> temp_SNACDates = new LinkedList<SNACDate>();
-        for (int x = 0; x < csv_headers.size(); x++){
+        for (int x = 0; x < csv_headers.size(); x++) {
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
-            if (snac_header == null || snac_header == ""){
+            if (snac_header == null || snac_header == "") {
                 continue;
             }
             // Insert switch statements || Bunch of if statements for setters
             String temp_val;
             // If cell empty, set value to empty value
-            if (rows.get(0).getCellValue(x) == null || rows.get(0).getCellValue(x) == ""){
+            if (rows.get(0).getCellValue(x) == null || rows.get(0).getCellValue(x) == "") {
                 temp_val = "";
                 // continue;
-            } else{
+            } else {
                 temp_val = rows.get(0).getCellValue(x).toString();
             }
-            switch(snac_header){
+            switch(snac_header) {
               case "id":
-                  try{
+                  try {
                       con.setID(Integer.parseInt(temp_val));
                       constellation_ids.add(Integer.parseInt(temp_val));
                       break;
                   }
-                  catch (NumberFormatException e){
+                  catch (NumberFormatException e) {
                       break;
                   }
               case "entity type":
-                  //try{
+                  //try {
                       Term t = new Term();
                       t.setType("entity_type");
                       String term;
                       int type_id;
-                      if (temp_val.equals("person")){
+                      if (temp_val.equals("person")) {
                           type_id = 700;
                           t.setID(type_id);
                           term = "person";
                       }
-                      else if (temp_val.equals("family")){
+                      else if (temp_val.equals("family")) {
                           type_id = 699;
                           t.setID(type_id);
                           term = "family";
                       }
-                      else if (temp_val.equals("corporateBody")){
+                      else if (temp_val.equals("corporateBody")) {
                           type_id = 698;
                           t.setID(type_id);
                           term = "corporateBody";
@@ -238,7 +238,7 @@ public class SNACConstellationCreator {
                    */
                   List<NameEntry> name_list = new LinkedList<NameEntry>();
                   //temp_val = rows.get(c).getCellValue(x).toString();
-                  if(!temp_val.equals("")){
+                  if(!temp_val.equals("")) {
                     NameEntry nameEntryValue = new NameEntry();
                     nameEntryValue.setOriginal(temp_val);
                     name_list.add(nameEntryValue);
@@ -247,13 +247,13 @@ public class SNACConstellationCreator {
                   con.setNameEntries(name_list);
                   break;
               case "date":
-                  for(int z = 1; z < rows.size() + 1; z++){
+                  for(int z = 1; z < rows.size() + 1; z++) {
                     /*Set the value of the date */
-                    if(!temp_val.equals("")){
+                    if(!temp_val.equals("")) {
                       temp_dates.add(temp_val);
                     }
-                    if(z != rows.size()){
-                      if(rows.get(z).getCellValue(x)!=null){
+                    if(z != rows.size()) {
+                      if(rows.get(z).getCellValue(x)!=null) {
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
                     }
@@ -261,13 +261,13 @@ public class SNACConstellationCreator {
 
                   break;
               case "date type": //active, birth, death, suspiciousdate
-                  for(int z = 1; z < rows.size() + 1; z++){
+                  for(int z = 1; z < rows.size() + 1; z++) {
                     /*Set the value of the date */
-                    if(!temp_val.equals("")){
+                    if(!temp_val.equals("")) {
                       temp_types.add(temp_val);
                     }
-                    if(z != rows.size()){
-                      if(rows.get(z).getCellValue(x)!=null){
+                    if(z != rows.size()) {
+                      if(rows.get(z).getCellValue(x)!=null) {
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
                     }
@@ -281,9 +281,9 @@ public class SNACConstellationCreator {
 
 
                   List<Subject> subject_list = new LinkedList<Subject>();
-                  for(int z = 1; z < rows.size() + 1; z++){
+                  for(int z = 1; z < rows.size() + 1; z++) {
                     /*Set the value of the subject via a term. */
-                      if(!temp_val.equals("")){
+                      if(!temp_val.equals("")) {
                         Subject subjectValue = new Subject();
                         Term t1 = new Term();
                         t1.setTerm(temp_val);
@@ -291,14 +291,14 @@ public class SNACConstellationCreator {
                         subject_list.add(subjectValue);
                       }
                       // If there are more rows, then insert more subjects
-                    if(z != rows.size()){
-                      if(rows.get(z).getCellValue(x)!=null){
+                    if(z != rows.size()) {
+                      if(rows.get(z).getCellValue(x)!=null) {
                         temp_val = rows.get(z).getCellValue(x).toString();
                       }
                       /* It is possible that a row may be empty so we continue on until we
                       * find one (or else this repeats the less non-empty row)
                       */
-                      else{
+                      else {
                         temp_val="";
                       }
                     }
@@ -332,8 +332,8 @@ public class SNACConstellationCreator {
                    */
                   List<Occupation> occupation_list = new LinkedList<Occupation>();
 
-                  for(int z = 1; z < rows.size() + 1; z++){
-                      if((!temp_val.equals("")) && (temp_val.length()>=1)){
+                  for(int z = 1; z < rows.size() + 1; z++) {
+                      if((!temp_val.equals("")) && (temp_val.length()>=1)) {
                         /*Set the value of the occupation via a term. */
                         Occupation occupationValue = new Occupation();
                         Term t1 = new Term();
@@ -341,8 +341,8 @@ public class SNACConstellationCreator {
                         occupationValue.setTerm(t1);
                         occupation_list.add(occupationValue);
                       }
-                      if(z != rows.size()){
-                        if(rows.get(z).getCellValue(x)!=null){
+                      if(z != rows.size()) {
+                        if(rows.get(z).getCellValue(x)!=null) {
                           temp_val = rows.get(z).getCellValue(x).toString();
                         }
                       /* It is possible that a row may be empty so we continue on until we
@@ -393,7 +393,7 @@ public class SNACConstellationCreator {
                    * Add the list of sameAs to the constellation.
                    */
                   List<SameAs> sameAs_list = new LinkedList<SameAs>();
-                  if(!temp_val.equals("")){
+                  if(!temp_val.equals("")) {
                     /*Set the value of the subject via a term. */
                     SameAs sameAsValue = new SameAs();
                     sameAsValue.setText(temp_val);
@@ -407,16 +407,16 @@ public class SNACConstellationCreator {
         }
 
         //Logic for date handling
-        if(temp_types.size()==temp_dates.size() && temp_types.size()!=0){
-            //for(int x=0;x<temp_dates.size();x++){
+        if(temp_types.size()==temp_dates.size() && temp_types.size()!=0) {
+            //for(int x=0;x<temp_dates.size();x++) {
                 SNACDate d = new SNACDate();
                 SNACDate d2 = new SNACDate();
-                if(temp_types.size()==1){
+                if(temp_types.size()==1) {
                     Term temp_term=setDateTerms(temp_types.get(0));
                     d.setDate(temp_dates.get(0),temp_dates.get(0),temp_term);
                     temp_SNACDates.add(d);
                 }
-                else if(temp_types.size()==2){ //this is under the assuption the rows are always in order of From and To date, aka Active->Death, Birth->Death, etc.
+                else if(temp_types.size()==2) { //this is under the assuption the rows are always in order of From and To date, aka Active->Death, Birth->Death, etc.
                     Term t1=new Term();
                     Term t2=new Term();
                     t1=setDateTerms(temp_types.get(0));
@@ -426,7 +426,7 @@ public class SNACConstellationCreator {
                     d.setToDate(temp_dates.get(1),temp_dates.get(1),t2);
                     temp_SNACDates.add(d);
                 }
-                else if(temp_types.size()==3){
+                else if(temp_types.size()==3) {
                     Term t1=new Term();
                     Term t2=new Term();
                     Term t3=new Term();
@@ -440,7 +440,7 @@ public class SNACConstellationCreator {
                     temp_SNACDates.add(d);
                     temp_SNACDates.add(d2);
                 }
-                else{
+                else {
                     //error, you gave us 4+ dates?
                 }
             //}
@@ -456,47 +456,45 @@ public class SNACConstellationCreator {
     * @param row (Row found in List<Row> from Project)
     * @return Constellation converted from Row
     */
-    public Constellation createConstellationRow(Row row){
+    public Constellation createConstellationRow(Row row) {
         Constellation con = new Constellation();
-        for (int x = 0; x < csv_headers.size(); x++){
+        for (int x = 0; x < csv_headers.size(); x++) {
             String snac_header = match_attributes.get(csv_headers.get(x)).toLowerCase();
-            if (snac_header == null || snac_header == ""){
+            if (snac_header == null || snac_header == "") {
                 continue;
             }
             // Insert switch statements || Bunch of if statements for setters
             String temp_val;
             // If cell empty, set value to empty value
-            if (row.getCellValue(x) == null || row.getCellValue(x) == ""){
+            if (row.getCellValue(x) == null || row.getCellValue(x) == "") {
                 temp_val = "";
                 // continue;
-            } else{
+            } else {
                 temp_val = row.getCellValue(x).toString();
             }
-            switch(snac_header){
+            switch(snac_header) {
               case "id":
-                  try{
+                  try {
                       con.setID(Integer.parseInt(temp_val));
                       constellation_ids.add(Integer.parseInt(temp_val));
                       break;
                   }
-                  catch (NumberFormatException e){
+                  catch (NumberFormatException e) {
                       break;
                   }
               case "type":
-                  try{
+                  try {
                       Term t = new Term();
                       t.setType("document_type");
                       String term;
                       int type_id;
-                      if (temp_val.equals("696") || temp_val.equals("ArchivalConstellation")){
+                      if (temp_val.equals("696") || temp_val.equals("ArchivalConstellation")) {
                         type_id = 696;
-                        t.setID(type_id);
                         term = "ArchivalConstellation";
-                      } else if (temp_val.equals("697") || temp_val.equals("BibliographicConstellation")){
+                      } else if (temp_val.equals("697") || temp_val.equals("BibliographicConstellation")) {
                         type_id = 697;
-                        t.setID(type_id);
                         term = "BibliographicConstellation";
-                      } else if (temp_val.equals("400479") || temp_val.equals("DigitalArchivalConstellation")){
+                      } else if (temp_val.equals("400479") || temp_val.equals("DigitalArchivalConstellation")) {
                         type_id = 400479;
                         t.setID(type_id);
                         term = "DigitalArchivalConstellation";
@@ -507,11 +505,11 @@ public class SNACConstellationCreator {
                       //con.setDocumentType(t);
                       break;
                   }
-                  catch (NumberFormatException e){
+                  catch (NumberFormatException e) {
                       System.out.println(temp_val + " is not a valid constellation type.");
                       break;
                   }
-                  catch (Exception e){
+                  catch (Exception e) {
                     System.out.println(e);
                     break;
                   }
@@ -542,21 +540,21 @@ public class SNACConstellationCreator {
     * @param none
     * @return String
     */
-    public String obtainPreview(){
+    public String obtainPreview() {
       String samplePreview = "";
-      if (constellations.size() == 0){
+      if (constellations.size() == 0) {
         samplePreview += "There are no Constellations to preview.";
       }
-      else{
+      else {
         samplePreview += "Inserting " + constellations.size() + " new Constellations into SNAC." + "\n";
 
         int iterations = Math.min(constellations.size(), 2);
 
-        for(int x = 0; x < iterations; x++){
+        for(int x = 0; x < iterations; x++) {
           Constellation previewConstellation = constellations.get(x);
           // System.out.println(Constellation.toJSON(previewConstellation));
-          for(Map.Entry mapEntry: match_attributes.entrySet()){
-              if(!((String)mapEntry.getValue()).equals("")){
+          for(Map.Entry mapEntry: match_attributes.entrySet()) {
+              if(!((String)mapEntry.getValue()).equals("")) {
                 switch(((String)mapEntry.getValue()).toLowerCase()) {
                   case "id":
                     samplePreview+= "ID: " + previewConstellation.getID() + "\n";
@@ -606,15 +604,15 @@ public class SNACConstellationCreator {
     * @param none
     * @return String (String converted JSONObject of Constellation Array)
     */
-    public String exportConstellationsJSON(){
+    public String exportConstellationsJSON() {
         JSONObject jo = new JSONObject();
         JSONArray ja = new JSONArray();
         JSONParser jp = new JSONParser();
-        for (int x = 0; x < constellations.size(); x++){
-          try{
+        for (int x = 0; x < constellations.size(); x++) {
+          try {
               ja.add((JSONObject)jp.parse(Constellation.toJSON(constellations.get(x))));
           }
-          catch (ParseException e){
+          catch (ParseException e) {
             continue;
           }
         }
@@ -631,7 +629,7 @@ public class SNACConstellationCreator {
     */
     public void uploadConstellations(String apiKey, String state) {
         String result="";
-        try{
+        try {
             String key = "\"apikey\":\"" + apiKey +"\",";
             List<Constellation> new_list_constellations = new LinkedList<Constellation>();
             DefaultHttpClient client = new DefaultHttpClient();
@@ -664,27 +662,28 @@ public class SNACConstellationCreator {
         }
 
     }
+
     /**
     * Supposed to take the reply from the API and make a column field in the schema
     *
     * @param result the reply from the API including the SNAC ID (for new entries)
     * @param con the constellation to add the ID into
     */
-    public Constellation insertID(String result, Constellation con){
+    public Constellation insertID(String result, Constellation con) {
     JSONParser jp = new JSONParser();
-    try{
+    try {
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("constellation")).get("id")).toString());
-        if(new_id!=0){
+        if(new_id!=0) {
           constellation_ids.add(new_id);
           con.setID(new_id);
           return con;
         }
-        else{
+        else {
           constellation_ids.add(null);
         }
     }
-    catch (ParseException e){
+    catch (ParseException e) {
         System.out.println(e);
     }
     return con;
@@ -698,10 +697,10 @@ public class SNACConstellationCreator {
     * If exists: Go through and set the cell values based on the constellation_ids
     * If not: Create a new column "id" and insert cell values based on constellation_ids
     */
-  public void test_insertID(){
+  public void test_insertID() {
 
     // Operation below creates new column "id" and insert cell values from uploaded Constellation objects through SNAC API
-    for (int x = 0; x < theProject.rows.size(); x++){
+    for (int x = 0; x < theProject.rows.size(); x++) {
       Cell test_cell = new Cell(x, new Recon(0, null, null));
       res_row_ids.add(new CellAtRow(x, test_cell));
     }

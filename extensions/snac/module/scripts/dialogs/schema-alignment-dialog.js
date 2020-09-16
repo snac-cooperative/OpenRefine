@@ -358,15 +358,15 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    this._columnAreaResource.addClass("snac-tab");
    this._columnAreaResource.empty();
 
-   var SNACcolumnsResource = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note"];
+   var SNACcolumnsResource = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID"];
    this._dropdownAreaResource = $(".schema-alignment-dialog-dropdown-area-resource");
    this._dropdownAreaResource.addClass("snac-tab");
    this._dropdownAreaResource.empty();
 
-   var dragItemsResource = ["Abstract", "Date", "Display Entry", "Extent", "Holding Repository SNAC ID", "ID", "Language", "Link", "Note", "Title", "Type"];
+   var dragItemsResource = ["Abstract", "Date", "Display Entry", "Extent", "Holding Repository SNAC ID", "ID", "Language", "Link", "Title", "Type"];
    this._refcolumnAreaResource = $(".schema-alignment-dialog-columns-area-resource--ref");
    this._refcolumnAreaResource.addClass("snac-tab");
-   this._refcolumnAreaResource.empty();
+   this._refcolumnAreaResource.html('<h2>SNAC Model</h2>');
 
    var myTableDivResource = addResourceTable(columnsResource, SNACcolumnsResource);
    this._columnAreaResource.append(myTableDivResource);
@@ -438,16 +438,16 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    this._columnAreaConstellation.addClass("snac-tab");
    this._columnAreaConstellation.empty();
 
-   var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Occupation", "Function", "BiogHist", "SameAs Relation"];
+   var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation"];
    this._dropdownAreaConestellation = $(".schema-alignment-dialog-dropdown-area-constellation");
    this._dropdownAreaConestellation.addClass("snac-tab");
-   this._dropdownAreaConestellation.empty();
+   this._dropdownAreaConestellation.empty()
 
    // Based on SNACConstellationCreator
-   var dragItemsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Occupation", "Function", "BiogHist", "SameAs Relation"];
+   var dragItemsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation"];
    this._refcolumnAreaConestellation = $(".schema-alignment-dialog-columns-area-constellation--ref");
    this._refcolumnAreaConestellation.addClass("snac-tab");
-   this._refcolumnAreaConestellation.empty();
+   this._refcolumnAreaConestellation.html('<h2>SNAC Model</h2>');
 
    var myTableDivConstellation = addConstellationTable(columnsConstellation, SNACcolumnsConstellation);
    this._columnAreaConstellation.append(myTableDivConstellation);
@@ -534,7 +534,6 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       "ID",                                                                   // ID
       "Language",                                                             // Language
       "The preferred permanent link to find aid",                             // Link
-      "Note",                                                                 // Note
       "The official title (e.g. Papers, 1809-1882)",                          // Title
       "The resource type (ArchivalResource, BibliographicResource, etc.)"     // Type
    ];
@@ -712,11 +711,11 @@ SNACSchemaAlignmentDialog._save = function(onDone) {
    // Empty required field check (for issues tab)
    // The required fields for Resource vs Constellation are different, so required_fields will be used to check whether all the fields in this array have been used
    if (document.getElementById('resourcebutton').checked) {
-      var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Note", "Script"];
+      var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Script"];
       var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
    }
    else {
-      var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
+      var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Place Type", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
       var required_fields = ["Entity Type", "Name Entry"];
    }
 

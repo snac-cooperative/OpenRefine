@@ -243,6 +243,10 @@ public class SNACResourceCreator {
                         type_id = 400479;
                         t.setID(type_id);
                         term = "DigitalArchivalResource";
+                    } else if (temp_val.equals("400623") || temp_val.equals("OralHistoryResource")){
+                        type_id = 400623;
+                        t.setID(type_id);
+                        term = "OralHistoryResource";
                       } else {
                         System.out.println(temp_val + " is not a valid resource type.");
                         break;
@@ -588,7 +592,7 @@ public class SNACResourceCreator {
         // Insert API request calls for lang (if exists: insert into language dict, if not: return None)
         try{
           DefaultHttpClient client = new DefaultHttpClient();
-          HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
+          HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
           String query = "{\"command\": \"vocabulary\",\"query_string\": \"" + lang + "\",\"type\": \"language_code\",\"entity_type\": null}";
           post.setEntity(new StringEntity(query,"UTF-8"));
           HttpResponse response = client.execute(post);
@@ -651,7 +655,7 @@ public class SNACResourceCreator {
         String opIns = ",\n\"operation\":\"insert\"\n},\"apikey\":\"" + apiKey +"\"";
         List<Resource> new_list_resources = new LinkedList<Resource>();
         DefaultHttpClient client = new DefaultHttpClient();
-        HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
+        HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
 
         if(state == "prod") {
             post = new HttpPost("http://api.snaccooperative.org/");
@@ -659,6 +663,7 @@ public class SNACResourceCreator {
 
 
         System.out.println("Querying SNAC...");
+        System.out.println("Attempting to Insert IDs!!!");
         for(Resource temp_res : resources){
             String rtj = Resource.toJSON(temp_res);
               String api_query = "{\"command\": \"insert_resource\",\n \"resource\":" + rtj.substring(0,rtj.length()-1) + opIns + "}";
@@ -670,8 +675,10 @@ public class SNACResourceCreator {
           }
           resources = new_list_resources;
           System.out.println("Uploading Attempt Complete");
+          System.out.println("Attempting to Insert ID Column!!!");
           test_insertID();
         }catch(IOException e){
+            System.out.println("Failed to upload resources!!!");
           System.out.println(e);
         }
     }
@@ -683,17 +690,20 @@ public class SNACResourceCreator {
     * @param res the resource to add the ID into
     */
     public Resource insertID(String result, Resource res){
+      System.out.println("inside insertID!!!");
       JSONParser jp = new JSONParser();
     try{
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
         if(new_id!=0){
+            System.out.println("Resource ID wasn't null!");
           resource_ids.add(new_id);
           res.setID(new_id);
           return res;
         }
         else{
           resource_ids.add(null);
+          System.out.println("Resource ID was null!");
         }
     }
     catch (NullPointerException e){
@@ -711,6 +721,7 @@ public class SNACResourceCreator {
     * If not: Create a new column "id" and insert cell values based on resource_ids
     */
   public void test_insertID(){
+    System.out.println("inside test_insertID!!!");
     boolean idColExists = false;
     int idColIndex = -1;
     List<Column> colList = theProject.columnModel.columns;
@@ -718,20 +729,22 @@ public class SNACResourceCreator {
 
     List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
 
-    if(!idColumn.equals("")){
-      idColExists = true;
-      for(Column c: colList){
-        if(c.getOriginalHeaderLabel().equals(idColumn)){
-          idColIndex = c.getCellIndex();
-          break;
-        }
-      }
-    }
+    // if(!idColumn.equals("")){
+    //   idColExists = true;
+    //   for(Column c: colList){
+    //     if(c.getOriginalHeaderLabel().equals(idColumn)){
+          // idColIndex = c.getCellIndex();
+    //       break;
+    //     }
+    //   }
+    // }
 
     // Operation below creates new column "id" and insert cell values from uploaded Resource objects through SNAC API
     for (int x = 0; x < theProject.rows.size(); x++){
+      System.out.println("Here are the resource IDs");
+      System.out.println(resource_ids.get(x));
       Cell test_cell = new Cell(resource_ids.get(x), new Recon(0, null, null));
-
+      System.out.println(resource_ids);
       // Cell test_cell = new Cell(x, new Recon(0, null, null));
       res_row_ids.add(new CellAtRow(x, test_cell));
     }
@@ -747,20 +760,28 @@ public class SNACResourceCreator {
       record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
     }
 
-    if(idColExists){
-    // replace existing col
-      ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
-      CRC.apply(theProject);
-      // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
-      ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
+    // if(idColExists){
+    // // TODO: JHG Look into this code.
+    // // replace existing col
+    //   ColumnRemovalChange CRC = new ColumnRemovalChange(idColIndex);
+    //   CRC.apply(theProject);
+    //   // ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, res_row_ids);
+    //   ColumnAdditionChange CAC = new ColumnAdditionChange("test_replace", idColIndex, record_ids);
+    //
+    //   CAC.apply(theProject);
+    // }
+    // else {
+      // // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);  /// JHG: I switch?
+      ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
+
+      // List<Change> changes = new ArrayList<Change>();
+      // changes.add(new ColumnAdditionChange("a", 0, new ArrayList<CellAtRow>()));
+      // changes.add(new ColumnAdditionChange("b", 1, new ArrayList<CellAtRow>()));
+      // MassChange massChange = new MassChange(changes, false);
+      // massChange.apply(project);
 
       CAC.apply(theProject);
-    }
-    else {
-      // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
-      ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
-      CAC.apply(theProject);
-    }
+    // }
 
   }
 }

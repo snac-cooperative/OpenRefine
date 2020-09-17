@@ -42,13 +42,14 @@ import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.SNACDate;
 import org.snaccooperative.data.SNACFunction;
 import org.snaccooperative.data.Term;
-import org.snaccooperative.data.Constellation;
 import org.snaccooperative.data.Language;
 import org.snaccooperative.data.NameEntry;
 import org.snaccooperative.data.Subject;
 import org.snaccooperative.data.Place;
 import org.snaccooperative.data.Occupation;
 import org.snaccooperative.data.SameAs;
+import org.snaccooperative.data.Resource;
+import org.snaccooperative.data.ResourceRelation;
 
 public class SNACConstellationCreator {
     public static HashMap<String, String> match_attributes = new HashMap<String, String>();
@@ -160,7 +161,7 @@ public class SNACConstellationCreator {
     }
 
     /**
-     * Take a given date type and return a properly set up term to match it
+     * Take a given place role and return a properly set up term to match it
      *
      * @param String
      * @return Term
@@ -192,6 +193,39 @@ public class SNACConstellationCreator {
     }
 
     /**
+     * Take a given resource role and return a properly set up term to match it
+     *
+     * @param String
+     * @return Term
+     */
+     // TODO: Replace all term ID setting for date, place, etc with a dynamic API vocab search query
+    public Term determineResourceRole(String resource_role) {
+        resource_role = resource_role.toLowerCase();
+        Term t = new Term();
+        if (resource_role.equals("creatorof")) {
+            t.setTerm("creatorOf");
+            t.setID(692);
+            t.setType("document_role");
+        } else if (resource_role.equals("referencedin")) {
+            t.setTerm("referencedIn");
+            t.setID(693);
+            t.setType("document_role");
+        } else if (resource_role.equals("editorof")) {
+            t.setTerm("editorOf");
+            t.setID(694);
+            t.setType("document_role");
+        } else if (resource_role.equals("contributorof")) {
+            t.setTerm("contributorOf");
+            t.setID(695);
+            t.setType("document_role");
+        } else {
+            System.out.print("Invalid Resource Role:");
+            System.out.println(resource_role);
+        }
+        return t;
+    }
+
+    /**
      * Take a given Row and convert it to a Constellation Object
      *
      * @param row (Row found in List<Row> from Project)
@@ -207,8 +241,9 @@ public class SNACConstellationCreator {
         // find column indexes
         int date_type_index = -1;
         int place_role_index = -1;
-        int resource_id_index = -1;
+        // int resource_id_index = -1;
         int resource_role_index = -1;
+        int resource_relation_note_index = -1;
 
         for (int col_index = 0; col_index < csv_headers.size(); col_index++) {
             String temp_snac_header = match_attributes.get(csv_headers.get(col_index)).toLowerCase();
@@ -216,10 +251,12 @@ public class SNACConstellationCreator {
                 date_type_index = col_index;
             } else if (temp_snac_header.equals("place role")) {
                 place_role_index = col_index;
-            } else if (temp_snac_header.equals("resource_id")) {
-                resource_id_index = col_index;
+            // } else if (temp_snac_header.equals("resource_id")) {
+                // resource_id_index = col_index;
             } else if (temp_snac_header.equals("resource role")) {
                 resource_role_index = col_index;
+            } else if (temp_snac_header.equals("resourcerelation note")) {
+                resource_relation_note_index = col_index;
             }
         }
 
@@ -490,6 +527,60 @@ public class SNACConstellationCreator {
                     }
                     con.setSameAsRelations(sameAs_list);
                     break;
+                case "resource id":
+                    /*
+                     * Iterate through all the Place and place_type entries, create a list of Place
+                     * objects which will be added to a list of Place.
+                     */
+                    List<ResourceRelation> resource_relations = new LinkedList<ResourceRelation>();
+
+                    // temp_val = rows.get(c).getCellValue(x).toString();
+
+                    // Init AssociatedPlace Term
+                    // Term associated = new Term();
+                    // associated.setType("place_match"); // TODO: fix place
+                    // associated.setID(705); // TODO: fix place
+                    // associated.setTerm("AssociatedPlace"); // TODO: fix place
+
+                    for (int row_index = 0; row_index < rows.size(); row_index++) { // JHG changed from row_index = 1 and size()+1
+                                                                                                                                                    // to 0.
+                        if (rows.get(row_index).getCellValue(x) == null || rows.get(row_index).getCellValue(x) == "") {
+                            temp_val = "";
+                        } else {
+                            temp_val = rows.get(row_index).getCellValue(x).toString();
+                        }
+                        if (!temp_val.equals("")) {
+                            /* Set the value of the place via a term. */
+
+                            Resource resourceObject = new Resource();
+                            resourceObject.setID(Integer.parseInt(temp_val));
+
+                            ResourceRelation resourceRelation = new ResourceRelation();
+                            resourceRelation.setResource(resourceObject);
+                            resourceRelation.setOperation("insert");
+
+                            // Find adjacent resource role and set
+                            if (resource_role_index != -1) {
+                                String current_resource_role = rows.get(row_index).getCellValue(resource_role_index).toString();
+                                if (!current_resource_role.isEmpty()) {
+                                    resourceRelation.setRole(determineResourceRole(current_resource_role));
+                                }
+                            }
+                            if (resource_relation_note_index != -1) {
+                                // TODO: Add "RelatedResource Note" to schema
+                                String resource_relation_note = rows.get(row_index).getCellValue(resource_relation_note_index).toString();
+                                if (!resource_relation_note.isEmpty()) {
+                                    resourceRelation.setNote(resource_relation_note);
+                                }
+                            }
+                            resource_relations.add(resourceRelation);
+                        }
+                    }
+                    con.setResourceRelations(resource_relations);
+
+                    break;
+                case "resource role":
+                    break;
                 default:
                     continue;
             }
@@ -682,6 +773,7 @@ public class SNACConstellationCreator {
                             case "sameas relation":
                                 samplePreview += "Sameas relation: " + previewConstellation.getSameAsRelations() + "\n";
                                 break;
+                                // TODO: Add Resource ID, Resource Role.
                             default:
                                 break;
                         }
@@ -726,7 +818,7 @@ public class SNACConstellationCreator {
             String key = "\"apikey\":\"" + apiKey + "\",";
             List<Constellation> new_list_constellations = new LinkedList<Constellation>();
             DefaultHttpClient client = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://localhost/~josephglass/snac/rest/");
+            HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
             if (state == "prod") {
                 post = new HttpPost("http://api.snaccooperative.org/");
             }

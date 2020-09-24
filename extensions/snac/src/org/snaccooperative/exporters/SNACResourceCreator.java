@@ -36,8 +36,6 @@ import com.google.refine.model.RecordModel;
 import com.google.refine.model.Record;
 
 
-// import com.google.refine.model.changes.CellAtRow;
-// import com.google.refine.model.changes.ColumnAdditionChange;
 
 import org.snaccooperative.data.Resource;
 import org.snaccooperative.data.Term;
@@ -220,7 +218,7 @@ public class SNACResourceCreator {
               case "id":
                   try{
                       res.setID(Integer.parseInt(temp_val));
-                      resource_ids.add(Integer.parseInt(temp_val));;
+                      resource_ids.add(Integer.parseInt(temp_val));
                       break;
                   }
                   catch (NumberFormatException e){
@@ -657,6 +655,7 @@ public class SNACResourceCreator {
         DefaultHttpClient client = new DefaultHttpClient();
         HttpPost post = new HttpPost("http://snac-dev.iath.virginia.edu/api/");
 
+        // TODO: Pull out into function or api_url constant
         if(state == "prod") {
             post = new HttpPost("http://api.snaccooperative.org/");
         }
@@ -696,10 +695,11 @@ public class SNACResourceCreator {
         JSONObject jsonobj = (JSONObject)jp.parse(result);
         int new_id = Integer.parseInt((((JSONObject)jsonobj.get("resource")).get("id")).toString());
         if(new_id!=0){
-            System.out.println("Resource ID wasn't null!");
-          resource_ids.add(new_id);
-          res.setID(new_id);
-          return res;
+            System.out.print("Resource ID:");
+            System.out.println(new_id);
+            resource_ids.add(new_id);
+            res.setID(new_id);
+            return res;
         }
         else{
           resource_ids.add(null);
@@ -714,6 +714,7 @@ public class SNACResourceCreator {
     }
     return res;
   }
+
     /**
     * Run this function after insertID (above) within SNACUploadCommand
     * Check if ID column exists (Need to see how to determine which column is "id" given different naming conventions)
@@ -721,7 +722,7 @@ public class SNACResourceCreator {
     * If not: Create a new column "id" and insert cell values based on resource_ids
     */
   public void test_insertID(){
-    System.out.println("inside test_insertID!!!");
+    System.out.println("Inserting ID columns");
     boolean idColExists = false;
     int idColIndex = -1;
     List<Column> colList = theProject.columnModel.columns;
@@ -771,8 +772,8 @@ public class SNACResourceCreator {
     //   CAC.apply(theProject);
     // }
     // else {
-      // // ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);  /// JHG: I switch?
-      ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, record_ids);
+      // // ColumnAdditionChange CAC = new ColumnAdditionChange("SNAC_resource_IDs", 0, res_row_ids);
+      ColumnAdditionChange CAC = new ColumnAdditionChange("SNAC_resource_IDs", 0, record_ids);
 
       // List<Change> changes = new ArrayList<Change>();
       // changes.add(new ColumnAdditionChange("a", 0, new ArrayList<CellAtRow>()));
@@ -784,4 +785,6 @@ public class SNACResourceCreator {
     // }
 
   }
+
+
 }

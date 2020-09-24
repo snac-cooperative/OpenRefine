@@ -438,13 +438,13 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
    this._columnAreaConstellation.addClass("snac-tab");
    this._columnAreaConstellation.empty();
 
-   var SNACcolumnsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
+   var SNACcolumnsConstellation = ["Entity Type", "ID", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
    this._dropdownAreaConestellation = $(".schema-alignment-dialog-dropdown-area-constellation");
    this._dropdownAreaConestellation.addClass("snac-tab");
    this._dropdownAreaConestellation.empty()
 
    // Based on SNACConstellationCreator
-   var dragItemsConstellation = ["ID", "Entity Type", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
+   var dragItemsConstellation = ["Entity Type", "ID", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
    this._refcolumnAreaConestellation = $(".schema-alignment-dialog-columns-area-constellation--ref");
    this._refcolumnAreaConestellation.addClass("snac-tab");
    this._refcolumnAreaConestellation.html('<h2>SNAC Model</h2>');

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.LinkedList;
+import java.util.ArrayList;
 
 import org.apache.http.*;
 import org.apache.http.util.EntityUtils;
@@ -61,6 +62,7 @@ public class SNACConstellationCreator {
     // Internal Constellation IDs that isn't part of the Constellation data model
 
     private static List<Integer> constellation_ids = new LinkedList<Integer>();
+    private static List<Integer> constellation_versions = new LinkedList<Integer>();
     private static List<CellAtRow> res_row_ids = new LinkedList<CellAtRow>();
 
     private static HashMap<String, String[]> language_code = new HashMap<String, String[]>();
@@ -278,7 +280,7 @@ public class SNACConstellationCreator {
                 case "id":
                     try {
                         con.setID(Integer.parseInt(temp_val));
-                        constellation_ids.add(Integer.parseInt(temp_val));
+                        // constellation_ids.add(Integer.parseInt(temp_val));
                         break;
                     } catch (NumberFormatException e) {
                         break;
@@ -390,7 +392,7 @@ public class SNACConstellationCreator {
                      * Iterate through all the Place and place_type entries, create a list of Place
                      * objects which will be added to a list of Place.
                      */
-                    List<Place> place_list = new LinkedList<Place>(); // TODO: JHG
+                    List<Place> place_list = new LinkedList<Place>();
                     // temp_val = rows.get(c).getCellValue(x).toString();
 
                     // Init AssociatedPlace Term
@@ -399,7 +401,7 @@ public class SNACConstellationCreator {
                     associated.setID(705); // TODO: fix place
                     associated.setTerm("AssociatedPlace"); // TODO: fix place
 
-                    for (int row_index = 0; row_index < rows.size(); row_index++) { // JHG changed from row_index = 1 and size()+1
+                    for (int row_index = 0; row_index < rows.size(); row_index++) {
                                                                                                                                                     // to 0.
                         if (rows.get(row_index).getCellValue(x) == null || rows.get(row_index).getCellValue(x) == "") {
                             temp_val = "";
@@ -542,7 +544,7 @@ public class SNACConstellationCreator {
                     // associated.setID(705); // TODO: fix place
                     // associated.setTerm("AssociatedPlace"); // TODO: fix place
 
-                    for (int row_index = 0; row_index < rows.size(); row_index++) { // JHG changed from row_index = 1 and size()+1
+                    for (int row_index = 0; row_index < rows.size(); row_index++) {
                                                                                                                                                     // to 0.
                         if (rows.get(row_index).getCellValue(x) == null || rows.get(row_index).getCellValue(x) == "") {
                             temp_val = "";
@@ -663,7 +665,7 @@ public class SNACConstellationCreator {
                 case "id":
                     try {
                         con.setID(Integer.parseInt(temp_val));
-                        constellation_ids.add(Integer.parseInt(temp_val));
+                        // constellation_ids.add(Integer.parseInt(temp_val));
                         break;
                     } catch (NumberFormatException e) {
                         break;
@@ -824,33 +826,136 @@ public class SNACConstellationCreator {
             }
             System.out.println("Querying SNAC...");
             System.out.println("Inserting constellations");
+            String api_command = "insert_constellation";
+            Constellation publish_constellation = new Constellation();
+            JSONParser jp = new JSONParser();
+
             for (Constellation temp_con : constellations) {
-                // TODO: JHG: fix the commented-out code bellow. Why isn't temp_con.getID()==0 ?
-                if(temp_con.getID()==0) { //SNAC ID exists, try to update
-                    String ctj = Constellation.toJSON(temp_con);
-                    String api_query = "{\"command\": \"update_constellation\",\n" + key +
+                String api_query;
+                String ctj = "";
+                StringEntity casted_api;
+                HttpResponse response;
+
+                System.out.print("GET ID:");
+                System.out.println(temp_con.getID());
+
+                // UPDATE PATH
+                if (temp_con.getID() != 0) { //SNAC ID exists, checkout constellation, try to update
+                    // CHECKOUT
+                    System.out.println("CHECKING OUT CONSTELLATION");
+                    api_query = "{\"command\": \"edit\",\n" + key +
+                    "\n\"constellationid\":" + temp_con.getID() + "}";
+                    System.out.println("API QUERY:");
+                    System.out.println(api_query);
+                    casted_api = new StringEntity(api_query,"UTF-8");
+                    post.setEntity(casted_api);
+                    response = client.execute(post);
+                    result = EntityUtils.toString(response.getEntity());
+                    System.out.println("Checkout Response:");
+                    System.out.println(result);
+
+                    try {
+                        // GET ID & VERSION
+                        JSONObject jsonobj = (JSONObject) jp.parse(result);
+                        int new_id = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("id")).toString()); // TODO: handle nullpointer (skip to next IC), rename new_id
+                        int new_version = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("version")).toString());
+                        String ark = (((JSONObject) jsonobj.get("constellation")).get("ark")).toString();
+
+                        // SET CONSTELLATION ID, VERSION
+                        temp_con.setID(new_id);
+                        temp_con.setVersion(new_version);
+                        temp_con.setArk(ark);
+
+                        System.out.println("Post checkout: PRINTING ID & VERSION:");
+                        System.out.println(new_id);
+                        System.out.println(new_version);
+                        System.out.println(ctj);
+
+
+                    } catch (ParseException e) {
+                        System.out.println("JSON parse error: ");
+                        System.out.println(e);
+                    }
+
+                    // UPDATE
+                    temp_con.setOperation("update");
+                    ctj = Constellation.toJSON(temp_con);
+                    System.out.println("UPDATING CONSTELLATION");
+                    api_query = "{\"command\": \"update_constellation\",\n" + key +
                     "\n\"constellation\":" + ctj.substring(0,ctj.length()-1) + "}}";
-                    StringEntity casted_api = new StringEntity(api_query,"UTF-8");
+                    casted_api = new StringEntity(api_query,"UTF-8");
                     post.setEntity(casted_api);
-                    HttpResponse response = client.execute(post);
+                    response = client.execute(post);
                     result = EntityUtils.toString(response.getEntity());
-                }
-                else { //SNAC ID not provided, should be a new Constellation
-                    String ctj = Constellation.toJSON(temp_con);
-                    String api_query = "{\"command\": \"insert_and_publish_constellation\",\n" + key + "\n\"constellation\":"
+                    System.out.println("UPDATE RESULT:");
+                    System.out.println(result);
+
+
+
+                } else { //SNAC ID not provided, should be a new Constellation
+                    // INSERT
+                    ctj = Constellation.toJSON(temp_con);
+                    System.out.println("INSERTING CONSTELLATION");
+                    System.out.println(ctj);
+                    api_query = "{\"command\": \"insert_constellation\",\n" + key + "\n\"constellation\":"
                             + ctj.substring(0, ctj.length() - 1) + "}}";
-                    StringEntity casted_api = new StringEntity(api_query, "UTF-8");
+                    casted_api = new StringEntity(api_query, "UTF-8");
                     post.setEntity(casted_api);
-                    HttpResponse response = client.execute(post);
+                    response = client.execute(post);
                     result = EntityUtils.toString(response.getEntity());
-                    System.out.print(api_query);
-                    System.out.print("Received following:");
+                    System.out.println(api_query);
+                    System.out.println("INSERTING Received following: ");
                     System.out.print(result);
-                    new_list_constellations.add(insertID(result,temp_con));
                 }
+                try {
+                    // PUBLISH
+                        // GET ID & VERSION
+                    System.out.println("PUBLISH RESULT:");
+                    System.out.println(result);
+                    JSONObject jsonobj = (JSONObject) jp.parse(result);
+
+                    System.out.println("GETTING ID & VERSION:");
+                    int new_id = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("id")).toString());
+                    int new_version = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("version")).toString());
+                    constellation_ids.add(new_id);
+                    constellation_versions.add(new_version);
+
+                    // SET CONSTELLATION ID, VERSION
+                    publish_constellation.setID(new_id);
+                    publish_constellation.setVersion(new_version);
+
+                    System.out.println("PUBLISHING CONSTELLATION:");
+                    String publish_constellation_json = Constellation.toJSON(publish_constellation);
+                    api_query = "{\"command\": \"publish_constellation\",\n" + key + "\n\"constellation\":"
+                            + publish_constellation_json.substring(0, publish_constellation_json.length() - 1) + "}}";
+                    casted_api = new StringEntity(api_query, "UTF-8");
+                    post.setEntity(casted_api);
+                    response = client.execute(post);
+                    result = EntityUtils.toString(response.getEntity());
+                    System.out.print("SENDING: ");
+                    System.out.print(api_query);
+                    System.out.print("PUBLISHED Received following:");
+                    System.out.print(result);
+                    jsonobj = (JSONObject) jp.parse(result);
+                    int returned_id = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("id")).toString());
+                    int returned_version = Integer.parseInt((((JSONObject) jsonobj.get("constellation")).get("version")).toString());
+                    System.out.println("Returning Published ID, Version:");
+                    System.out.println(returned_id);
+                    System.out.println(returned_version);
+
+
+                } catch (ParseException e) {
+                    System.out.println("JSON parse error: ");
+                    System.out.println(e);
+                }
+
+                    // new_list_constellations.add(insertID(result,temp_con));
+
+
+                // }
             }
             System.out.println("Uploading Attempt Complete");
-            // test_insertID();
+            test_insertID();
         } catch (IOException e) {
             System.out.println(e);
         }
@@ -881,7 +986,7 @@ public class SNACConstellationCreator {
     }
 
     /**
-     * Preps and attempts to upload the constellation Run this function after
+     * Run this function after
      * insertID (above) within SNACUploadCommand Check if ID column exists (Need to
      * see how to determine which column is "id" given different naming conventions)
      * If exists: Go through and set the cell values based on the constellation_ids
@@ -889,22 +994,23 @@ public class SNACConstellationCreator {
      * constellation_ids
      */
     public void test_insertID() {
+        System.out.println("Inserting ID Column:");
+        System.out.println(constellation_ids);
 
-        // Operation below creates new column "id" and insert cell values from uploaded
-        // Constellation objects through SNAC API
-        for (int x = 0; x < theProject.rows.size(); x++) {
-            Cell test_cell = new Cell(x, new Recon(0, null, null));
-            res_row_ids.add(new CellAtRow(x, test_cell));
+        List<CellAtRow> record_ids = new ArrayList<CellAtRow>();
+        int rec_size = theProject.recordModel.getRecordCount();
+
+        for (int z = 0; z < rec_size; z++) {
+          Record rec_temp = theProject.recordModel.getRecord(z);
+          int fromRowInd = rec_temp.fromRowIndex;
+          Cell test_cell_r = new Cell(constellation_ids.get(z), new Recon(0, null, null));
+          record_ids.add(new CellAtRow(fromRowInd, test_cell_r));
         }
-        ColumnAdditionChange CAC = new ColumnAdditionChange("testing_column", 0, res_row_ids);
+
+        ColumnAdditionChange CAC = new ColumnAdditionChange("SNAC_IDs", 0, record_ids);
+        // ColumnAdditionChange CAC = new ColumnAdditionChange("new_versions", 0, record_ids); // TODO: consider inserting version column
         CAC.apply(theProject);
     }
 
-    /**
-     * Add Places (WIP) Adds Place and Place Type to Constellation //TODO: Look into
-     * replacing switch statement with
-     */
-    public void addPlace(Constellation constellation) {
-    }
 
 }

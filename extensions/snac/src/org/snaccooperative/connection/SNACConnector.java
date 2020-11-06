@@ -1,6 +1,5 @@
 package org.snaccooperative.connection;
 
-
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.refine.ProjectManager;
@@ -11,10 +10,9 @@ import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/** */
 public class SNACConnector {
 
-  static final Logger logger = LoggerFactory.getLogger("snac_connection");
+  static final Logger logger = LoggerFactory.getLogger("SNACConnector");
 
   public static final String PREFERENCE_STORE_KEY = "snac_apikey";
 
@@ -37,7 +35,7 @@ public class SNACConnector {
       jf.setAlwaysOnTop(true);
       JOptionPane.showMessageDialog(jf, "Key cleared!");
     }
-    logger.error("Trying to save key " + apikey);
+
     ArrayNode array = ParsingUtilities.mapper.createArrayNode();
     ObjectNode obj = ParsingUtilities.mapper.createObjectNode();
 
@@ -62,7 +60,6 @@ public class SNACConnector {
   public String getKey() {
     String visible;
     if (getStoredKeyData() != null) {
-      logger.error("Returning key data " + getStoredKeyData().get("apikey").asText());
       visible = getStoredKeyData().get("apikey").asText();
       return visible;
     } else {

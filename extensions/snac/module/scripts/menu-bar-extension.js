@@ -3,74 +3,40 @@
 
 var dictionary = {};
 $.ajax({
-	url : "command/core/load-language?",
-	type : "POST",
-	async : false,
-	data : {
-	  module : "snac",
-	},
-	success : function(data) {
-		dictionary = data['dictionary'];
-		lang = data['lang'];
-	}
+    url : "command/core/load-language?",
+    type : "POST",
+    async : false,
+    data : {
+      module : "snac",
+    },
+    success : function(data) {
+        dictionary = data['dictionary'];
+        lang = data['lang'];
+    }
 });
 $.i18n().load(dictionary, lang);
-
-
 
 ExporterManager.MenuItems.push({});
 ExporterManager.MenuItems.push(
         {
             id:"performSNACEdits",
-            label: $.i18n('snac-extension/perform-edits-on-snac'),
-            click: function() { /*PerformEditsDialog.checkAndLaunch();*/ }
+            label: $.i18n('snac-extension/upload-to-snac'),
+            click: function() { SNACManageUploadDialog.launch(null, function(success) {}); }
         });
 ExporterManager.MenuItems.push(
         {
             id:"exportSNACJson",
             label: $.i18n('snac-extension/export-to-json'),
-            click: function() { /*WikibaseExporterMenuBar.checkSchemaAndExport("quickstatements");*/ }
+            click: function() { SNACExporterMenuBar.checkSchemaAndExport(); }
         });
 
 SNACExporterMenuBar = {};
 
-SNACExporterMenuBar.exportTo = function(format) {
-    var targetUrl = null;
-    if (format ==="quickstatements") {
-        targetUrl = "statements.txt";
-    } else {
-        targetUrl = "schema.json";
-    }
-    var form = document.createElement("form");
-    $(form).css("display", "none")
-        .attr("method", "post")
-        .attr("action", "command/core/export-rows/"+targetUrl)
-        .attr("target", "gridworks-export");
-    $('<input />')
-        .attr("name", "engine")
-        .attr("value", JSON.stringify(ui.browsingEngine.getJSON()))
-        .appendTo(form);
-    $('<input />')
-        .attr("name", "project")
-        .attr("value", theProject.id)
-        .appendTo(form);
-    $('<input />')
-        .attr("name", "format")
-        .attr("value", format)
-        .appendTo(form);
-
-    document.body.appendChild(form);
-
-    window.open("about:blank", "gridworks-export");
-    form.submit();
-
-    document.body.removeChild(form);
-};
-
-SNACExporterMenuBar.checkSchemaAndExport = function(format) {
+SNACExporterMenuBar.checkSchemaAndExport = function() {
   var onSaved = function(callback) {
-     SNACExporterMenuBar.exportTo(format);
+     SNACExporterMenuBar.exportJSON();
   };
+
   if (!SNACSchemaAlignmentDialog.isSetUp()) {
      SNACSchemaAlignmentDialog.launch(null);
   } else if (SNACSchemaAlignmentDialog._hasUnsavedChanges) {
@@ -80,21 +46,33 @@ SNACExporterMenuBar.checkSchemaAndExport = function(format) {
   }
 }
 
-SNACExporterMenuBar.stringToJSONDownload = function(){
-	$.get(
-			"command/snac/resource",
-			function(data) {
-				let dataStr = JSON.stringify(JSON.parse(data.resource), 0 , 4);
-		    let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+SNACExporterMenuBar.exportJSON = function(){
+   var schema = theProject.overlayModels.snacSchema;
 
-				var date = new Date();
-		    let exportFileDefaultName = date.toISOString().substr(0,10) + '-SNAC-resources.json';
+   if (!schema) {
+      //console.log("cannot export; no schema saved");
+      alert("Cannot export until a SNAC schema is saved");
+      return;
+   }
 
-		    let linkElement = document.createElement('a');
-		    linkElement.setAttribute('href', dataUri);
-		    linkElement.setAttribute('download', exportFileDefaultName);
-		    linkElement.click();
-			});
+   Refine.postCSRF(
+      "command/snac/export-json?" + $.param({ project: theProject.id }),
+      { schema: JSON.stringify(schema), engine: JSON.stringify(ui.browsingEngine.getJSON()) },
+      function(data) {
+         let jsonStr = JSON.stringify(data, null, 2);
+
+         let dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(jsonStr);
+
+         var date = new Date();
+         let exportFileDefaultName = `${date.toISOString().substr(0,10)}-SNAC-export-${schema.schemaType}s.json`;
+
+         let linkElement = document.createElement('a');
+         linkElement.setAttribute('href', dataUri);
+         linkElement.setAttribute('download', exportFileDefaultName);
+         linkElement.click();
+      },
+      "json"
+   );
 }
 
 //extend the column header menu
@@ -102,47 +80,30 @@ $(function(){
     ExtensionBar.MenuItems.push(
         {
             "id":"reconcilesnac",
-                "label": $.i18n('snac-extension/menu-label'),
-                "submenu" : [
-					{
-                        id: "snac/edit-schema",
-                        label: $.i18n('snac-extension/edit-snac-schema'),
-                        click: function() { SNACSchemaAlignmentDialog.launch(false); }
-                    },
-                    {
-                        id:"snac/api-key",
-                        label: $.i18n('snac-extension/manage-api-key'),
-                        click: function() {
-                            ManageKeysDialog.launch(null, function(success) {});
-                        }
-                    },
-                    {
-                        id:"snac/perform-edits",
-                        label: $.i18n('snac-extension/perform-edits-on-snac'),
-                        click: function() { /*PerformEditsDialog.checkAndLaunch();*/
-                            if(validationCount == 0){
-                                ManageUploadDialog.launch(null, function(success) {});
-                            }
-                            else{
-                                window.alert("Error: unable to upload edits to SNAC. Please fix the " + validationCount + " issue(s) first.");
-                            }
-
-                        }
-                    },
-                    {
-                        id:"snac/export-schema",
-                        label: $.i18n('snac-extension/export-to-json'),
-                        click: function() {
-                            if(validationCount == 0){
-                                SNACExporterMenuBar.stringToJSONDownload();;
-                            }
-                            else{
-                                window.alert("Error: unable to upload edits to SNAC. Please fix the " + validationCount + " issue(s) first.");
-                            }
-                        }
-                    },
-
-                ]
+            "label": $.i18n('snac-extension/menu-label'),
+            "submenu" : [
+                {
+                    id: "snac/edit-schema",
+                    label: $.i18n('snac-extension/edit-snac-schema'),
+                    click: function() { SNACSchemaAlignmentDialog.launch(false); }
+                },
+                {
+                    id:"snac/api-key",
+                    label: $.i18n('snac-extension/manage-api-key'),
+                    click: function() { SNACManageKeysDialog.launch(null, function(success) {}); }
+                },
+                {},
+                {
+                    id:"snac/perform-edits",
+                    label: $.i18n('snac-extension/upload-to-snac'),
+                    click: function() { SNACManageUploadDialog.launch(null, function(success) {}); }
+                },
+                {
+                    id:"snac/export-schema",
+                    label: $.i18n('snac-extension/export-to-json'),
+                    click: function() { SNACExporterMenuBar.checkSchemaAndExport(); }
+                },
+            ]
         }
     );
 });

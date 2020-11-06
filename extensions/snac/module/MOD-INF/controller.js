@@ -7,23 +7,36 @@ importPackage(org.snaccooperative.commands);
 function init() {
     var RefineServlet = Packages.com.google.refine.RefineServlet;
 
+    // these must be defined to allow history entries to be reloaded after openrefine restarts
+    RefineServlet.registerClassMapping(
+            "org.snaccooperative.operations.SNACSaveSchemaOperation$SNACSchemaChange",
+            "org.snaccooperative.operations.SNACSaveSchemaOperation$SNACSchemaChange");
+
+    RefineServlet.cacheClass(Packages.org.snaccooperative.operations.SNACSaveSchemaOperation$SNACSchemaChange);
+
     /*
-     *  Exporters
+     *  Attach a SNAC schema to each project.
      */
-    var ExporterRegistry = Packages.com.google.refine.exporters.ExporterRegistry;
-    var QSExporter = Packages.org.openrefine.wikidata.exporters.QuickStatementsExporter;
-    var SchemaExporter = Packages.org.openrefine.wikidata.exporters.SchemaExporter;
+    var Project = Packages.com.google.refine.model.Project;
+
+    Project.registerOverlayModel("snacSchema", Packages.org.snaccooperative.schema.SNACSchema);
+
+    /*
+     * Operations
+     */
+    var OperationRegistry = Packages.com.google.refine.operations.OperationRegistry;
+
+    OperationRegistry.registerOperation(module, "save-schema", Packages.org.snaccooperative.operations.SNACSaveSchemaOperation);
+    OperationRegistry.registerOperation(module, "perform-uploads", Packages.org.snaccooperative.operations.SNACPerformUploadsOperation);
 
     /*
      * Commands
      */
-    RefineServlet.registerCommand(module, "resource", new SNACResourceCommand());
-    RefineServlet.registerCommand(module, "constellation", new SNACConstellationCommand());
+    RefineServlet.registerCommand(module, "save-schema", new SNACSaveSchemaCommand());
+    RefineServlet.registerCommand(module, "preview-schema", new SNACPreviewSchemaCommand());
+    RefineServlet.registerCommand(module, "perform-uploads", new SNACPerformUploadsCommand());
+    RefineServlet.registerCommand(module, "export-json", new SNACExportJSONCommand());
     RefineServlet.registerCommand(module, "apikey", new SNACLoginCommand());
-    RefineServlet.registerCommand(module, "upload", new SNACUploadCommand());
-    RefineServlet.registerCommand(module, "issue-snac-schema", new SNACSchemaIssuesCommand());
-    RefineServlet.registerCommand(module, "preview-res-snac-schema", new SNACResourcePreviewSchemaCommand());
-    RefineServlet.registerCommand(module, "preview-con-snac-schema", new SNACConstellationPreviewSchemaCommand());
 
     /*
      * Resources
@@ -47,5 +60,4 @@ function init() {
         "styles/dialogs/manage-upload-dialog.less",
         "styles/dialogs/schema-alignment-dialog.css",
       ]);
-
 }

@@ -1,21 +1,20 @@
-var ManageKeysDialog = {};
+var SNACManageKeysDialog = {};
 
-ManageKeysDialog.firstLogin = true;
-
-ManageKeysDialog.launch = function(apikey, callback) {
-   $.get(
-      "command/snac/apikey",
-       function(data) {
-          ManageKeysDialog.display(apikey, data.apikey, callback);
-   });
+SNACManageKeysDialog.launch = function(apikey, callback) {
+  $.get(
+    "command/snac/apikey",
+    function(data) {
+      SNACManageKeysDialog.display(apikey, data.apikey, callback);
+    }
+  );
 };
 
-ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
+SNACManageKeysDialog.display = function(apikey, saved_apikey, callback) {
   var self = this;
   var frame = $(DOM.loadHTML("snac", "scripts/dialogs/manage-key-dialog.html"));
   var elmts = this._elmts = DOM.bind(frame);
   
-  ManageKeysDialog.firstLaunch = false;
+  SNACManageKeysDialog.firstLaunch = false;
 
   this._elmts.dialogHeader.text($.i18n('snac-account/dialog-header'));
   this._elmts.explainKey.html($.i18n('snac-account/explain-key'));
@@ -28,17 +27,17 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
   var checkedOrNah = document.getElementById("myCheck");
 
   $(document).mouseup(function(e) {
-    console.log(e.target);
+    //console.log(e.target);
     if (e.target.id=="snackey") {
-      console.log("IN");
+      //console.log("IN");
       $(document).keypress(function(e) { 
         if (e.keyCode == 13) {
           $('.submit-btn').click();
-          console.log("SUBMITTED");
+          //console.log("SUBMITTED");
         }
       });
     } else {
-      console.log("OUT");
+      //console.log("OUT");
       $(document).keypress(function(e) { 
         if (e.keyCode == 13) {
           e.preventDefault();
@@ -50,7 +49,7 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
   $(document).keyup(function(e) {
     if (e.keyCode === 27) {
       $('.cancel-btn').click();   // esc
-      console.log("ESCAPED");
+      //console.log("ESCAPED");
     }
   });
 
@@ -68,7 +67,7 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
   if (apikey != null) {
     elmts.keyInput.val(apikey);
     } else if (saved_apikey != null) {
-      console.log(localStorage.getItem("mycheckedvalue"));
+      //console.log(localStorage.getItem("mycheckedvalue"));
       if (localStorage.getItem("mycheckedvalue") == 1) {
         elmts.keyInput.val(saved_apikey);
       } 
@@ -102,6 +101,6 @@ ManageKeysDialog.display = function(apikey, saved_apikey, callback) {
               }
           });
           localStorage.setItem('mycheckedvalue', checked);
-          console.log(checked);
+          //console.log(checked);
   });
 };

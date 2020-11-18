@@ -4,95 +4,29 @@
         <p class="panel-explanation" bind="dialogExplanation"></p>
         <div style="clear: right"></div>
 
-        <div id="sectionabove" style = "display: flex;">
+        <div id="snac-radio-buttons-container" style = "display: flex;">
             <!-- Adding radio buttons to switch back and forth between resource and constellation  -->
-            <div id="radio-buttons" style="padding-left: 20px;">
+            <div id="uploadingRadio" style="padding-left: 20px;">
                 <p>Uploading: </p>
-                <input type="radio" name="group1" value="resource" id="resourcebutton" checked="checked" onclick="function1()"> Resource<br>
-                <input type="radio" name="group1" value="constellation" id="constellationbutton" onclick="function2()"> Constellation<br>
-
-                <!-- This will be replaced with actual resource and constellation contents -->
-                <h2 id="textholder">  </h2>
-
-                <!-- Javascript to replace the text in-place -->
-                <script>
-                    function function1() {
-
-                        // Show SNAC ID Buttons
-                        $('#idradio').show();
-                        if(document.getElementById('yesidbutton').checked){
-                            function3();
-                        } else if (document.getElementById('noidbutton').checked){
-                            function4();
-                        }
-
-                        // Show Resources
-                        $('.schema-alignment-dialog-columns-area-resource').show();
-                        $('.schema-alignment-dialog-columns-area-resource--ref').show();
-
-                        // Hide Constellations
-                        $('.schema-alignment-dialog-columns-area-constellation').hide();
-                        $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
-                    }
-                    function function2() {
-
-                        // Hide SNAC ID Buttons
-                        $('#idradio').hide();
-                        $("#idSelectionDiv").css("visibility", "hidden");
-                        $(".idfield").prop("disabled", false);
-
-                        // Hide Resources
-                        $('.schema-alignment-dialog-columns-area-resource').hide();
-                        $('.schema-alignment-dialog-columns-area-resource--ref').hide();
-
-                        // Show Constellations
-                        $('.schema-alignment-dialog-columns-area-constellation').show();
-                        $('.schema-alignment-dialog-columns-area-constellation--ref').show();
-                    }
-                </script>
+                <input type="radio" name="uploadingGroup" value="resource" id="uploadingResourceButton" checked="checked"> Resource<br>
+                <input type="radio" name="uploadingGroup" value="constellation" id="uploadingConstellationButton"> Constellation<br>
             </div>
 
-            <div id="idradio" style="padding-left: 20px;">
+            <div id="idRadio" style="padding-left: 20px;">
                 <p>Does the SNAC ID column already exist in the CSV?: </p>
-                <input type="radio" name="group2" value="Yes" id="yesidbutton" onclick="function3()"> Yes<br>
-                <input type="radio" name="group2" value="No" id="noidbutton" checked="checked" onclick="function4()"> No<br>
-                <!-- Javascript to enable/disable ID dropdown -->
-                <script>
-                    // If 'Yes' button is clicked, disable the ID dropdown and hide the ID draggable column to hide that option
-                    // also create a popup to choose which field represents the ID
-                    function function3() {
-                        $(".idfield").prop("disabled", false);
-                        $("#idSelectionDiv").css("visibility", "visible");
-                    }
-
-                    // If 'No' button is clicked, proceed as usual.
-                    function function4() {
-                        $(".idfield").prop("disabled", true);
-                        $("#idSelectionDiv").css("visibility", "hidden");
-                        $.post(
-                            "command/snac/resource",
-                            {
-                            "idCol": ""
-                            },
-                            function(data, status) {
-                            console.log("ID col unset");
-                            }
-                        );
-                    }
-                </script>
-
+                <input type="radio" name="idGroup" value="Yes" id="idYesButton"> Yes<br>
+                <input type="radio" name="idGroup" value="No" id="idNoButton" checked="checked"> No<br>
             </div>
+
             <div id="idSelectionDiv" style = "padding-left: 20px; visibility: hidden;">
                 <p>Which CSV column is associated to the SNAC ID: </p>
                 <!-- dropdown of column names-->
             </div>
         </div>
 
-
-
         <div class="snac-columns-container">
-            <div id="myDynamicTableResource"><h2>Columns</h2></div>
-            <div id="myDynamicTableConstellation"><h2>Columns</h2></div>
+            <div id="myDynamicTableResource"></div>
+            <div id="myDynamicTableConstellation"></div>
 
             <!-- RESOURCES PAGE -->
             <div class="schema-alignment-dialog-columns-area-resource" style="margin-left: 18px;">
@@ -113,9 +47,7 @@
 
     <div class="schema-alignment-dialog-canvas" bind="canvas">
         <div class="schema-alignment-dialog-statements-area" bind="statementsArea">
-                <div id="schema-alignment-statements-container">
-                </div>
-                <div class="wbs-toolbar"><a class="wbs-add-item" bind="addItemButton"></a></div>
+                <div id="schema-alignment-statements-container"></div>
         </div>
     </div>
 </div>

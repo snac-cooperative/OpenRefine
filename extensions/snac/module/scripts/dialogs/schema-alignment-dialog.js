@@ -31,33 +31,114 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
  */
 
-var SchemaAlignment = {};
+/*
 
-SchemaAlignment._cleanName = function(s) {
+FIXME ISSUES:
+
+* discard does not re-render preview (double-check this is still an issue)
+* preview called multiple times per change
+
+*/
+
+var SNACSchemaAlignment = {};
+
+SNACSchemaAlignment._cleanName = function(s) {
    return s.replace(/\W/g, " ").replace(/\s+/g, " ").toLowerCase();
 };
 
 var SNACSchemaAlignmentDialog = {
-
+   _ignoreChanges: true,
+   _debug: false
 };
 
-var saved_Dict;
-$.post(
-   "command/snac/resource",
-   {
-   },
-   function(data, status) {
-      saved_Dict =  JSON.parse(data.resource);
+var snacDebug = function(x) {
+   if (SNACSchemaAlignmentDialog._debug) {
+      console.log(x);
    }
-);
+};
 
+SNACSchemaAlignmentDialog.getSNACModel = function() {
+   snacDebug(`***** [ getSNACModel ] *****`);
+
+   this.SNACResourceModel = [
+      { name: "ID",                         required: false, tooltip:  "ID" },
+      { name: "Type",                       required: true,  tooltip:  "The resource type (ArchivalResource, BibliographicResource, etc.)" },
+      { name: "Title",                      required: true,  tooltip:  "The official title (e.g.  Papers, 1809-1882)" },
+      { name: "Display Entry",              required: false, tooltip:  "The descriptive display name (e.g.  Jacob Miller Papers, 1809-1882)" },
+      { name: "Link",                       required: true,  tooltip:  "The preferred permanent link to finding aid" },
+      { name: "Abstract",                   required: false, tooltip:  "Summary abstract of the resource" },
+      { name: "Extent",                     required: false, tooltip:  "Extent" },
+      { name: "Date",                       required: false, tooltip:  "Date or date range (YYYY or YYYY-YYYY)" },
+      { name: "Language",                   required: false, tooltip:  "Language" },
+      { name: "Holding Repository SNAC ID", required: true,  tooltip:  "Holding Repository SNAC ID" }
+   ];
+
+   this.SNACConstellationModel = [
+      { name: "Entity Type",     required: true,  tooltip:  "Entity Type" },
+      { name: "ID",              required: false, tooltip:  "ID" },
+      { name: "Name Entry",      required: true,  tooltip:  "Name Entry" },
+      { name: "Date",            required: false, tooltip:  "Date" },
+      { name: "Date Type",       required: false, tooltip:  "Date Type" },
+      { name: "Subject",         required: false, tooltip:  "Subject" },
+      { name: "Place",           required: false, tooltip:  "Place" },
+      { name: "Place Role",      required: false, tooltip:  "Place Role" },
+      { name: "Occupation",      required: false, tooltip:  "Occupation" },
+      { name: "Function",        required: false, tooltip:  "Function" },
+      { name: "BiogHist",        required: false, tooltip:  "BiogHist" },
+      { name: "SameAs Relation", required: false, tooltip:  "SameAs Relation" },
+      { name: "Resource ID",     required: false, tooltip:  "Resource ID" },
+      { name: "Resource Role",   required: false, tooltip:  "Resource Role" }
+   ];
+
+   this.SNACResourceNames = this.SNACResourceModel.map(x => x.name);
+   this.SNACResourceNamesRequired = this.SNACResourceModel.filter(x => x.required === true).map(x => x.name);
+   this.SNACResourceTooltips = this.SNACResourceModel.map(x => x.tooltip);
+
+   this.SNACConstellationNames = this.SNACConstellationModel.map(x => x.name);
+   this.SNACConstellationNamesRequired = this.SNACConstellationModel.filter(x => x.required === true).map(x => x.name);
+   this.SNACConstellationTooltips = this.SNACConstellationModel.map(x => x.tooltip);
+
+   snacDebug(`this.SNACResourceNames:`);
+   snacDebug(this.SNACResourceNames);
+   snacDebug(`this.SNACResourceNamesRequired:`);
+   snacDebug(this.SNACResourceNamesRequired);
+   snacDebug(`this.SNACResourceTooltips:`);
+   snacDebug(this.SNACResourceTooltips);
+   snacDebug(`this.SNACConstellationNames:`);
+   snacDebug(this.SNACConstellationNames);
+   snacDebug(`this.SNACConstellationNamesRequired:`);
+   snacDebug(this.SNACConstellationNamesRequired);
+   snacDebug(`this.SNACConstellationTooltips:`);
+   snacDebug(this.SNACConstellationTooltips);
+
+   // probably should get the above info from the backend instead at some point, a la:
+/*
+   var self = this;
+
+   Refine.postCSRF(
+      "command/snac/get-model?" + $.param({ project: theProject.id }),
+      { schema: JSON.stringify(schema), engine: JSON.stringify(ui.browsingEngine.getJSON()) },
+      function(data) {
+         snacDebug(`getSNACModel(): SUCCESS  data = [${JSON.stringify(data)}]`);
+      },
+      "json"
+   );
+*/
+};
 
 /**
  * Installs the tabs in the UI the first time the snac
  * extension is called.
  */
 SNACSchemaAlignmentDialog.setUpTabs = function() {
+   snacDebug(`***** [ setUpTabs ] *****`);
+
    var self = this;
+
+   this._ignoreChanges = true;
+
+   this.getSNACModel();
+
    this._rightPanel = $('#right-panel');
    this._viewPanel = $('#view-panel').addClass('main-view-panel-tab');
    this._toolPanel = $('#tool-panel');
@@ -89,7 +170,6 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
       .attr('href', '#snac-issues-panel')
       .text($.i18n('snac-schema/warnings-tab-header')+' ')
       .appendTo(this._toolPanel);
-      // .click(function() { SNACSchemaAlignmentDialog._save(); });
    this.issuesTabCount = $('<span></span>')
       .addClass('schema-alignment-total-warning-count')
       .appendTo(issuesButton)
@@ -97,18 +177,19 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    this.issueSpinner = $('<img />')
       .attr('src', 'images/large-spinner.gif')
       .attr('width', '16px')
-      .appendTo(issuesButton);
+      .appendTo(issuesButton)
+      .hide();
    var previewButton = $('<div></div>')
       .addClass('main-view-panel-tab-header')
       .addClass('main-view-panel-tabs-snac')
       .attr('href', '#snac-preview-panel')
-      .text($.i18n('snac-schema/edits-preview-tab-header'))
+      .text($.i18n('snac-schema/items-preview-tab-header'))
       .appendTo(this._toolPanel);
-      // .click(function() { SNACSchemaAlignmentDialog._save(); });
    this.previewSpinner = $('<img />')
       .attr('src', 'images/large-spinner.gif')
       .attr('width', '16px')
-      .appendTo(previewButton);
+      .appendTo(previewButton)
+      .hide();
 
    this._unsavedIndicator = $('<span></span>')
       .html('&nbsp;*')
@@ -116,12 +197,11 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
       .hide()
       .appendTo(schemaButton);
 
-
    $('.main-view-panel-tabs-snac').hide();
 
    $('.main-view-panel-tab-header').click(function(e) {
       var targetTab = $(this).attr('href');
-      SNACSchemaAlignmentDialog.switchTab(targetTab);
+      self.switchTab(targetTab);
       e.preventDefault();
    });
 
@@ -134,55 +214,122 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
    schemaElmts.saveButton
       .text($.i18n('snac-schema/save-button'))
       .attr('title', $.i18n('snac-schema/save-schema-alt'))
-      .prop('disabled', false)
+      .prop('disabled', true)
       .addClass('disabled')
-      .click(function() { SNACSchemaAlignmentDialog._save(); });
+      .click(function() { self._save(); });
    schemaElmts.discardButton
       .text($.i18n('snac-schema/discard-button'))
       .attr('title', $.i18n('snac-schema/discard-schema-changes-alt'))
-      .prop('disabled', false)
+      .prop('disabled', true)
       .addClass('disabled')
-      .click(function() { SNACSchemaAlignmentDialog._discardChanges(); });
+      .click(function() { self._discardChanges(); });
 
-   this._wikibasePrefix = "http://www.snac.org/entity/"; // hardcoded for now
+   this.snacPrefix = "http://www.snaccooperative.org/entity/"; // hardcoded for now
+
+   // init the radio buttons
+
+   var uploadingResourceButtonClicked = function() {
+      // Show SNAC ID Buttons
+      $('#idRadio').show();
+
+      if ($('#idYesButton').is(':checked')) {
+         idYesButtonClicked();
+      } else if ($('#idNoButton').is(':checked')) {
+         idNoButtonClicked();
+      }
+
+      // Show Resources
+      $('.schema-alignment-dialog-columns-area-resource').show();
+      $('.schema-alignment-dialog-columns-area-resource--ref').show();
+
+      // Hide Constellations
+      $('.schema-alignment-dialog-columns-area-constellation').hide();
+      $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
+   };
+
+   var uploadingConstellationButtonClicked = function() {
+      // Hide SNAC ID Buttons
+      $('#idRadio').hide();
+      $('#idSelectionDiv').css('visibility', 'hidden');
+      $('.idfield').prop('disabled', false);
+
+      // Hide Resources
+      $('.schema-alignment-dialog-columns-area-resource').hide();
+      $('.schema-alignment-dialog-columns-area-resource--ref').hide();
+
+      // Show Constellations
+      $('.schema-alignment-dialog-columns-area-constellation').show();
+      $('.schema-alignment-dialog-columns-area-constellation--ref').show();
+   };
+
+   var idYesButtonClicked = function() {
+      $('.idfield').prop('disabled', false);
+      $('#idSelectionDiv').css('visibility', 'visible');
+   };
+
+   var idNoButtonClicked = function() {
+      $('.idfield').prop('disabled', true);
+      $('#idSelectionDiv').css('visibility', 'hidden');
+   };
+
+   $('#uploadingResourceButton').on('click', function() {
+      uploadingResourceButtonClicked();
+      snacDebug(`uploadingRes calling _hasChanged()`);
+      self._hasChanged();
+   });
+
+   $('#uploadingConstellationButton').on('click', function() {
+      uploadingConstellationButtonClicked();
+      snacDebug(`uploadingCon calling _hasChanged()`);
+      self._hasChanged();
+   });
+
+   $('#idYesButton').on('click', function() {
+      idYesButtonClicked();
+      snacDebug(`idYes calling _hasChanged()`);
+      self._hasChanged();
+   });
+
+   $('#idNoButton').on('click', function() {
+      idNoButtonClicked();
+      snacDebug(`idNo calling _hasChanged()`);
+      self._hasChanged();
+   });
 
    // Init the column area
-   this.updateColumns();
+   this.updateColumns(theProject.overlayModels.snacSchema);
 
    $('.schema-alignment-dialog-columns-area-constellation').hide();
    $('.schema-alignment-dialog-dropdown-area-constellation').hide();
    $('.schema-alignment-dialog-columns-area-constellation--ref').hide();
 
    var url = ReconciliationManager.ensureDefaultServicePresent();
-   SNACSchemaAlignmentDialog._reconService = ReconciliationManager.getServiceFromUrl(url);
-
-   /**
-   * Init the dropdowns area
-   */
+   this._reconService = ReconciliationManager.getServiceFromUrl(url);
 
    /**
    * Init the issues tab
    */
    var issuesTab = $(DOM.loadHTML("snac", "scripts/issues-tab.html")).appendTo(this._issuesPanel);
    var issuesElmts = this._issuesElmts = DOM.bind(issuesTab);
-   issuesElmts.invalidSchemaWarningIssues.text($.i18n('snac-schema/invalid-schema-warning-issues'));
+   //issuesElmts.invalidSchemaWarningIssues.text($.i18n('snac-schema/invalid-schema-warning-issues'));
 
    /**
    * Init the preview tab
    */
    var previewTab = $(DOM.loadHTML("snac", "scripts/preview-tab.html")).appendTo(this._previewPanel);
    var previewElmts = this._previewElmts = DOM.bind(previewTab);
-   SNACSchemaAlignmentDialog.updateNbEdits(0);
-   previewElmts.invalidSchemaWarningPreview.text($.i18n('snac-schema/invalid-schema-warning-preview'));
+   this.updateItemPreviewText("item", 0, 0);
+   //previewElmts.invalidSchemaWarningPreview.text($.i18n('snac-schema/invalid-schema-warning-preview'));
 
-   this._previewPanes = $(".schema-alignment-dialog-preview");
+   this._previewPanes = $('.schema-alignment-dialog-preview');
 
    // Load the existing schema
-   this._reset(theProject.overlayModels.wikibaseSchema);
+   this._reset(theProject.overlayModels.snacSchema);
+
    // Perform initial preview
-   this.preview();
+   this.evaluateCurrentSchema(false);
 
-
+   this._ignoreChanges = false;
 }
 
 /*******************************************************
@@ -190,18 +337,31 @@ SNACSchemaAlignmentDialog.setUpTabs = function() {
 ********************************************************/
 
 //Create a table for the resource page function
-function addResourceTable(columns, SNACcolumns) {
-   var myTableDiv = document.getElementById("myDynamicTableResource");
-   if(myTableDiv == null){
-     var myClassDiv = document.getElementsByClassName("snac-columns-container");
-     var myTableDiv = document.createElement("div");
-     myTableDiv.setAttribute("id", "myDynamicTableResource");
-     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+SNACSchemaAlignmentDialog.addResourceTable = function (schema) {
+   snacDebug(`***** [ addResourceTable ] *****`);
+
+   snacDebug(`addResourceTable(): schema: [${JSON.stringify(schema)}]`);
+
+   var columns = theProject.columnModel.columns;
+   var SNACcolumns = this.SNACResourceNames;
+
+   var columnMappings = {}
+
+   if (schema && schema.schemaType == "resource") {
+      columnMappings = schema.columnMappings;
+   }
+
+   snacDebug(`addResourceTable(): columnMappings: [${JSON.stringify(columnMappings)}]`);
+
+   var myTableDiv = document.getElementById('myDynamicTableResource');
+   if (myTableDiv == null){
+      var myClassDiv = document.getElementsByClassName('snac-columns-container');
+      var myTableDiv = document.createElement('div');
+      myTableDiv.setAttribute('id', 'myDynamicTableResource');
+      myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
    }
 
    var table = document.createElement('TABLE');
-
-
    var tableBody = document.createElement('TBODY');
    table.appendChild(tableBody);
    myTableDiv.appendChild(table);
@@ -214,72 +374,94 @@ function addResourceTable(columns, SNACcolumns) {
       }
       return dropdownOptionsArray;
    }
-      for (var i = 0; i < columns.length; i++) {
-         var tr = document.createElement('TR');
-         tableBody.appendChild(tr);
-         var column = columns[i];
 
-         for (var j = 0; j < 2; j+=2) {
-            var td = document.createElement('TD');
-            td.width = '100';
-            var reconConfig = column.reconConfig;
-            var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
-            reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
-            var dragDivElement = cell[0];
-            var dragNode = document.createElement('div');
-            dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
-            dragNode.style = 'width: 150px';
-            dragNode.id = i;
-            dragNode.append(dragDivElement.innerHTML);
-            td.appendChild(dragNode);
-            tr.appendChild(td);
-         }
-         var className = columns[i].originalName;
+   for (var i = 0; i < columns.length; i++) {
+      var tr = document.createElement('TR');
+      tableBody.appendChild(tr);
+      var column = columns[i];
 
-         var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnRes').addClass(columns[i].originalName + "DropDown").attr('style', 'width: 180px');
-
-
-         if (column.name == 'id') {
-            selectList.addClass('idfield');
-         }
-
-         //Create and append the options
-         var defaultoption = document.createElement("option");
-         defaultoption.setAttribute("value", "default");
-         defaultoption.text = "Select an Option";
-         defaultoption.classList.add("dropdown-default-resource");
-         selectList.append(defaultoption);
-
-         for (var j = 0; j < SNACcolumns.length; j++) {
-            var option = document.createElement("option");
-            option.setAttribute("value", SNACcolumns[j]);
-            option.text = SNACcolumns[j];
-            option.classList.add("dropdown-option-resource");
-            selectList.append(option);
-         }
-
-         if(saved_Dict[className] != "" && saved_Dict[className]!= undefined){
-            selectList[0].value = saved_Dict[className];
-         }
-
-         for (var j = 1; j < 2; j+=2) {
-            var td = document.createElement('TD');
-            td.appendChild(selectList[0]);
-            tr.appendChild(td);
-         }
+      for (var j = 0; j < 2; j+=2) {
+         var td = document.createElement('TD');
+         td.width = '100';
+         var reconConfig = column.reconConfig;
+         var cell = this._createDraggableColumn(column.name,
+         reconConfig && reconConfig.identifierSpace === this.snacPrefix && column.reconStats);
+         var dragDivElement = cell[0];
+         var dragNode = document.createElement('div');
+         dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
+         dragNode.style = 'width: 150px';
+         dragNode.id = i;
+         dragNode.append(dragDivElement.innerHTML);
+         td.appendChild(dragNode);
+         tr.appendChild(td);
       }
+
+      var selectList = $('<select></select>')
+         .addClass('selectColumn')
+         .addClass('selectColumnRes')
+         .addClass(column.name + "ResDropDown")
+         .attr('style', 'width: 180px');
+
+/*
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
+*/
+
+      //Create and append the options
+      var defaultoption = document.createElement('option');
+      defaultoption.setAttribute('value', 'default');
+      defaultoption.text = 'Select an Option';
+      defaultoption.classList.add('dropdown-default-resource');
+      selectList.append(defaultoption);
+
+      for (var j = 0; j < SNACcolumns.length; j++) {
+         var option = document.createElement('option');
+         option.setAttribute('value', SNACcolumns[j]);
+         option.text = SNACcolumns[j];
+         option.classList.add('dropdown-option-resource');
+         selectList.append(option);
+      }
+
+      if(columnMappings[column.name] != "" && columnMappings[column.name]!= undefined){
+         selectList[0].value = columnMappings[column.name];
+      }
+
+      for (var j = 1; j < 2; j+=2) {
+         var td = document.createElement('TD');
+         td.appendChild(selectList[0]);
+         tr.appendChild(td);
+      }
+   }
+
    return myTableDiv;
- }
+}
 
 //Create a table for the constellation page function
-function addConstellationTable(columns, SNACcolumns) {
-   var myTableDiv = document.getElementById("myDynamicTableConstellation");
-   if(myTableDiv == null){
-     var myClassDiv = document.getElementsByClassName("snac-columns-container");
-     var myTableDiv = document.createElement("div");
-     myTableDiv.setAttribute("id", "myDynamicTableConstellation");
-     myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+SNACSchemaAlignmentDialog.addConstellationTable = function (schema) {
+   snacDebug(`***** [ addConstellationTable ] *****`);
+
+   snacDebug(`addConstellationTable(): schema: [${JSON.stringify(schema)}]`);
+
+   var columns = theProject.columnModel.columns;
+   var SNACcolumns = this.SNACConstellationNames;
+
+   var columnMappings = {}
+
+   if (schema && schema.schemaType == "constellation") {
+      columnMappings = schema.columnMappings;
    }
+
+   snacDebug(`addConstellationTable(): columnMappings: [${JSON.stringify(columnMappings)}]`);
+
+   var myTableDiv = document.getElementById('myDynamicTableConstellation');
+   if (myTableDiv == null){
+      var myClassDiv = document.getElementsByClassName('snac-columns-container');
+      var myTableDiv = document.createElement('div');
+      myTableDiv.setAttribute('id', 'myDynamicTableConstellation');
+      myClassDiv[0].parentNode.insertBefore(myTableDiv, myClassDiv[0]);
+   }
+
    var table = document.createElement('TABLE');
    var tableBody = document.createElement('TBODY');
    table.appendChild(tableBody);
@@ -293,276 +475,257 @@ function addConstellationTable(columns, SNACcolumns) {
       }
       return dropdownOptionsArray;
    }
-      for (var i = 0; i < columns.length; i++) {
 
-         var tr = document.createElement('TR');
-         tableBody.appendChild(tr);
-         var column = columns[i];
-         for (var j = 0; j < 2; j+=2) {
-            var td = document.createElement('TD');
-            td.width = '100';
-            var reconConfig = column.reconConfig;
-            var cell = SNACSchemaAlignmentDialog._createDraggableColumn(column.name,
-            reconConfig && reconConfig.identifierSpace === this._wikibasePrefix && column.reconStats);
-            var dragDivElement = cell[0];
-            var dragNode = document.createElement('div');
-            dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
-            dragNode.style = 'width: 150px';
-            dragNode.id = i + columns.length;
-            dragNode.append(dragDivElement.innerHTML);
-            td.appendChild(dragNode);
-            tr.appendChild(td);
-         }
+   for (var i = 0; i < columns.length; i++) {
+      var tr = document.createElement('TR');
+      tableBody.appendChild(tr);
+      var column = columns[i];
 
-         var className = columns[i].originalName + "DropDown";
-
-         var selectList = $("<select></select>").addClass('selectColumn').addClass('selectColumnConst').addClass(className).attr('style', 'width: 180px');
-
-         if (column.name == 'id') {
-            selectList.addClass('idfield');
-         }
-
-         //Create and append the options
-         var defaultoption = document.createElement("option");
-         defaultoption.setAttribute("value", "default");
-         defaultoption.text = "Select an Option";
-         defaultoption.classList.add("dropdown-default-const");
-         selectList.append(defaultoption);
-
-         for (var j = 0; j < SNACcolumns.length; j++) {
-            var option = document.createElement("option");
-            option.setAttribute("value", SNACcolumns[j]);
-            option.text = SNACcolumns[j];
-            option.classList.add("dropdown-option-const");
-            selectList.append(option);
-         }
-
-         if(saved_Dict[className] != "" && saved_Dict[className]!= undefined){
-            selectList[0].value = saved_Dict[className];
-         }
-
-
-         for (var j = 1; j < 2; j+=2) {
-            var td = document.createElement('TD');
-            td.appendChild(selectList[0]);
-            tr.appendChild(td);
-         }
+      for (var j = 0; j < 2; j+=2) {
+         var td = document.createElement('TD');
+         td.width = '100';
+         var reconConfig = column.reconConfig;
+         var cell = this._createDraggableColumn(column.name,
+         reconConfig && reconConfig.identifierSpace === this.snacPrefix && column.reconStats);
+         var dragDivElement = cell[0];
+         var dragNode = document.createElement('div');
+         dragNode.className += 'wbs-draggable-column wbs-unreconciled-column-undraggable';
+         dragNode.style = 'width: 150px';
+         dragNode.id = i;
+         dragNode.append(dragDivElement.innerHTML);
+         td.appendChild(dragNode);
+         tr.appendChild(td);
       }
+
+      var selectList = $('<select></select>')
+         .addClass('selectColumn')
+         .addClass('selectColumnConst')
+         .addClass(column.name + "ConstDropDown")
+         .attr('style', 'width: 180px');
+
+/*
+      if (column.name == 'id') {
+         selectList.addClass('idfield');
+      }
+*/
+
+      //Create and append the options
+      var defaultoption = document.createElement('option');
+      defaultoption.setAttribute('value', 'default');
+      defaultoption.text = 'Select an Option';
+      defaultoption.classList.add('dropdown-default-const');
+      selectList.append(defaultoption);
+
+      for (var j = 0; j < SNACcolumns.length; j++) {
+         var option = document.createElement('option');
+         option.setAttribute('value', SNACcolumns[j]);
+         option.text = SNACcolumns[j];
+         option.classList.add('dropdown-option-const');
+         selectList.append(option);
+      }
+
+      if(columnMappings[column.name] != "" && columnMappings[column.name]!= undefined){
+         selectList[0].value = columnMappings[column.name];
+      }
+
+      for (var j = 1; j < 2; j+=2) {
+         var td = document.createElement('TD');
+         td.appendChild(selectList[0]);
+         tr.appendChild(td);
+      }
+   }
+
    return myTableDiv;
 }
 
-SNACSchemaAlignmentDialog.updateColumns = function() {
-   // ******* RESOURCES PAGE ******* //
-   var columnsResource = theProject.columnModel.columns;
-   this._columnAreaResource = $(".schema-alignment-dialog-columns-area-resource");
-   this._columnAreaResource.addClass("snac-tab");
-   this._columnAreaResource.empty();
+SNACSchemaAlignmentDialog.hideAndDisableRes = function() {
+   var dragResourceIDs =$.makeArray($('[id="dragResource"]'));
 
-   var SNACcolumnsResource = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID"];
-   this._dropdownAreaResource = $(".schema-alignment-dialog-dropdown-area-resource");
-   this._dropdownAreaResource.addClass("snac-tab");
+   const selectedValue = [];  //Array to hold selected values
+   $('.selectColumnRes').find(':selected').filter(function(i, el) { // Filter selected values and push to array
+      return $(el).val();
+   }).each(function(i, el) {
+      selectedValue.push($(el).val());
+   });
+
+   $('.selectColumnRes').find('.dropdown-option-resource').each(function(i, option) {   // Loop through all of the options
+      if (selectedValue.indexOf($(option).val()) > -1) { // Re-enable option if array does not contain current value
+         if ($(option).is(':checked')) {  // Disable if current value is selected, else skip
+            return;
+         } else {
+            $(this).attr('disabled', true);
+            dragResourceIDs.forEach(r => {
+               if(r.value==this.innerHTML){
+                  r.style.visibility = 'hidden';   // Hide value
+               };
+            });
+         }
+      } else {
+         $(this).attr('disabled', false);
+         dragResourceIDs.forEach(c => {
+            if(c.value==this.innerHTML){
+               c.style.visibility = 'visible';  // Show value
+            };
+         });
+      }
+   });
+};
+
+SNACSchemaAlignmentDialog.hideAndDisableConst = function() {
+   var dragConstellationIDs =$.makeArray($('[id="dragConstellation"]'));
+
+   const selectedValue = [];  //Array to hold selected values
+   $('.selectColumnConst').find(':selected').filter(function(i, el) { //Filter selected values and push to array
+      return $(el).val();
+   }).each(function(i, el) {
+      selectedValue.push($(el).val());
+   });
+
+   // loop all the options
+   $('.selectColumnConst').find('.dropdown-option-const').each(function(i, option) {
+      if (selectedValue.indexOf($(option).val()) > -1) { //Re-enable option if array does not contain current value
+         if ($(option).is(':checked')) {  //Disable if current value is selected, else skip
+            return;
+         } else {
+            $(this).attr('disabled', true);
+            dragConstellationIDs.forEach(r => {
+               if(r.value==this.innerHTML){
+                  r.style.visibility = 'hidden';   //Hide value
+               };
+            });
+         }
+      } else {
+         $(this).attr('disabled', false);
+         dragConstellationIDs.forEach(c => {
+            if(c.value==this.innerHTML){
+               c.style.visibility = 'visible';  //Show value
+            };
+         });
+      }
+   });
+};
+
+SNACSchemaAlignmentDialog.updateColumns = function(schema) {
+   snacDebug(`***** [ updateColumns ] *****`);
+
+   var self = this;
+
+   snacDebug(`updateColumns(): schema: [${JSON.stringify(schema)}]`);
+
+   var columns = theProject.columnModel.columns;
+
+   // ******* RESOURCES PAGE ******* //
+   this._columnAreaResource = $('.schema-alignment-dialog-columns-area-resource');
+   this._columnAreaResource.addClass('snac-tab');
+   this._columnAreaResource.empty();
+   this._columnAreaResource.html('<h2>Columns</h2>');
+
+   this._dropdownAreaResource = $('.schema-alignment-dialog-dropdown-area-resource');
+   this._dropdownAreaResource.addClass('snac-tab');
    this._dropdownAreaResource.empty();
 
-   var dragItemsResource = ["Abstract", "Date", "Display Entry", "Extent", "Holding Repository SNAC ID", "ID", "Language", "Link", "Title", "Type"];
-   this._refcolumnAreaResource = $(".schema-alignment-dialog-columns-area-resource--ref");
-   this._refcolumnAreaResource.addClass("snac-tab");
+   var dragItemsResource = this.SNACResourceNames;
+   this._refcolumnAreaResource = $('.schema-alignment-dialog-columns-area-resource--ref');
+   this._refcolumnAreaResource.addClass('snac-tab');
    this._refcolumnAreaResource.html('<h2>SNAC Model</h2>');
 
-   var myTableDivResource = addResourceTable(columnsResource, SNACcolumnsResource);
+   var myTableDivResource = this.addResourceTable(schema);
    this._columnAreaResource.append(myTableDivResource);
 
-   this._idDropdownDiv = $("#idSelectionDiv");
+   this._idDropdownDiv = $('#idSelectionDiv');
 
-   idDropdown = document.createElement("select");
-   var defaultOp = new Option();
-   defaultOp.value = "idDefault";
-   defaultOp.text = "Select ID Column";
-   idDropdown.options.add(defaultOp);
-   columnsResource.forEach(function (arrItem){
-      var op = new Option();
-      op.value = arrItem.originalName;
-      op.text = arrItem.originalName;
-      idDropdown.options.add(op);
-   });
-
-   // TODO: on load, check if idColumn set and stuff to save changes after reload
-
-   idDropdown.addEventListener("change", function(){
-      var selected = idDropdown.value;
-      // TODO: ask what to do if select the default
-      if (selected == "idDefault"){
-         $.post(
-            "command/snac/resource",
-            {
-               "idCol": ""
-            },
-            function(data, status) {
-               console.log("ID col unset");
-            }
-         );
-      }
-      // if not default selected
-      // remove ID option from all dropdowns
-      // remove ID from draggable list
-      // add ID option to the right dropdown
-      // select that option
-      // also POST request to store this in backend for insert ID column?????
-      else{
-         $.post(
-            "command/snac/resource",
-            {
-               "idCol": selected
-            },
-            function(data, status) {
-               console.log("ID col set: " + data.idColumn);
-            }
-         );
-      }
-
-
-   });
-   this._idDropdownDiv.append(idDropdown);
-
+   var idDropdown = document.getElementById('idDropDown');
+   if (idDropdown == null) {
+      idDropdown = document.createElement('select');
+      idDropdown.setAttribute('id', 'idDropDown');
+      var defaultOp = new Option();
+      defaultOp.value = 'idDefault';
+      defaultOp.text = 'Select ID Column';
+      idDropdown.options.add(defaultOp);
+      columns.forEach(function (arrItem){
+         var op = new Option();
+         op.value = arrItem.originalName;
+         op.text = arrItem.originalName;
+         idDropdown.options.add(op);
+      });
+      this._idDropdownDiv.append(idDropdown);
+      this._idDropdownDiv.on('change', function(){
+         snacDebug(`idDropdown calling _hasChanged()`);
+         self._hasChanged();
+      });
+   }
 
    for (var i = 0; i < dragItemsResource.length; i++) {
-      var cell = SNACSchemaAlignmentDialog._createDraggableColumn(dragItemsResource[i], false);
+      var cell = this._createDraggableColumn(dragItemsResource[i], false);
       cell.attr('id', 'dragResource');
-      cell.attr('value', dragItemsResource[i]);
+      cell.val(dragItemsResource[i]).change();
       this._refcolumnAreaResource.append(cell);
    }
-   $('[id="dragResource"]').addClass("tooltip");
+   $('[id="dragResource"]').addClass('tooltip');
 
-   // ******* CONSTELLATIONS PAGE ******* //
-   var columnsConstellation = theProject.columnModel.columns;
-   this._columnAreaConstellation = $(".schema-alignment-dialog-columns-area-constellation");
-   this._columnAreaConstellation.addClass("snac-tab");
-   this._columnAreaConstellation.empty();
-
-   var SNACcolumnsConstellation = ["Entity Type", "ID", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
-   this._dropdownAreaConestellation = $(".schema-alignment-dialog-dropdown-area-constellation");
-   this._dropdownAreaConestellation.addClass("snac-tab");
-   this._dropdownAreaConestellation.empty()
-
-   // Based on SNACConstellationCreator
-   var dragItemsConstellation = ["Entity Type", "ID", "Name Entry", "Date", "Date Type" ,"Subject", "Place", "Place Role", "Occupation", "Function", "BiogHist", "SameAs Relation", "Resource ID", "Resource Role"];
-   this._refcolumnAreaConestellation = $(".schema-alignment-dialog-columns-area-constellation--ref");
-   this._refcolumnAreaConestellation.addClass("snac-tab");
-   this._refcolumnAreaConestellation.html('<h2>SNAC Model</h2>');
-
-   var myTableDivConstellation = addConstellationTable(columnsConstellation, SNACcolumnsConstellation);
-   this._columnAreaConstellation.append(myTableDivConstellation);
-
-   for (var i = 0; i < dragItemsConstellation.length; i++) {
-      var cell = SNACSchemaAlignmentDialog._createDraggableColumn(dragItemsConstellation[i], false);
-      cell.attr('id', 'dragConstellation');
-      cell.attr('value', dragItemsConstellation[i]);
-      this._refcolumnAreaConestellation.append(cell);
-   }
-
-   // Reference Validator Function
-   var dragResourceIDs =$.makeArray($('[id="dragResource"]'));
-   function hideAndDisableRef(evt) {
-      const selectedValue = [];  //Array to hold selected values
-      $selectsRef.find(':selected').filter(function(i, el) { // Filter selected values and push to array
-         return $(el).attr('value');
-      }).each(function(i, el) {
-         selectedValue.push($(el).attr('value'));
-      });
-
-      $selectsRef.find('.dropdown-option-resource').each(function(i, option) {   // Loop through all of the options
-         if (selectedValue.indexOf($(option).attr('value')) > -1) { // Re-enable option if array does not contain current value
-            if ($(option).is(':checked')) {  // Disable if current value is selected, else skip
-               return;
-            } else {
-               $(this).attr('disabled', true);
-               dragResourceIDs.forEach(r => {
-                  if(r.value==this.innerHTML){
-                     r.style.visibility = 'hidden';   // Hide value
-                  };
-               });
-            }
-         } else {
-            $(this).attr('disabled', false);
-            dragResourceIDs.forEach(c => {
-               if(c.value==this.innerHTML){
-                  c.style.visibility = 'visible';  // Show value
-               };
-            });
-         }
-      });
-   };
-
-   //Constellation Validator Function
-   var dragConstellationIDs =$.makeArray($('[id="dragConstellation"]'));
-   function hideAndDisableConst(evt) {
-      const selectedValue = [];  //Array to hold selected values
-      $selectsConst.find(':selected').filter(function(i, el) { //Filter selected values and push to array
-         return $(el).attr('value');
-      }).each(function(i, el) {
-         selectedValue.push($(el).attr('value'));
-      });
-      // loop all the options
-      $selectsConst.find('.dropdown-option-const').each(function(i, option) {
-         if (selectedValue.indexOf($(option).attr('value')) > -1) { //Re-enable option if array does not contain current value
-            if ($(option).is(':checked')) {  //Disable if current value is selected, else skip
-               return;
-            } else {
-               $(this).attr('disabled', true);
-               dragConstellationIDs.forEach(r => {
-                  if(r.value==this.innerHTML){
-                     r.style.visibility = 'hidden';   //Hide value
-                  };
-               });
-            }
-         } else {
-            $(this).attr('disabled', false);
-            dragConstellationIDs.forEach(c => {
-               if(c.value==this.innerHTML){
-                  c.style.visibility = 'visible';  //Show value
-               };
-            });
-         }
-      });
-   };
-
-   var tooltipsResource = [
-      "Summary abstract of the resource",                                     // Abstract
-      "Date or date range (YYYY or YYYY-YYYY)",                               // Date
-      "The descriptive display name (e.g. Jacob Miller Papers, 1809-1882)",   // Display Entry
-      "Extent",                                                               // Extent
-      "The SNAC ID of the resource's Holding Repository",                     // Holding Repository
-      "ID",                                                                   // ID
-      "Language",                                                             // Language
-      "The preferred permanent link to find aid",                             // Link
-      "The official title (e.g. Papers, 1809-1882)",                          // Title
-      "The resource type (ArchivalResource, BibliographicResource, etc.)"     // Type
-   ];
-
-   for(var i = 0 ; i<tooltipsResource.length; i++) {
-      var toolTipSpan = document.createElement("span");
-      var toolTiptext = document.createTextNode(tooltipsResource[i]);
-      toolTipSpan.classList.add("tooltiptext");
+   for(var i = 0 ; i < this.SNACResourceTooltips.length; i++) {
+      var toolTipSpan = document.createElement('span');
+      var toolTiptext = document.createTextNode(this.SNACResourceTooltips[i]);
+      toolTipSpan.classList.add('tooltiptext');
       toolTipSpan.appendChild(toolTiptext);
       $('[id="dragResource"]')[i].appendChild(toolTipSpan);
    }
 
-   //Reference Validator Call onChange
-   const $selectsRef = $(".selectColumnRes");
-   $selectsRef.on('change', function(){
-      hideAndDisableRef();
+   // ******* CONSTELLATIONS PAGE ******* //
+   this._columnAreaConstellation = $('.schema-alignment-dialog-columns-area-constellation');
+   this._columnAreaConstellation.addClass('snac-tab');
+   this._columnAreaConstellation.empty();
+   this._columnAreaConstellation.html('<h2>Columns</h2>');
+
+   this._dropdownAreaConestellation = $('.schema-alignment-dialog-dropdown-area-constellation');
+   this._dropdownAreaConestellation.addClass('snac-tab');
+   this._dropdownAreaConestellation.empty()
+
+   // Based on SNACConstellationCreator
+   var dragItemsConstellation = this.SNACConstellationNames;
+   this._refcolumnAreaConestellation = $('.schema-alignment-dialog-columns-area-constellation--ref');
+   this._refcolumnAreaConestellation.addClass('snac-tab');
+   this._refcolumnAreaConestellation.html('<h2>SNAC Model</h2>');
+
+   var myTableDivConstellation = this.addConstellationTable(schema);
+   this._columnAreaConstellation.append(myTableDivConstellation);
+
+   for (var i = 0; i < dragItemsConstellation.length; i++) {
+      var cell = this._createDraggableColumn(dragItemsConstellation[i], false);
+      cell.attr('id', 'dragConstellation');
+      cell.val(dragItemsConstellation[i]).change();
+      this._refcolumnAreaConestellation.append(cell);
+   }
+   $('[id="dragConstellation"]').addClass('tooltip');
+
+   for(var i = 0 ; i < this.SNACConstellationTooltips.length; i++) {
+      var toolTipSpan = document.createElement('span');
+      var toolTiptext = document.createTextNode(this.SNACConstellationTooltips[i]);
+      toolTipSpan.classList.add('tooltiptext');
+      toolTipSpan.appendChild(toolTiptext);
+      $('[id="dragConstellation"]')[i].appendChild(toolTipSpan);
+   }
+
+   // Resource Validator Call onChange
+   $('.selectColumnRes').on('change', function(){
+      self.hideAndDisableRes();
+      snacDebug(`selectColumnRes calling _hasChanged()`);
+      self._hasChanged();
    });
 
+   // Constellation Validator Call onChange
+   $('.selectColumnConst').on('change', function(){
+      self.hideAndDisableConst();
+      snacDebug(`selectColumnConst calling _hasChanged()`);
+      self._hasChanged();
+   });
+
+/*
    $(document).ready(function() {
-      hideAndDisableRef();
-  });
-
-
-   //Constellation Validator Call onChange
-   const $selectsConst = $(".selectColumnConst");
-   $selectsConst.on('change', function(){
-      hideAndDisableConst();
+      self.hideAndDisableRes();
+      self.hideAndDisableConst();
    });
-
+*/
 
    //Allow names column (first column) to be droppable
    $('.wbs-unreconciled-column-undraggable').droppable({
@@ -570,8 +733,10 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       drop: function(event, ui) {
          var id = $(this).attr('id');
          $('.selectColumn')[id].value = $(ui.draggable).val();
-         hideAndDisableRef();
-         hideAndDisableConst();
+         self.hideAndDisableRes();
+         self.hideAndDisableConst();
+         snacDebug(`selectColumn[${id}] (names) calling _hasChanged()`);
+         self._hasChanged();
       }
    });
 
@@ -580,8 +745,10 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       hoverClass: 'active',
       drop: function(event, ui) {
          this.value = $(ui.draggable).val();
-         hideAndDisableRef();
-         hideAndDisableConst();
+         self.hideAndDisableRes();
+         self.hideAndDisableConst();
+         snacDebug(`selectColumn (dropdowns) calling _hasChanged()`);
+         self._hasChanged();
       },
    });
    $('.wbs-reconciled-column').draggable({
@@ -602,30 +769,22 @@ SNACSchemaAlignmentDialog.updateColumns = function() {
       snap: ".wbs-target-input input",
       zIndex: 100,
    });
-}
 
-SNACSchemaAlignmentDialog.switchbuttons = function() {
-   if (document.getElementById('resourcebutton').checked) {
-      // print text
-   }
-   else if (document.getElementById('constellationbutton').checked) {
-      // print text
-   }
+   this.hideAndDisableRes();
+   this.hideAndDisableConst();
 }
 
 SNACSchemaAlignmentDialog.switchTab = function(targetTab) {
+   snacDebug(`***** [ switchTab ] *****`);
    $('.main-view-panel-tab').hide();
    $('.main-view-panel-tab-header').removeClass('active');
    $('.main-view-panel-tab-header[href="'+targetTab+'"]').addClass('active');
    $(targetTab).show();
    resizeAll();
-   SNACSchemaAlignmentDialog.issues();
-   SNACSchemaAlignmentDialog.preview();
    var panelHeight = this._viewPanel.height();
    this._schemaPanel.height(panelHeight);
    this._issuesPanel.height(panelHeight);
    this._previewPanel.height(panelHeight);
-
    // Resize the inside of the schema panel
    var headerHeight = this._schemaElmts.schemaHeader.outerHeight();
    this._schemaElmts.canvas.height(panelHeight - headerHeight - 10);
@@ -636,25 +795,24 @@ SNACSchemaAlignmentDialog.switchTab = function(targetTab) {
 }
 
 SNACSchemaAlignmentDialog.isSetUp = function() {
+   snacDebug(`***** [ isSetUp ] *****`);
    return $('#snac-schema-panel').length !== 0;
 }
 
 SNACSchemaAlignmentDialog.launch = function(onDone) {
+   snacDebug(`***** [ launch ] *****`);
    this._onDone = onDone;
    this._hasUnsavedChanges = false;
 
-
-   if (!SNACSchemaAlignmentDialog.isSetUp()) {
-      SNACSchemaAlignmentDialog.setUpTabs();
+   if (!this.isSetUp()) {
+      this.setUpTabs();
    }
 
    $('.main-view-panel-tabs-snac').show();
    $('.main-view-panel-tabs-wiki').hide();
 
-   SNACSchemaAlignmentDialog.switchTab('#snac-schema-panel');
-
+   this.switchTab('#snac-schema-panel');
 }
-
 
 var beforeUnload = function(e) {
    if (SNACSchemaAlignmentDialog.isSetUp() && SNACSchemaAlignmentDialog._hasUnsavedChanges === true) {
@@ -665,167 +823,75 @@ var beforeUnload = function(e) {
 $(window).bind('beforeunload', beforeUnload);
 
 SNACSchemaAlignmentDialog._reset = function(schema) {
+   snacDebug(`***** [ _reset ] *****`);
+   this._ignoreChanges = true;
 
-   $.get(
-      "command/snac/resource",
-      function(data) {
-         // console.log("command/snac/resource");
+   this._originalSchema = schema || { schemaType: "", idColumn: "", columnMappings: {} };
+   this._schema = cloneDeep(this._originalSchema); // this is what can be munched on
+
+   $('#snac-columns-container').empty();
+   this.updateColumns(schema);
+
+   if (this._schema.schemaType == "constellation") {
+      $('#uploadingConstellationButton').trigger('click');
+   } else {
+      $('#uploadingResourceButton').trigger('click');
+      if (this._schema.idColumn == "") {
+         $('#idNoButton').trigger('click');
+         $('#idDropDown').val('idDefault').change();
+      } else {
+         $('#idYesButton').trigger('click');
+         $('#idDropDown').val(this._schema.idColumn).change();
       }
-   );
+   }
+
+   this._ignoreChanges = false;
 };
 
-/*************************
- * CHECK FOR ERRORS & SAVE *
- *************************/
-
-// Will be used for save & issues
-// Check for determining GET request for either Constellation or Resources
-var check_dataType = "";
-var first_save = false;
-
 SNACSchemaAlignmentDialog._save = function(onDone) {
+   snacDebug(`***** [ _save ] *****`);
    var self = this;
    var schema = this.getJSON();
 
-   if (schema === null) {
-      alert($.i18n('snac-schema/incomplete-schema-could-not-be-saved'));
-   }
+   snacDebug(`_save(): cur overlay model: [${JSON.stringify(theProject.overlayModels.snacSchema)}]`);
+   snacDebug(`_save(): new schema 2 save: [${JSON.stringify(schema)}]`);
 
-   var columns = theProject.columnModel.columns;
-
-   // This helps the Issue tab to differentiate between what issues it will look at for Resource vs Constellation
-   if (document.getElementById('resourcebutton').checked) {
-      var dropDownValues = document.getElementsByClassName('selectColumnRes');
-      check_dataType = "GET_Resource";
-   }
-   else {
-      var dropDownValues = document.getElementsByClassName('selectColumnConst');
-      check_dataType = "GET_Constellation";
-   }
-
-   var array_ddv = [];
-   for (var j = 0; j < dropDownValues.length; j++){
-      array_ddv.push(dropDownValues[j].value);
-   }
-
-   // Empty required field check (for issues tab)
-   // The required fields for Resource vs Constellation are different, so required_fields will be used to check whether all the fields in this array have been used
-   if (document.getElementById('resourcebutton').checked) {
-      var mainfields = ["ID", "Type", "Title", "Display Entry", "Link", "Abstract", "Extent", "Date", "Language", "Holding Repository SNAC ID", "Script"];
-      var required_fields = ["Title", "Link", "Type", "Holding Repository SNAC ID"];
-   }
-   else {
-      var mainfields = ["ID", "Entity Type", "Name Entry", "Surename", "Forename", "Exist Dates", "BiogHist", "Place", "Place Type", "Occupation", "Related Constellation IDs", "Related Resource IDs"];
-      var required_fields = ["Entity Type", "Name Entry"];
-   }
-
-   // For printing to issues tab
-   var empty_required = false;
-   $.post(
-      "command/snac/issue-snac-schema",
+   Refine.postProcess(
+      "snac",
+      "save-schema",
+      {},
+      { schema: JSON.stringify(schema) },
+      {},
       {
-         "flush": "true",
-      },
-      function(data, status) {
-         for (var x = 0; x < required_fields.length; x++){
-            if (!(array_ddv.includes(required_fields[x]))){
-               empty_required = true;
-               error = {
-                  title: `'${required_fields[x]}' found empty`,
-                  body: `The required field '${required_fields[x]}' is missing from schema.`,
-               };
-               $.post(
-                  "command/snac/issue-snac-schema",
-                  {
-                     "error": JSON.stringify(error),
-                     "flush": "false",
-                  }
-               );
-            }
-         }
+         onDone: function() {
+            snacDebug(`_save(): SUCCESS`);
+            theProject.overlayModels.snacSchema = schema;
+            snacDebug(`_save(): new overlay model: [${JSON.stringify(theProject.overlayModels.snacSchema)}]`);
+
+            self.updateColumns(theProject.overlayModels.snacSchema);
+
+            $('.invalid-schema-warning').hide();
+            self._changesCleared();
+
+            if (onDone) onDone();
+         },
+         onError: function(e) {
+            snacDebug(`_save(): FAILURE`);
+            alert($.i18n('snac-schema/incomplete-schema-could-not-be-saved'));
+         },
       }
    );
-
-   // Duplicate field check (for issues tab)
-   var dup_dict = {}
-   var dup_bool = false;
-   for (var y = 0; y < array_ddv.length; y++){
-      if (array_ddv[y] == ""){
-         continue;
-      }
-      if (!(array_ddv[y] in dup_dict)){
-         dup_dict[array_ddv[y]] = 1;
-      } else {
-         if(mainfields.includes(array_ddv[y])){
-            dup_bool = true;
-            error = {
-               title: `Duplicate values of '${array_ddv[y]}'`,
-               body: `Duplicate values found for '${array_ddv[y]}'.`,
-            };
-            $.post(
-               "command/snac/issue-snac-schema",
-               {
-                  "error": JSON.stringify(error),
-                  "flush": "false",
-               }
-            );
-         } else {
-            continue;
-         }
-      }
-   }
-
-
-  // Save resource
-   if (!dup_bool && !empty_required && document.getElementById('resourcebutton').checked){
-      var dict = {};
-      var columns = theProject.columnModel.columns;
-      if (!dup_bool && !empty_required){
-         var dict = {};
-         var columns = theProject.columnModel.columns;
-         for (var i = 0; i != columns.length; i++){
-            dict[columns[i].name] = dropDownValues[i].value;
-         }
-         $.post(
-            "command/snac/resource",
-            {
-               "dict": JSON.stringify(dict),
-               "project": JSON.stringify(theProject.id)
-            },
-            function(data, status) {
-               console.log("Resource status: " + data.resource);
-            }
-         );
-      }
-   }
-   else if (!dup_bool && !empty_required && document.getElementById('constellationbutton').checked) {
-      var dict = {};
-      var columns = theProject.columnModel.columns;
-      for (var i = 0; i != columns.length; i++){
-         dict[columns[i].name] = dropDownValues[i].value;
-      }
-
-      $.post(
-         "command/snac/constellation",
-         {
-            "dict": JSON.stringify(dict),
-            "project": JSON.stringify(theProject.id)
-         },
-         function(data, status) {
-            console.log("Constellation status: " + data.constellation);
-         }
-      );
-   }
-   SNACSchemaAlignmentDialog._hasChanged();
-   first_save = true;
 };
 
 SNACSchemaAlignmentDialog._discardChanges = function() {
-   this._reset(theProject.overlayModels.wikibaseSchema);
+   snacDebug(`***** [ _discardChanges ] *****`);
+   this._reset(theProject.overlayModels.snacSchema);
    this._changesCleared();
+   this.evaluateCurrentSchema(false);
 }
 
 SNACSchemaAlignmentDialog._changesCleared = function() {
+   snacDebug(`***** [ _changesCleared ] *****`);
    this._hasUnsavedChanges = false;
    this._unsavedIndicator.hide();
    this._schemaElmts.saveButton
@@ -838,7 +904,8 @@ SNACSchemaAlignmentDialog._changesCleared = function() {
 
 //format cells for columns
 SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, org) {
-   var cell = $("<div></div>").addClass('wbs-draggable-column').text(name);
+   snacDebug(`***** [ _createDraggableColumn ] *****`);
+   var cell = $('<div></div>').addClass('wbs-draggable-column').text(name);
    if (reconciled) {
       cell.addClass('wbs-reconciled-column');
    } else {
@@ -849,1131 +916,201 @@ SNACSchemaAlignmentDialog._createDraggableColumn = function(name, reconciled, or
       cell.addClass('idcolumn')
    }
 
-  return cell;
-}
-
-SNACSchemaAlignmentDialog._plusButton = function(label, element) {
-   var plus = $('<b></b>').html('+&nbsp;').appendTo(element);
-   var span = $('<span></span>').text(label)
-      .appendTo(element);
-}
-
-SNACSchemaAlignmentDialog._makeDeleteButton = function (noText) {
-   var button = $('<div></div>').addClass('wbs-remove').append(
-      $('<span></span>').addClass('wbs-icon')
-   );
-   if(noText === undefined) {
-      button.append(
-      $('<span></span>').text($.i18n('snac-schema/remove')));
-   }
-   return button;
-}
-
-/**************/
-/*** ITEMS ****/
-/**************/
-
-SNACSchemaAlignmentDialog._addItem = function(json) {
-   var subject = null;
-   var statementGroups = null;
-   var nameDescs = null;
-   if (json) {
-      subject = json.subject;
-      statementGroups = json.statementGroups;
-      nameDescs = json.nameDescs;
-   }
-
-   var item = $('<div></div>').addClass('wbs-item');
-   $('#schema-alignment-statements-container').append(item);
-   var deleteToolbar = $('<div></div>').addClass('wbs-toolbar')
-      .attr('style', 'margin-top: 10px')
-      .appendTo(item);
-   var deleteButton = SNACSchemaAlignmentDialog._makeDeleteButton()
-      .appendTo(deleteToolbar)
-      .click(function(e) {
-         item.remove();
-         SNACSchemaAlignmentDialog._hasChanged();
-         e.preventDefault();
-      });
-  var inputContainer = $('<div></div>').addClass('wbs-item-input').appendTo(item);
-  SNACSchemaAlignmentDialog._initField(inputContainer, "wikibase-item", subject);
-  var right = $('<div></div>').addClass('wbs-item-contents').appendTo(item);
-
-   // Terms
-   $('<span></span>').addClass('wbs-namedesc-header')
-      .text($.i18n('snac-schema/terms-header')).appendTo(right);
-   $('<div></div>').addClass('wbs-namedesc-container')
-      .attr('data-emptyplaceholder', $.i18n('snac-schema/empty-terms'))
-      .appendTo(right);
-   var termToolbar = $('<div></div>').addClass('wbs-toolbar').appendTo(right);
-   var addNamedescButton = $('<a></a>').addClass('wbs-add-namedesc')
-   .click(function(e) {
-      SNACSchemaAlignmentDialog._addNameDesc(item, null);
-      e.preventDefault();
-   }).appendTo(termToolbar);
-   SNACSchemaAlignmentDialog._plusButton(
-      $.i18n('snac-schema/add-term'), addNamedescButton);
-
-   // Clear the float
-   $('<div></div>').attr('style', 'clear: right').appendTo(right);
-
-   // Statements
-   $('<div></div>').addClass('wbs-statements-header')
-      .text($.i18n('snac-schema/statements-header')).appendTo(right);
-   $('<div></div>').addClass('wbs-statement-group-container')
-      .attr('data-emptyplaceholder', $.i18n('snac-schema/empty-statements'))
-      .appendTo(right);
-   var statementToolbar = $('<div></div>').addClass('wbs-toolbar').appendTo(right);
-   var addStatementButton = $('<a></a>').addClass('wbs-add-statement-group')
-      .click(function(e) {
-         SNACSchemaAlignmentDialog._addStatementGroup(item, null);
-         e.preventDefault();
-      }).appendTo(statementToolbar);
-
-   SNACSchemaAlignmentDialog._plusButton(
-      $.i18n('snac-schema/add-statement'), addStatementButton);
-
-   if (statementGroups) {
-      for(var i = 0; i != statementGroups.length; i++) {
-         SNACSchemaAlignmentDialog._addStatementGroup(item, statementGroups[i]);
-      }
-   }
-
-   if (nameDescs) {
-      for(var i = 0; i != nameDescs.length; i++) {
-         SNACSchemaAlignmentDialog._addNameDesc(item, nameDescs[i]);
-      }
-   }
-}
-
-SNACSchemaAlignmentDialog._itemToJSON = function (item) {
-   var statementGroupLst = new Array();
-   var statementsDom = item.find('.wbs-statement-group');
-   statementsDom.each(function () {
-      var statementGroupJSON = SNACSchemaAlignmentDialog._statementGroupToJSON($(this));
-      if (statementGroupJSON !== null) {
-         statementGroupLst.push(statementGroupJSON);
-      }
-   });
-   var nameDescLst = new Array();
-   var nameDescsDom = item.find('.wbs-namedesc');
-   nameDescsDom.each(function () {
-      var nameDescJSON = SNACSchemaAlignmentDialog._nameDescToJSON($(this));
-      if (nameDescJSON !== null) {
-         nameDescLst.push(nameDescJSON);
-      }
-   });
-   var inputContainer = item.find(".wbs-item-input").first();
-   var subjectJSON = SNACSchemaAlignmentDialog._inputContainerToJSON(inputContainer);
-   if (subjectJSON !== null &&
-      statementGroupLst.length === statementsDom.length &&
-      nameDescLst.length === nameDescsDom.length) {
-   return {subject: subjectJSON,
-      statementGroups: statementGroupLst,
-      nameDescs: nameDescLst};
-   } else {
-      return null;
-   }
-};
-
-/**************************
- * NAMES AND DESCRIPTIONS *
- **************************/
-
-SNACSchemaAlignmentDialog._addNameDesc = function(item, json) {
-   var type = 'ALIAS';
-   var value = null;
-   if (json) {
-      type = json.name_type;
-      value = json.value;
-   }
-
-   var container = item.find('.wbs-namedesc-container').first();
-   var namedesc = $('<div></div>').addClass('wbs-namedesc').appendTo(container);
-   var type_container = $('<div></div>').addClass('wbs-namedesc-type').appendTo(namedesc);
-   var type_input = $('<select></select>').appendTo(type_container);
-   $('<option></option>')
-      .attr('value', 'LABEL')
-      .text($.i18n('snac-schema/label'))
-      .appendTo(type_input);
-   $('<option></option>')
-      .attr('value', 'DESCRIPTION')
-      .text($.i18n('snac-schema/description'))
-      .appendTo(type_input);
-   $('<option></option>')
-      .attr('value', 'ALIAS')
-      .text($.i18n('snac-schema/alias'))
-      .appendTo(type_input);
-   type_input.val(type);
-   type_input.on('change', function(e) {
-      SNACSchemaAlignmentDialog._hasChanged();
-   });
-
-   var toolbar = $('<div></div>').addClass('wbs-toolbar').appendTo(namedesc);
-   SNACSchemaAlignmentDialog._makeDeleteButton().click(function(e) {
-      namedesc.remove();
-      SNACSchemaAlignmentDialog._hasChanged();
-      e.preventDefault();
-   }).appendTo(toolbar);
-
-   var right = $('<div></div>').addClass('wbs-right').appendTo(namedesc);
-   var value_container = $('<div></div>').addClass('wbs-namedesc-value').appendTo(namedesc);
-   SNACSchemaAlignmentDialog._initField(value_container, "monolingualtext", value);
-}
-
-SNACSchemaAlignmentDialog._nameDescToJSON = function (namedesc) {
-   var type = namedesc.find('select').first().val();
-   var value = namedesc.find('.wbs-namedesc-value').first().data("jsonValue");
-   return {
-      type: "wbnamedescexpr",
-      name_type: type,
-      value: value,
-   };
-}
-
-/********************
- * STATEMENT GROUPS *
- ********************/
-
-SNACSchemaAlignmentDialog._addStatementGroup = function(item, json) {
-   var property = null;
-   var statements = null;
-   if (json) {
-      property = json.property;
-      statements = json.statements;
-   }
-
-   var container = item.find('.wbs-statement-group-container').first();
-   var statementGroup = $('<div></div>').addClass('wbs-statement-group');
-   var inputContainer = $('<div></div>').addClass('wbs-prop-input').appendTo(statementGroup);
-   var right = $('<div></div>').addClass('wbs-right').appendTo(statementGroup);
-   var statementContainer = $('<div></div>').addClass('wbs-statement-container').appendTo(right);
-   SNACSchemaAlignmentDialog._initPropertyField(inputContainer, statementContainer, property);
-   var toolbar = $('<div></div>').addClass('wbs-toolbar').appendTo(right);
-   var addValueButton = $('<a></a>').addClass('wbs-add-statement').click(function(e) {
-      var datatype = inputContainer.data("jsonValue").datatype;
-      SNACSchemaAlignmentDialog._addStatement(statementContainer, datatype, null);
-      e.preventDefault();
-   }).appendTo(toolbar).hide();
-   SNACSchemaAlignmentDialog._plusButton($.i18n('snac-schema/add-value'), addValueButton);
-   var removeButton = SNACSchemaAlignmentDialog._makeDeleteButton()
-      .addClass('wbs-remove-statement-group')
-      .appendTo(toolbar)
-      .click(function(e) {
-         statementGroup.remove();
-         e.preventDefault();
-      });
-
-   container.append(statementGroup);
-
-   if (statements) {
-      for (var i = 0; i != statements.length; i++) {
-         SNACSchemaAlignmentDialog._addStatement(statementContainer, property.datatype, statements[i]);
-         addValueButton.show();
-         removeButton.hide();
-      }
-   } else {
-      inputContainer.find('input').focus();
-   }
-}
-
-SNACSchemaAlignmentDialog._statementGroupToJSON = function (statementGroup) {
-   var lst = new Array();
-   var domStatements = statementGroup.find('.wbs-statement-container').first().children('.wbs-statement');
-   domStatements.each(function () {
-      var statementJSON = SNACSchemaAlignmentDialog._statementToJSON($(this));
-      if (statementJSON !== null) {
-         lst.push(statementJSON);
-      }
-   });
-   var inputContainer = statementGroup.find(".wbs-prop-input").first();
-   var propertyJSON = SNACSchemaAlignmentDialog._inputContainerToJSON(inputContainer);
-   if (propertyJSON !== null && domStatements.length === lst.length && lst.length > 0) {
-      return {property: propertyJSON,
-         statements: lst
-      };
-   } else {
-      return null;
-   }
-};
-
-/**************
- * STATEMENTS *
- **************/
-
-SNACSchemaAlignmentDialog._addStatement = function(container, datatype, json) {
-   var qualifiers = null;
-   var references = null;
-   var value = null;
-   if (json) {
-      qualifiers = json.qualifiers;
-      references = json.references;
-      value = json.value;
-   }
-
-   var statement = $('<div></div>').addClass('wbs-statement');
-   var inputContainer = $('<div></div>').addClass('wbs-target-input').appendTo(statement);
-   SNACSchemaAlignmentDialog._initField(inputContainer, datatype, value);
-
-   // If we are in a mainsnak...
-   // (see https://www.mediawiki.org/wiki/Wikibase/DataModel#Snaks)
-   if (container.parents('.wbs-statement').length == 0) {
-      // add delete button
-      var toolbar1 = $('<div></div>').addClass('wbs-toolbar').appendTo(statement);
-      SNACSchemaAlignmentDialog._makeDeleteButton().click(function(e) {
-         SNACSchemaAlignmentDialog._removeStatement(statement);
-         e.preventDefault();
-      }).appendTo(toolbar1);
-
-      // add rank
-      var rank = $('<div></div>').addClass('wbs-rank-selector-icon').prependTo(inputContainer);
-
-      // add qualifiers...
-      var right = $('<div></div>').addClass('wbs-right').appendTo(statement);
-      var qualifierContainer = $('<div></div>').addClass('wbs-qualifier-container').appendTo(right);
-      var toolbar2 = $('<div></div>').addClass('wbs-toolbar').appendTo(right);
-      var addQualifierButton = $('<a></a>').addClass('wbs-add-qualifier')
-         .click(function(e) {
-         SNACSchemaAlignmentDialog._addQualifier(qualifierContainer, null);
-         e.preventDefault();
-      }).appendTo(toolbar2);
-      SNACSchemaAlignmentDialog._plusButton($.i18n('snac-schema/add-qualifier'), addQualifierButton);
-
-      if (qualifiers) {
-         for (var i = 0; i != qualifiers.length; i++) {
-            SNACSchemaAlignmentDialog._addQualifier(qualifierContainer, qualifiers[i]);
-         }
-      }
-
-      // and references
-      $('<div></div>').attr('style', 'clear: right').appendTo(statement);
-      var referencesToggleContainer = $('<div></div>').addClass('wbs-references-toggle').appendTo(statement);
-      var triangle = $('<div></div>').addClass('triangle-icon').addClass('pointing-right').appendTo(referencesToggleContainer);
-      var referencesToggle = $('<a></a>').appendTo(referencesToggleContainer);
-      right = $('<div></div>').addClass('wbs-right').appendTo(statement);
-      var referenceContainer = $('<div></div>').addClass('wbs-reference-container').appendTo(right);
-      referencesToggleContainer.click(function(e) {
-         triangle.toggleClass('pointing-down');
-         triangle.toggleClass('pointing-right');
-         referenceContainer.toggle(100);
-         e.preventDefault();
-      });
-      referenceContainer.hide();
-      var right2 = $('<div></div>').addClass('wbs-right').appendTo(right);
-      var toolbar3 = $('<div></div>').addClass('wbs-toolbar').appendTo(right2);
-      var addReferenceButton = $('<a></a>').addClass('wbs-add-reference')
-         .click(function(e) {
-         referenceContainer.show();
-         SNACSchemaAlignmentDialog._addReference(referenceContainer, null);
-         SNACSchemaAlignmentDialog._updateReferencesNumber(referenceContainer);
-         e.preventDefault();
-      }).appendTo(toolbar3);
-      SNACSchemaAlignmentDialog._plusButton($.i18n('snac-schema/add-reference'), addReferenceButton);
-
-      var pasteToolbar = $('<div></div>').addClass('wbs-toolbar').appendTo(referencesToggleContainer);
-      var referencePaste = $('<span></span>')
-         .addClass('wbs-paste-reference')
-         .appendTo(pasteToolbar);
-      if (SNACSchemaAlignmentDialog._copiedReference === null) {
-         referencePaste.hide();
-      }
-      var pasteIcon = $('<span></span>').addClass('wbs-icon').appendTo(referencePaste);
-      var referencePasteButton = $('<a></a>')
-         .addClass('wbs-paste-reference-button')
-         .text($.i18n('snac-schema/paste-reference'))
-         .appendTo(referencePaste)
-         .click(function(e) {
-         if (SNACSchemaAlignmentDialog._copiedReference !== null) {
-            SNACSchemaAlignmentDialog._addReference(referenceContainer, SNACSchemaAlignmentDialog._copiedReference);
-            SNACSchemaAlignmentDialog._updateReferencesNumber(referenceContainer);
-            referencePaste.hide();
-            SNACSchemaAlignmentDialog._hasChanged();
-         }
-         e.preventDefault();
-         e.stopPropagation();
-      });
-
-      if (references) {
-         for (var i = 0; i != references.length; i++) {
-            SNACSchemaAlignmentDialog._addReference(referenceContainer, references[i]);
-         }
-      }
-      SNACSchemaAlignmentDialog._updateReferencesNumber(referenceContainer);
-   }
-   container.append(statement);
-}
-
-SNACSchemaAlignmentDialog._statementToJSON = function (statement) {
-   var inputContainer = statement.find(".wbs-target-input").first();
-   var qualifiersList = new Array();
-   var referencesList = new Array();
-   var qualifiersDom = statement.find('.wbs-qualifier-container').first().children();
-   qualifiersDom.each(function () {
-      var qualifierJSON = SNACSchemaAlignmentDialog._qualifierToJSON($(this));
-      if (qualifierJSON !== null) {
-         qualifiersList.push(qualifierJSON);
-      }
-   });
-   var referencesDom = statement.find('.wbs-reference-container').first().children();
-   referencesDom.each(function () {
-      var referenceJSON = SNACSchemaAlignmentDialog._referenceToJSON($(this));
-      if (referenceJSON !== null) {
-         referencesList.push(referenceJSON);
-      }
-   });
-   var valueJSON = SNACSchemaAlignmentDialog._inputContainerToJSON(inputContainer);
-   if (referencesList.length === referencesDom.length &&
-      qualifiersList.length === qualifiersDom.length &&
-      valueJSON !== null) {
-      return {
-         value: valueJSON,
-         qualifiers: qualifiersList,
-         references: referencesList,
-      };
-   } else {
-      return null;
-   }
-};
-
-/**************
- * QUALIFIERS *
- **************/
-
-SNACSchemaAlignmentDialog._addQualifier = function(container, json) {
-   var property = null;
-   var value = null;
-   if (json) {
-      property = json.prop;
-      value = json.value;
-   }
-
-   var qualifier = $('<div></div>').addClass('wbs-qualifier').appendTo(container);
-   var toolbar1 = $('<div></div>').addClass('wbs-toolbar').appendTo(qualifier);
-   var inputContainer = $('<div></div>').addClass('wbs-prop-input').appendTo(qualifier);
-   var right = $('<div></div>').addClass('wbs-right').appendTo(qualifier);
-   var deleteButton = SNACSchemaAlignmentDialog._makeDeleteButton()
-      .addClass('wbs-remove-statement-group')
-      .appendTo(toolbar1).click(function(e) {
-         qualifier.remove();
-         SNACSchemaAlignmentDialog._hasChanged();
-         e.preventDefault();
-      });
-   var statementContainer = $('<div></div>').addClass('wbs-statement-container').appendTo(right);
-   SNACSchemaAlignmentDialog._initPropertyField(inputContainer, statementContainer, property);
-   if (value && property) {
-      SNACSchemaAlignmentDialog._addStatement(statementContainer, property.datatype, {value:value});
-   } else {
-      inputContainer.find('input').focus();
-   }
-}
-
-SNACSchemaAlignmentDialog._qualifierToJSON = function(elem) {
-   var prop = elem.find(".wbs-prop-input").first();
-   var target = elem.find(".wbs-target-input").first();
-   var propJSON = SNACSchemaAlignmentDialog._inputContainerToJSON(prop);
-   var valueJSON = SNACSchemaAlignmentDialog._inputContainerToJSON(target);
-   if (propJSON !== null && valueJSON !== null) {
-      return {
-         prop: propJSON,
-         value: valueJSON,
-      };
-   } else {
-      return null;
-   }
-}
-
-/**************
- * REFERENCES *
- **************/
-
-SNACSchemaAlignmentDialog._addReference = function(container, json) {
-   var snaks = null;
-   if (json) {
-      snaks = json.snaks;
-   }
-
-   var reference = $('<div></div>').addClass('wbs-reference').appendTo(container);
-   var referenceHeader = $('<div></div>').addClass('wbs-reference-header').appendTo(reference);
-   var referenceCopy = $('<span></span>').addClass('wbs-copy-reference').appendTo(referenceHeader);
-   var referenceCopyIcon = $('<span></span>').addClass('wbs-icon').appendTo(referenceCopy);
-   var copyButton = $('<span></span>')
-      .addClass('wbs-copy-reference-button')
-      .text($.i18n('snac-schema/copy-reference'))
-      .appendTo(referenceCopy)
-      .click(function(e) {
-         if (SNACSchemaAlignmentDialog._copyReference(reference)) {
-            $(this).text($.i18n('snac-schema/reference-copied'))
-                  .parent().addClass('wbs-copied-reference');
-            container.parent().parent().find('.wbs-paste-reference').hide();
-         }
-         e.preventDefault();
-      });
-   var toolbarRef = $('<div></div>').addClass('wbs-toolbar').appendTo(referenceHeader);
-   SNACSchemaAlignmentDialog._makeDeleteButton().click(function(e) {
-      reference.remove();
-      SNACSchemaAlignmentDialog._updateReferencesNumber(container);
-      SNACSchemaAlignmentDialog._hasChanged();
-      e.preventDefault();
-   }).appendTo(toolbarRef);
-   var right = $('<div></div>').addClass('wbs-right').appendTo(reference);
-   var qualifierContainer = $('<div></div>').addClass('wbs-qualifier-container').appendTo(right);
-   var toolbar2 = $('<div></div>').addClass('wbs-toolbar').appendTo(right);
-   var addSnakButton = $('<a></a>').addClass('wbs-add-qualifier')
-      .click(function(e) {
-         SNACSchemaAlignmentDialog._addQualifier(qualifierContainer, null);
-         e.preventDefault();
-      }).appendTo(toolbar2);
-   SNACSchemaAlignmentDialog._plusButton($.i18n('snac-schema/add-reference-snak'), addSnakButton);
-
-   if (snaks) {
-      for (var i = 0; i != snaks.length; i++) {
-         SNACSchemaAlignmentDialog._addQualifier(qualifierContainer, snaks[i]);
-      }
-   } else {
-      SNACSchemaAlignmentDialog._addQualifier(qualifierContainer, null);
-   }
-}
-
-SNACSchemaAlignmentDialog._referenceToJSON = function(reference) {
-   var snaks = reference.find('.wbs-qualifier-container').first().children();
-   var snaksList = new Array();
-   snaks.each(function () {
-      var qualifier = SNACSchemaAlignmentDialog._qualifierToJSON($(this));
-      if (qualifier !== null) {
-         snaksList.push(qualifier);
-      }
-   });
-   if (snaksList.length === snaks.length) {
-      return {snaks:snaksList};
-   } else {
-      return null;
-   }
-}
-
-SNACSchemaAlignmentDialog._updateReferencesNumber = function(container) {
-   var childrenCount = container.children().length;
-   var statement = container.parents('.wbs-statement');
-   var a = statement.find('.wbs-references-toggle a').first();
-   a.html(childrenCount+$.i18n('snac-schema/nb-references'));
-}
-
-SNACSchemaAlignmentDialog._copyReference = function(reference) {
-   // mark any other copied reference as not copied
-   $('.wbs-copy-reference-button')
-      .text($.i18n('snac-schema/copy-reference'));
-   $('.wbs-copy-reference')
-      .removeClass('wbs-copied-reference');
-   var copiedReference = SNACSchemaAlignmentDialog._referenceToJSON(reference);
-   if (copiedReference !== null) {
-      SNACSchemaAlignmentDialog._copiedReference = copiedReference;
-      $('.wbs-paste-reference').show();
-      return true;
-   } else {
-      return false;
-   }
-}
-
-/************************
- * FIELD INITIALIZATION *
- ************************/
-
-SNACSchemaAlignmentDialog._getPropertyType = function(pid, callback) {
-   $.ajax({
-      url:'https://www.snac.org/w/api.php',
-      data: {
-         action: "wbgetentities",
-         format: "json",
-         ids: pid,
-         props: "datatype",
-      },
-      dataType: "jsonp",
-      success: function(data) {
-         callback(data.entities[pid].datatype);
-      }
-   });
-}
-
-SNACSchemaAlignmentDialog._initPropertyField = function(inputContainer, targetContainer, initialValue) {
-   var input = $('<input></input>').appendTo(inputContainer);
-   input.attr("placeholder", $.i18n('snac-schema/property-placeholder'));
-
-   if (this._reconService !== null) {
-      endpoint = this._reconService.suggest.property;
-      var suggestConfig = $.extend({}, endpoint);
-      suggestConfig.key = null;
-      suggestConfig.query_param_name = "prefix";
-
-      input.suggestP(suggestConfig).bind("fb-select", function(evt, data) {
-         // Fetch the type of this property and add the appropriate target value type
-         var statementGroup = inputContainer.parents(".wbs-statement-group, .wbs-qualifier").first();
-         SNACSchemaAlignmentDialog._getPropertyType(data.id, function(datatype) {
-            inputContainer.data("jsonValue", {
-               type : "wbpropconstant",
-               pid : data.id,
-               label: data.name,
-               datatype: datatype,
-            });
-            SNACSchemaAlignmentDialog._addStatement(targetContainer, datatype, null);
-            var addValueButtons = targetContainer.parent().find('.wbs-add-statement');
-            var removeGroupButton = targetContainer.parent().find('.wbs-remove-statement-group');
-            removeGroupButton.hide();
-            addValueButtons.show();
-         });
-         SNACSchemaAlignmentDialog._hasChanged();
-      }).bind("fb-textchange", function(evt, data) {
-         inputContainer.data("jsonValue", null);
-         targetContainer.find('.wbs-statement').remove();
-         var addValueButtons = targetContainer.parent().find('.wbs-add-statement');
-         var removeGroupButton = targetContainer.parent().find('.wbs-remove-statement-group');
-         addValueButtons.hide();
-         removeGroupButton.show();
-      });
-      // adds tweaks to display the validation status more clearly, like in snac
-      fixSuggestInput(input);
-   }
-
-   // Init with the provided initial value.
-   if (initialValue) {
-      if (initialValue.type === "wbpropconstant") {
-         input.val(initialValue.label);
-         input.addClass('wbs-validated-input');
-      }
-      inputContainer.data("jsonValue", initialValue);
-   }
-}
-
-SNACSchemaAlignmentDialog._initField = function(inputContainer, mode, initialValue, changedCallback) {
-  var input = $('<input></input>').appendTo(inputContainer);
-
-   if (! changedCallback) {
-      changedCallback = SNACSchemaAlignmentDialog._hasChanged;
-   }
-
-   if (this._reconService !== null && (mode === "wikibase-item" || mode === "unit")) {
-      if (mode === "wikibase-item") {
-         input.attr("placeholder", $.i18n('snac-schema/item-or-reconciled-column'));
-      } else {
-         input.attr("placeholder", $.i18n('snac-schema/unit'));
-      }
-      var endpoint = null;
-      endpoint = this._reconService.suggest.entity;
-      var suggestConfig = $.extend({}, endpoint);
-      suggestConfig.key = null;
-      suggestConfig.query_param_name = "prefix";
-      if ('view' in this._reconService && 'url' in this._reconService.view && !('view_url' in endpoint)) {
-         suggestConfig.view_url = this._reconService.view.url;
-      }
-
-      input.suggest(suggestConfig).bind("fb-select", function(evt, data) {
-         inputContainer.data("jsonValue", {
-            type : "wbitemconstant",
-            qid : data.id,
-            label: data.name,
-         });
-         changedCallback();
-      });
-      // adds tweaks to display the validation status more clearly, like in snac
-      fixSuggestInput(input);
-
-   } else if (this._reconService !== null && mode === "wikibase-property") {
-      var endpoint = null;
-      endpoint = this._reconService.suggest.property;
-      var suggestConfig = $.extend({}, endpoint);
-      suggestConfig.key = null;
-      suggestConfig.query_param_name = "prefix";
-
-      input.suggestP(suggestConfig).bind("fb-select", function(evt, data) {
-         inputContainer.data("jsonValue", {
-            type : "wbpropconstant",
-            pid : data.id,
-            label: data.name,
-            datatype: "not-important",
-         });
-         changedCallback();
-      });
-    // adds tweaks to display the validation status more clearly, like in snac
-    fixSuggestInput(input);
-   } else if (mode === "time") {
-      input.attr("placeholder", "YYYY(-MM(-DD))");
-      var propagateValue = function(val) {
-         // TODO add validation here
-         inputContainer.data("jsonValue", {
-            type: "wbdateconstant",
-            value: val,
-         });
-      };
-      propagateValue("");
-      input.change(function() {
-         propagateValue($(this).val());
-         changedCallback();
-      });
-      SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^\d{4}(-[0-1]\d(-[0-3]\d)?)?$/);
-   } else if (mode === "globe-coordinate") {
-      input.attr("placeholder", "lat,lon");
-      var propagateValue = function(val) {
-         // TODO add validation here
-         inputContainer.data("jsonValue", {
-            type: "wblocationconstant",
-            value: val,
-         });
-      };
-      propagateValue("");
-      input.change(function() {
-         propagateValue($(this).val());
-         changedCallback();
-      });
-      SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^[\-+]?\d+(\.\d*)?[,\/][\-+]?\d+(\.\d*)?([,\/]\d+(\.\d*)?)?$/);
-   } else if (mode === "language") {
-      input.attr("placeholder", "lang");
-      input.addClass("wbs-language-input");
-      input.langsuggest().bind("fb-select", function(evt, data) {
-         inputContainer.data("jsonValue", {
-               type: "wblanguageconstant",
-               id: data.id,
-               label: data.name,
-         });
-         changedCallback();
-      });
-      fixSuggestInput(input);
-   } else if (mode === "monolingualtext") {
-      input.remove();
-      var inputContainerLanguage = $('<div></div>')
-      .addClass('wbs-monolingual-container')
-      .width('30%')
-      .appendTo(inputContainer);
-      var inputContainerValue = $('<div></div>')
-      .addClass('wbs-monolingual-container')
-      .width('70%')
-      .appendTo(inputContainer);
-
-      var langValue = null;
-      var strValue = null;
-      if (initialValue) {
-         langValue = initialValue.language;
-         strValue = initialValue.value;
-      }
-
-      var propagateValue = function() {
-         inputContainer.data("jsonValue", {
-            type: "wbmonolingualexpr",
-            language: inputContainerLanguage.data("jsonValue"),
-            value: inputContainerValue.data("jsonValue"),
-         });
-         changedCallback();
-      }
-      SNACSchemaAlignmentDialog._initField(inputContainerLanguage, "language", langValue, propagateValue);
-      SNACSchemaAlignmentDialog._initField(inputContainerValue, "string", strValue, propagateValue);
-   } else if (mode === "quantity") {
-      input.remove();
-      var inputContainerAmount = $('<div></div>')
-         .addClass('wbs-quantity-container')
-         .width('60%')
-         .appendTo(inputContainer);
-      var inputContainerUnit = $('<div></div>')
-         .addClass('wbs-quantity-container')
-         .width('40%')
-         .appendTo(inputContainer);
-
-      var amountValue = null;
-      var unitValue = null;
-      if (initialValue) {
-         amountValue = initialValue.amount;
-         unitValue = initialValue.unit;
-      }
-
-      var propagateValue = function() {
-         inputContainer.data("jsonValue", {
-            type: "wbquantityexpr",
-            amount: inputContainerAmount.data("jsonValue"),
-            unit: inputContainerUnit.data("jsonValue"),
-         });
-         changedCallback();
-      }
-      SNACSchemaAlignmentDialog._initField(inputContainerAmount, "amount", amountValue, propagateValue);
-      SNACSchemaAlignmentDialog._initField(inputContainerUnit, "unit", unitValue, propagateValue);
-   } else {
-      var propagateValue = function(val) {
-         inputContainer.data("jsonValue", {
-            type: "wbstringconstant",
-            value: val,
-         });
-      };
-      propagateValue("");
-      input.change(function() {
-         propagateValue($(this).val());
-         changedCallback();
-      });
-      if (mode === "amount") {
-         input.attr("placeholder", $.i18n('snac-schema/amount'));
-         SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^[\-+]?\d+(\.\d*)?(E[\-+]\d+)?$/);
-      } else if (mode === "url") {
-         input.attr("placeholder", $.i18n('snac-schema/full-url'));
-         SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^https?:\/\/.+$/);
-      } else if (mode === "tabular-data") {
-         input.attr("placeholder", $.i18n('snac-schema/tabular-data-with-prefix'));
-         SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^Data:.+$/);
-      } else if (mode === "commonsMedia") {
-         input.attr("placeholder", $.i18n('snac-schema/commons-media'));
-      } else if (mode === "math") {
-         input.attr("placeholder", $.i18n('snac-schema/math-expression'));
-      } else if (mode === "geo-shape") {
-         input.attr("placeholder", $.i18n('snac-schema/geoshape-with-prefix'));
-         SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^Data:.+$/);
-      } else {
-         SNACSchemaAlignmentDialog.setupStringInputValidation(input, /^.+$/);
-      }
-      if (mode !== "external-id" &&
-         mode !== "url" &&
-         mode !== "string" &&
-         mode !== "amount" &&
-         mode !== "tabular-data" &&
-         mode !== "commonsMedia" &&
-         mode !== "geo-shape" &&
-         mode !== "math") {
-            alert($.i18n('snac-schema/datatype-not-supported-yet'));
-      }
-   }
-
-   var acceptDraggableColumn = function(column) {
-      input.hide();
-      input.val("");
-      var columnDiv = $('<div></div>').appendTo(inputContainer);
-      column.appendTo(columnDiv);
-      var origText = column.text();
-      column.text("");
-      column.append($('<div></div>').addClass('wbs-restricted-column-name').text(origText));
-      var deleteButton = SNACSchemaAlignmentDialog._makeDeleteButton(true).appendTo(column);
-      deleteButton.attr('alt', $.i18n('snac-schema/remove-column'));
-      deleteButton.click(function (e) {
-         columnDiv.remove();
-         input.show();
-         inputContainer.data("jsonValue", null);
-         changedCallback();
-         e.preventDefault();
-      });
-   };
-
-   // Make it droppable
-   var acceptClass = ".wbs-draggable-column";
-   var wbVariableType = "wbstringvariable";
-   if (mode === "wikibase-item" || mode === "unit") {
-      acceptClass = ".wbs-reconciled-column";
-      wbVariableType = "wbitemvariable";
-   } else if (mode === "time") {
-      wbVariableType = "wbdatevariable";
-   } else if (mode === "globe-coordinate") {
-      wbVariableType = "wblocationvariable";
-   } else if (mode === "monolingualtext" || mode === "quantity") {
-      wbVariableType = null; // not droppable directly
-   } else if (mode === "language") {
-      wbVariableType = "wblanguagevariable";
-   }
-
-   if (wbVariableType) {
-      inputContainer.droppable({
-         accept: acceptClass,
-      }).on("drop", function (evt, ui) {
-         var column = ui.draggable.clone();
-         acceptDraggableColumn(column);
-         inputContainer.data("jsonValue", {
-            type : wbVariableType,
-            columnName: ui.draggable.text(),
-         });
-         changedCallback();
-         return true;
-      }).on("dropactivate", function(evt, ui) {
-         input.addClass("wbs-accepting-input");
-      }).on("dropdeactivate", function(evt, ui) {
-         input.removeClass("wbs-accepting-input");
-      });
-   }
-
-   // Init with the provided initial value.
-   if (initialValue) {
-      if (initialValue.type === "wbitemconstant" || initialValue.type === "wbpropconstant") {
-         input.val(initialValue.label);
-         input.addClass("wbs-validated-input");
-      } else if (initialValue.type == "wbitemvariable") {
-         var cell = SNACSchemaAlignmentDialog._createDraggableColumn(initialValue.columnName, true);
-         acceptDraggableColumn(cell);
-      } else if (initialValue.type === "wbstringconstant" ||
-         initialValue.type === "wbdateconstant" ||
-         initialValue.type === "wblocationconstant") {
-            input.val(initialValue.value);
-      } else if (initialValue.type === "wblanguageconstant") {
-         input.val(initialValue.id);
-         input.addClass("wbs-validated-input");
-      } else if (initialValue.type === "wbstringvariable" ||
-         initialValue.type === "wbdatevariable" ||
-         initialValue.type === "wblocationvariable" ||
-         initialValue.type === "wblanguagevariable") {
-            var cell = SNACSchemaAlignmentDialog._createDraggableColumn(initialValue.columnName, false);
-            acceptDraggableColumn(cell);
-      }
-      inputContainer.data("jsonValue", initialValue);
-   }
-}
-
-SNACSchemaAlignmentDialog.setupStringInputValidation = function(input, regex) {
-   input.focus(function() {
-      input.removeClass('wbs-unvalidated-input');
-   }).blur(function() {
-      var currentValue = input.val();
-      if (regex.test(currentValue)) {
-         input.addClass('wbs-validated-input');
-      } else {
-         input.addClass('wbs-unvalidated-input');
-      }
-   });
-}
-
-SNACSchemaAlignmentDialog._inputContainerToJSON = function (inputContainer) {
-   var data = inputContainer.data();
-   if (data && 'jsonValue' in data) {
-      return data.jsonValue;
-   } else {
-      return null;
-   }
-};
-
-SNACSchemaAlignmentDialog._removeStatement = function(statement) {
-   var statementGroup = statement.parents('.wbs-statement-group, .wbs-qualifier').first();
-   statement.remove();
-   var remainingStatements = statementGroup.find('.wbs-statement').length;
-   if (remainingStatements === 0) {
-      statementGroup.remove();
-   }
-   SNACSchemaAlignmentDialog._hasChanged();
+   return cell;
 }
 
 SNACSchemaAlignmentDialog.getJSON = function() {
-   var list = new Array();
-   var itemsDom = $('#schema-alignment-statements-container .wbs-item');
-   itemsDom.each(function () {
-      var itemJSON = SNACSchemaAlignmentDialog._itemToJSON($(this));
-      if (itemJSON !== null) {
-         list.push(itemJSON);
+   snacDebug(`***** [ _getJSON ] *****`);
+   var schemaType = "unknown";
+   var idColumn = "";
+   var dropDownColumn;
+
+   // determine source of schema values
+
+   if ($('#uploadingResourceButton').is(':checked')) {
+      schemaType = "resource";
+      dropDownColumn = $('.selectColumnRes');
+
+      if ($('#idYesButton').is(':checked')) {
+         let value = $('#idDropDown').val();
+         if (value != "idDefault") {
+            idColumn = value;
+         }
       }
+   } else if ($('#uploadingConstellationButton').is(':checked')) {
+      schemaType = "constellation";
+      dropDownColumn = $('.selectColumnConst');
+   }
+
+   var dropDownValues = $.map(dropDownColumn, function(option) {
+      return option.value;
    });
-   if (list.length === itemsDom.length) {
-      return {
-         'itemDocuments': list,
-         'wikibasePrefix': this._wikibasePrefix,
-      };
+
+   // build schema from selected values
+
+   var schema = { schemaType: schemaType, idColumn: idColumn, columnMappings: {} };
+
+   var columns = theProject.columnModel.columns;
+   for (var i = 0; i < columns.length; i++) {
+      let value = dropDownValues[i];
+      if (value != "default") {
+         schema.columnMappings[columns[i].name] = value;
+      }
+   }
+
+   snacDebug(`getJSON(): schema: [${JSON.stringify(schema)}]`);
+
+   return schema;
+};
+
+SNACSchemaAlignmentDialog.schemaIsValid = function() {
+   snacDebug(`***** [ schemaIsValid ] *****`);
+
+   var schema = this.getJSON();
+
+   var required;
+
+   if (schema.schemaType == "constellation") {
+      required = this.SNACConstellationNamesRequired;
    } else {
-      return null;
+      required = this.SNACResourceNamesRequired;
+   }
+
+   var warnings = [];
+   var mappedColumns = Object.values(schema.columnMappings);
+
+   snacDebug(`mappedColumns:`);
+   snacDebug(mappedColumns);
+
+   // ensure each required column is present in the list
+   for (var i = 0; i < required.length; i++) {
+      if (!mappedColumns.includes(required[i])) {
+         snacDebug(`schemaIsValid(): ${schema.schemaType}: required field [${required[i]}] is not present`);
+         warnings.push({ title: "Missing Required Field", body: `The ${required[i]} field must be assigned to a column.` });
+      }
+   }
+
+   this._updateWarnings(warnings, warnings.length);
+
+   if (warnings.length > 0) {
+      return false;
+   }
+
+   return true;
+};
+
+SNACSchemaAlignmentDialog.evaluateCurrentSchema = function(enableButtons) {
+   // disable save button if schema is not valid
+
+   if (!this.schemaIsValid()) {
+//      this.issueSpinner.hide();
+//      this.previewSpinner.hide();
+
+      this._schemaElmts.saveButton
+         .prop('disabled', true)
+         .addClass('disabled');
+   } else {
+      snacDebug(`evaluateCurrentSchema() calling preview()`);
+      this.preview();
+
+      if (enableButtons) {
+         this._schemaElmts.saveButton
+            .prop('disabled', false)
+            .removeClass('disabled');
+      }
+   }
+
+   if (enableButtons) {
+      this._schemaElmts.discardButton
+         .prop('disabled', false)
+         .removeClass('disabled');
    }
 };
 
 // Update everything when schema has changed
 SNACSchemaAlignmentDialog._hasChanged = function() {
-   SNACSchemaAlignmentDialog._hasUnsavedChanges = true;
-   SNACSchemaAlignmentDialog.issues();
-   SNACSchemaAlignmentDialog.preview();
-   SNACSchemaAlignmentDialog._unsavedIndicator.show();
-   SNACSchemaAlignmentDialog._schemaElmts.saveButton
-      .prop('disabled', false)
-      .removeClass('disabled');
-   SNACSchemaAlignmentDialog._schemaElmts.discardButton
-      .prop('disabled', false)
-      .removeClass('disabled');
-   $('.wbs-copy-reference-button')
-      .text($.i18n('snac-schema/copy-reference'));
-   $('.wbs-copy-reference')
-      .removeClass('wbs-copied-reference');
-}
-
-SNACSchemaAlignmentDialog.updateNbEdits = function(nb_edits) {
-   this._previewElmts.previewExplanation.text(
-      nb_edits);
-}
-
-/*************************
- *  ISSUES TAB RENDERING *
- *************************/
-/*global variable used by menu-bar-extension.js in order to check whether or not there are issues in the schema.
-If there are errors, user will not be able to upload to SNAC*/
-var validationCount = 0;
-
-SNACSchemaAlignmentDialog.issues = function() {
-   var self = this;
-
-   self.issueSpinner.show();
-   var schema = self.getJSON();
-
-   if(schema == null){
+   snacDebug(`***** [ _hasChanged ] *****`);
+   if (this._ignoreChanges) {
+      snacDebug(`_hasChanged(): ignoring changes`);
       return;
    }
-   setTimeout(function(){
-      $.get(
-         "command/snac/issue-snac-schema",
-         function(data) {
-            self.issueSpinner.hide();
-            $('.invalid-schema-warning').hide();
-            error_fields = JSON.parse(data.errors).errors;
-            if(error_fields.length != 0){
-               self._updateWarnings(error_fields, error_fields.length);
-               validationCount = error_fields.length;
-            } else {
-               validationCount = 0;
-               self._updateWarnings([],0);
-            }
-         }
-      );
-   }, 500);
-};
 
-/*************************
- * PREVIEW TAB RENDERING *
- *************************/
+   this._hasUnsavedChanges = true;
+   this._unsavedIndicator.show();
+
+   this.evaluateCurrentSchema(true);
+}
+
+SNACSchemaAlignmentDialog.updateItemPreviewText = function(itemType, itemCount, previewCount) {
+   this._previewElmts.previewExplanation.text(
+      $.i18n('snac-schema/preview-explanation')
+         .replace('{preview_count}', previewCount)
+         .replace('{item_type}', itemType)
+         .replace('{item_count}', itemCount));
+}
 
 SNACSchemaAlignmentDialog.preview = function() {
-  var self = this;
+   snacDebug(`***** [ preview ] *****`);
+   var self = this;
 
-  this._previewPanes.empty();
-  this.updateNbEdits(0);
-  this.previewSpinner.show();
-  var schema = this.getJSON();
-  if (schema === null) {
-   $('.invalid-schema-warning').show();
-   return;
-  }
-  if (validationCount != 0){
-   this.previewSpinner.hide();
-   var element = document.getElementById("preview-here");
-   element.innerHTML = "Cannot make a preview of elements. Please fix the " + validationCount + " issues.";
-   return;
-  }
-  if (!first_save){
-   this.previewSpinner.hide();
-   var element = document.getElementById("preview-here");
-   element.innerHTML = "Unable to make preview because no schema is saved. Please press 'Save schema' in the SchemaSNAC tab to make a preview.";
-   return;
-  }
-  if(check_dataType == "GET_Resource"){
-   $.get(
-         "command/snac/preview-res-snac-schema",
-         function(data) {
-         self.previewSpinner.hide();
-         self.updateNbEdits(data.SNAC_Resourcepreview);
-         // console.log(data.SNAC_Resourcepreview);
-         var list = []; //Empty Array
-         var line = data.SNAC_Resourcepreview.split('\n'); //Split the preview string into lines
-         var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
-         line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
-
-         //Remove any empty strings
-         line = line.filter(function(str) {
-            return /\S/.test(str);
-         });
-
-         //Fill the list array with each line in HTML list form
-         for(var i = 0; i<line.length; i++) {
-            var line_parts = line[i].split(/:(.+)/); //Split on the first colon
-            list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
-         }
-
-         //Find the max length of items in the list[] array
-         var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
-
-         //Construct a divder string of "-" to be the size of the longest element in list[]
-         var divider = "";
-         for(var i=9; i<max/2; i++) {
-            divider += "—";
-         }
-
-         //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
-         //More dynamic based on how many csv columns were paired in the editing SNAC schema
-         var pos = 0, interval = list.length/2 + 1;
-         while (pos < list.length) {
-            list.splice(pos, 0, divider);
-            pos += interval;
-         }
-
-         //Build the string for the HTML list items
-         for(var i = 0; i<list.length; i++) {
-            building += list[i];
-         }
-
-         //Update the string into the preview tab
-         self.updateNbEdits(data.SNAC_Resourcepreview);
-
-         //Get the HTML id element of where the list should be added
-         var element = document.getElementById("preview-here");
-         element.innerHTML = building; //Replace the empty HTML area with the list
-      });
+   $('.invalid-schema-warning').hide();
+   this._previewPanes.empty();
+   this.updateItemPreviewText("item", 0, 0);
+//   this.issueSpinner.show();
+   this.previewSpinner.show();
+   var schema = this.getJSON();
+   if (schema === null) {
+      $('.invalid-schema-warning').show();
+      return;
    }
-   else if(check_dataType == "GET_Constellation"){
-      $.get(
-         "command/snac/preview-con-snac-schema",
-         function(data) {
+
+   Refine.postCSRF(
+      "command/snac/preview-schema?" + $.param({ project: theProject.id }),
+      { schema: JSON.stringify(schema), engine: JSON.stringify(ui.browsingEngine.getJSON()) },
+      function(data) {
+//         self.issueSpinner.hide();
          self.previewSpinner.hide();
-         self.updateNbEdits(data.SNAC_Constellationpreview);
-         // console.log(data.SNAC_Constellationpreview);
-         var list = []; //Empty Array
-         var line = data.SNAC_Constellationpreview.split('\n'); //Split the preview string into lines
-         var building = line[0] + "<br>"; //First element in preview string (should be "Inserting 500 new Resources into SNAC.")
-         line.shift(); //remove that first element ("Inserting 500 new Resources into SNAC.")
+         snacDebug(`preview(): SUCCESS  data = [${JSON.stringify(data)}]`);
 
-         //Remove any empty strings
-         line = line.filter(function(str) {
-            return /\S/.test(str);
-         });
+         if ("items_preview" in data) {
+            var previewContainer = self._previewPanes[0];
 
-         //Fill the list array with each line in HTML list form
-         for(var i = 0; i<line.length; i++) {
-            var line_parts = line[i].split(/:(.+)/); //Split on the first colon
-            list[i] = "<li><b>" + line_parts[0] + ":</b> " + line_parts[1] + "</li>";
+            data.items_preview.forEach(function(item) {
+              $('<hr>').appendTo(previewContainer);
+              $('<p></p>').html(item).appendTo(previewContainer);
+            });
+
+            $('<hr>').appendTo(previewContainer);
+
+            self.updateItemPreviewText(schema.schemaType, data["item_count"], data.items_preview.length);
          }
 
-         //Find the max length of items in the list[] array
-         var max = list.reduce((r,s) => r > s.length ? r : s.length, 0);
+         self._updateWarnings([], 0);
 
-         //Construct a divder string of "-" to be the size of the longest element in list[]
-         var divider = "";
-         for(var i=9; i<max/2; i++) {
-            divider += "—";
+         if ("code" in data && data.code === "error") {
+            $('.invalid-schema-warning').show();
          }
-
-         //Insert that divider at every (list.length/2 + 1) position to split each resource (of total/2 bullets)
-         //More dynamic based on how many csv columns were paired in the editing SNAC schema
-         var pos = 0, interval = list.length/2 + 1;
-         while (pos < list.length) {
-            list.splice(pos, 0, divider);
-            pos += interval;
-         }
-
-         //Build the string for the HTML list items
-         for(var i = 0; i<list.length; i++) {
-            building += list[i];
-         }
-
-         //Update the string into the preview tab
-         self.updateNbEdits(data.SNAC_Consetllationpreview);
-
-         //Get the HTML id element of where the list should be added
-         var element = document.getElementById("preview-here");
-         element.innerHTML = building; //Replace the empty HTML area with the list
-      });
-
-   }
+      },
+      "json"
+   );
 };
 
-
-
 Refine.registerUpdateFunction(function(options) {
+   snacDebug(`***** [ Refine.registerUpdateFunction ] *****`);
    // Inject tabs in any project where the schema has been defined
-   if(theProject.overlayModels.wikibaseSchema && !SNACSchemaAlignmentDialog.isSetUp()) {
-       SNACSchemaAlignmentDialog.setUpTabs();
+   if(theProject.overlayModels.snacSchema && !SNACSchemaAlignmentDialog.isSetUp()) {
+      SNACSchemaAlignmentDialog.setUpTabs();
    }
    if (SNACSchemaAlignmentDialog.isSetUp() && (options.everythingChanged || options.modelsChanged ||
       options.rowsChanged || options.rowMetadataChanged || options.cellsChanged || options.engineChanged)) {
-         if (!SNACSchemaAlignmentDialog._hasUnsavedChanges) {
-            SNACSchemaAlignmentDialog._discardChanges();
-         }
-         SNACSchemaAlignmentDialog.updateColumns();
-         SNACSchemaAlignmentDialog.issues();
-         SNACSchemaAlignmentDialog.preview();
+         // always discard changes (not even sure this logic is correct anyway)
+//         if (!SNACSchemaAlignmentDialog._hasUnsavedChanges) {
+//            SNACSchemaAlignmentDialog._discardChanges();
+//         }
+         SNACSchemaAlignmentDialog._discardChanges();
+
+//         SNACSchemaAlignmentDialog.updateColumns(theProject.overlayModels.snacSchema);
+//         SNACSchemaAlignmentDialog.preview();
    }
 });
 
@@ -1989,6 +1126,7 @@ SNACSchemaAlignmentDialog._updateWarnings = function(warnings, totalCount) {
    mainDiv.empty();
    countsElem.hide();
 
+   // FIXME: this differs...
    // Add any warnings
    var table = $('<table></table>').appendTo(mainDiv);
    for (const warning of warnings) {
@@ -2013,5 +1151,6 @@ SNACSchemaAlignmentDialog._updateWarnings = function(warnings, totalCount) {
       countsElem.text(totalCount);
       countsElem.show();
    }
+
    return totalCount;
 }

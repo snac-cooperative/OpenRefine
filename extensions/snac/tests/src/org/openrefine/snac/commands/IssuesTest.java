@@ -55,7 +55,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import java.io.IOException;
 
-import org.snaccooperative.commands.SNACSchemaIssuesCommand;
+import org.snaccooperative.commands.SNACSaveSchemaCommand;
 
 public class IssuesTest extends RefineTest{
 
@@ -74,7 +74,7 @@ public class IssuesTest extends RefineTest{
         hash_map.put("flush", "flush");
 
         project = createCSVProject(TestingData2.resourceCsv);
-        issues = new SNACSchemaIssuesCommand();
+        issues = new SNACSaveSchemaCommand();
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
         writer = new StringWriter();

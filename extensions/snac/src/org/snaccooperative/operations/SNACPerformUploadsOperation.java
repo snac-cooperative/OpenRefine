@@ -77,12 +77,12 @@ public class SNACPerformUploadsOperation extends EngineDependentOperation {
 
       switch (_snacEnv.toLowerCase()) {
         case "prod":
-          apiURL = "http://api.snaccooperative.org/";
+          apiURL = "https://api.snaccooperative.org/";
           break;
 
         case "dev":
         default:
-          apiURL = "http://snac-dev.iath.virginia.edu/api/";
+          apiURL = "https://snac-dev.iath.virginia.edu/api/";
       }
 
       List<SNACUploadItem> items = _schema.evaluateRecords(_project, _engine);
